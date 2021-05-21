@@ -4,20 +4,23 @@ MicroSD mp3 player for my car
 The player can play music files (tested mp3 and m4a only, flac doesn't work without PSRAM) 
 from one of the user-defined favourite folders ("playlists") with all subfolders (up to predefined depth).
 Each playlist stores it's current file and position, shuffle mode, volume.
-It can be used for Music, Audiobooks, Language learning with quick switch between "playlists"
+It can be used for Music, Audiobooks, Language learning with quick switch between "playlists".
 
-Info page is displaying current dir, file, mp3 tag info, play time on LCD
-with Unicode smooth font: latin, greek, cyrillic, japanese (incomplete yet)
 
 Controls:
 - First encoder is used to change volume / jump to next/previous file (with stack of recently played files)
 - Second encoder is used to seek within file, play/pause, navigate in playlist.
 
 Display:
-- Info page shows current folder, filename and id3 tag information
+- Filesystem and font support Unicode.
+- The font contains latin, greek, cyrillic, japanese (incomplete yet) characters.
+- Info page is displaying current dir, file, mp3 tag info, play time on LCD
 - Favourites page shows the list of user-defined favourite folders
-- Playlist page is displaying current playlist, where any file can be choosen to play 
-and any folder can be added to favourites
+- Playlist page is displaying current playlist, where any file can be choosen to play and any folder can be added to favourites.
+
+![Info page](pictures/page_info.jpg)
+![Favourites_page](pictures/page_favourites.jpg)
+![Playlist_page](pictures/page_playlist.jpg)
 
 work in progress...
 
