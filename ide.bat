@@ -1,0 +1,1 @@
+start C:\VSCode\Code.exe .
