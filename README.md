@@ -17,7 +17,6 @@ and any folder can be added to favourites
 
 work in progress...
 
-
 ## Hardware used ##
 
 TTGO-TM Music Albums:
