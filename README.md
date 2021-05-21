@@ -21,6 +21,7 @@ and any folder can be added to favourites
 
 work in progress...
 
+
 ## Hardware used
 
 - TTGO-TM Music Albums:
@@ -49,6 +50,8 @@ I didn't try to build the project for TTGO TM with original flash chip, not sure
 - https://github.com/Bodmer/TFT_eFEX
 - https://github.com/Bodmer/JPEGDecoder
 - AnalogEncoder from en-ot
+
+The project builds with vscode + platform.io
 
 
 ## AnalogEncoder
