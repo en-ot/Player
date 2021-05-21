@@ -212,7 +212,7 @@ bool list_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
     }
     else
     {
-        snprintf(pStrItem, nStrItemLen, "%d:%s", filenum, list_cache.lines[index].txt);
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, list_cache.lines[index].txt);
         dir_level = list_cache.lines[index].flags;
     }
 

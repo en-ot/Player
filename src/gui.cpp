@@ -14,8 +14,8 @@
 
 //#define SPIFFS_FONT
 
-#define FONTSIZE 18
-//#define FONTSIZE 24
+//#define FONTSIZE 18
+#define FONTSIZE 24
 
 //#define LINE_H 20 //font 18
 #define LINE_H 28 //font 24
