@@ -63,5 +63,5 @@ The project builds with vscode + platform.io
 My AnalogEncoder library is used to reduce pin count used to connect two encoders to ESP32.
 Usually 3 pins are needed to connect each encoder, but with 4 resistors You can use only one pin with ADC input.
 Unfortunatelly this needs very frequent reading from ADC (1 kHz or faster), so it can consume all CPU core.
-(Without ADC_complete interrupt support and removed from library non-blocking ADC mode)
+(Without ADC_complete interrupt support and removed from library non-blocking ADC mode).
 Fortunatelly ESP32 has "spare" cpu core, which can be used to process 2 ADC inputs.
