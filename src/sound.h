@@ -15,6 +15,8 @@ uint32_t sound_duration();
 void sound_pause();
 void sound_resume();
 void sound_stop();
+bool sound_start(char * filepath);
+
 
 //void sound_pause_resume();
 

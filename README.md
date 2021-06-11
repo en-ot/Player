@@ -1,11 +1,16 @@
-# Player
+# Car-MP3-Player #
 MicroSD mp3 player for my car
 
-The player can play music files (tested mp3 and m4a only, flac doesn't work without PSRAM) 
-from one of the user-defined favourite folders ("playlists") with all subfolders (up to predefined depth).
+The player can play music files (tested mp3 and m4a only, 
+flac doesn't work without PSRAM) 
+from one of the user-defined favourite folders ("playlists") 
+with all subfolders (up to predefined depth).
 Each playlist stores it's current file and position, shuffle mode, volume.
-It can be used for Music, Audiobooks, Language learning with quick switch between "playlists".
+It can be used for Music, Audiobooks, Language learning with quick switch between "playlists"
+(it will be improved later)
 
+Info page is displaying current dir, file, mp3 tag info, play time on LCD
+with Unicode smooth font: latin, greek, cyrillic, japanese (incomplete yet)
 
 Controls:
 - First encoder is used to change volume / jump to next/previous file (with stack of recently played files)

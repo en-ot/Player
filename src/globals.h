@@ -20,7 +20,12 @@ extern int cur_fav_num;
 extern int8_t volume_old;
 
 extern int next_file;
+
+#define FAIL_NEXT +1
+#define FAIL_PREV -1
+#define FAIL_RANDOM 0
 extern int next_updown;
+
 extern int next_dir;
 
 extern bool read_error;
@@ -46,6 +51,7 @@ extern QueueHandle_t tag_queue;
 
 //###############################################################
 bool play_file_next();
+int file_random();
 
 
 //###############################################################

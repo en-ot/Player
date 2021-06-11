@@ -59,6 +59,12 @@ void sound_stop()
 }
 
 
+bool sound_start(char * filepath)
+{
+    return audio.connecttoSD(filepath);
+}
+
+
 //###############################################################
 // Play Control : audio task
 //###############################################################
@@ -184,7 +190,7 @@ int start_file(int num, int updown)
         return fc->curfile;
     }
 
-    audio.stopSong();
+    sound_stop();
 
     num = clamp1(num, fc->filecnt);
 
@@ -196,9 +202,12 @@ int start_file(int num, int updown)
     xQueueSend(tag_queue, "Title: ", 0);
 
     char tmp[QUEUE_MSG_SIZE];
+    char filename[PATHNAME_MAX_LEN] = "";
+    char dirname[PATHNAME_MAX_LEN] = "";
+    char filepath[PATHNAME_MAX_LEN] = "";
 
     int retry = fc->filecnt;
-    do
+    while (retry)
     {
         num = clamp1(num, fc->filecnt);
         Serial.printf("Trying to play %d...\n", num);
@@ -207,54 +216,55 @@ int start_file(int num, int updown)
         {
             snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
             xQueueSend(tag_queue, tmp, 0);
-            Serial.printf("no file %d", num);
+            Serial.printf("no file %d\n", num);
             return fc->curfile;
         }
 
-        if (fc->file_is_dir(num))
+
+        if (!fc->file_is_dir(num))
         {
-            retry--;
-            num += updown;
-            continue;
+            fc->file_name(num, filename, sizeof(filename));
+            //Serial.println(filename);
+
+            int x = fc->file_dirname(num, dirname, sizeof(dirname));
+            //Serial.println(dirname);
+
+            strlcpy(filepath, dirname, sizeof(filepath));
+            filepath[x++] = '/';
+            strlcpy(&filepath[x], filename, sizeof(filepath)-x);
+            //Serial.println(filepath);
+            
+            if (sound_start(filepath))
+                break;
         }
 
-        char filename[PATHNAME_MAX_LEN] = "";
-        fc->file_name(num, filename, sizeof(filename));
-        //Serial.println(filename);
-
-        char dirname[PATHNAME_MAX_LEN] = "";
-        int x = fc->file_dirname(num, dirname, sizeof(dirname));
-        //Serial.println(dirname);
-
-        char filepath[PATHNAME_MAX_LEN] = "";
-        strlcpy(filepath, dirname, sizeof(filepath));
-        filepath[x++] = '/';
-        strlcpy(&filepath[x], filename, sizeof(filepath)-x);
-        //Serial.println(filepath);
-
-        if (!audio.connecttoSD(filepath))
-        {
-            retry--;
+        retry--;
+        if (updown == FAIL_RANDOM)
+            num = file_random();
+        else
             num += updown;
-            continue;
-        }
+    }
 
-        playstack_push(num);
-
-        snprintf(tmp, sizeof(tmp)-1, "Index: %2i:%4i/%4i ", cur_fav_num, num, fc->filecnt);
+    if (!retry)
+    {
+        snprintf(tmp, sizeof(tmp)-1, "File: retry count 0");
         xQueueSend(tag_queue, tmp, 0);
-        
-        snprintf(tmp, sizeof(tmp)-1, "Path: %s", dirname);
-        xQueueSend(tag_queue, tmp, 0);
-
-        snprintf(tmp, sizeof(tmp)-1, "File: %s", filename);
-        xQueueSend(tag_queue, tmp, 0);
-        
-        return fc->curfile;
-
-    } while (retry);
+        Serial.printf("retry count\n");
+        return 0;
+    }
     
-    return 0;
+    playstack_push(num);
+
+    snprintf(tmp, sizeof(tmp)-1, "Index: %2i:%4i/%4i ", cur_fav_num, num, fc->filecnt);
+    xQueueSend(tag_queue, tmp, 0);
+    
+    snprintf(tmp, sizeof(tmp)-1, "Path: %s", dirname);
+    xQueueSend(tag_queue, tmp, 0);
+
+    snprintf(tmp, sizeof(tmp)-1, "File: %s", filename);
+    xQueueSend(tag_queue, tmp, 0);
+    
+    return fc->curfile;
 }
 
 

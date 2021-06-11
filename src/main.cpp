@@ -41,7 +41,8 @@ bool shuffle;
 bool repeat;
 uint32_t filepos;
 int next_file;
-int next_updown = +1;
+
+int next_updown = FAIL_NEXT;
 
 // seek
 int file_seek_by;
@@ -467,27 +468,33 @@ bool play_file_num(int num, int updown)
 
 bool play_file_up(void)
 {
-    play_file_num(fc->curfile - 1, -1);
+    play_file_num(fc->curfile - 1, FAIL_PREV);
     return true;
 }
 
 
 bool play_file_down()
 {
-    play_file_num(fc->curfile + 1, +1);
+    play_file_num(fc->curfile + 1, FAIL_NEXT);
     return true;
+}
+
+
+int file_random()
+{
+    return random(1, fc->filecnt+1);
 }
 
 
 bool play_file_random()
 {
-    int n = random(1, fc->filecnt+1);
+    int n = file_random();
     while (n == fc->curfile && fc->filecnt > 1)
     {
-        n = random(1, fc->filecnt+1);
+        n = file_random();
     }
 
-    play_file_num(n, +1);
+    play_file_num(n, FAIL_RANDOM);
     return true;
 }
 
@@ -509,7 +516,7 @@ bool play_file_prev()
         int n = playstack_pop();
         if (n == 0)
             n = fc->curfile;
-        play_file_num(n, +1);
+        play_file_num(n, FAIL_NEXT);
     }
     else
     {
@@ -530,6 +537,7 @@ bool play_dir_next()
 bool play_dir_prev()
 {
     next_dir = fc->curdir - 1;
+    next_updown = FAIL_PREV;
     need_play_next_dir = true;
     return true;
 }
@@ -682,7 +690,7 @@ bool play_selfile()
 {
     ui_page = PAGE_INFO;
     gui->page(ui_page);
-    play_file_num(gui->list_selfile, +1);
+    play_file_num(gui->list_selfile, FAIL_NEXT);
     return true;
 }
 
