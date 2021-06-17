@@ -244,6 +244,8 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         if (!pl->find_dir(dirnum))
             return false;
 
+        int filenum = pl->curfile;
+
         char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
 
         int disp = 0;
@@ -251,16 +253,18 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         disp = dir_level*2-2;
 
         pl->file_name(pl->curfile, &buf[disp], sizeof(buf)-disp);
-        snprintf(pStrItem, nStrItemLen, "%d-%s", dirnum, buf);
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
-        cache_put_item(&dirs_cache, dirnum, buf, dir_level);
+        cache_put_item(&dirs_cache, dirnum, buf, dir_level | (filenum << 16));
 
         //Serial.println(buf);
     }
     else
     {
-        snprintf(pStrItem, nStrItemLen, "%d-%s", dirnum, dirs_cache.lines[index].txt);
-        dir_level = dirs_cache.lines[index].flags;
+        uint32_t flags = dirs_cache.lines[index].flags;
+        int filenum = flags >> 16;
+        dir_level = flags & 0xFFFF;
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, dirs_cache.lines[index].txt);
     }
 
     int type = 0;
