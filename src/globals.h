@@ -5,6 +5,8 @@
 #include "pinout.h"
 #include "playlist.h"   // зачем это здесь???
 
+#define DEBUG(...) Serial.printf(__VA_ARGS__)
+
 //###############################################################
 #define PATHNAME_MAX_LEN 256
 

@@ -552,7 +552,6 @@ void Gui::files_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
     files_box_elem.nItemCurSel = 0;
     files_box_elem.nItemTop = 0;
     files_box_elem.bNeedRecalc = true;
-    //files_seek(0);
 }
 
 
@@ -599,8 +598,9 @@ void Gui::dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
 {
     dirs_box_elem.pfuncXGet = cb;
     dirs_box_elem.nItemCnt = cnt;
+    dirs_box_elem.nItemCurSel = 0;
+    dirs_box_elem.nItemTop = 0;
     dirs_box_elem.bNeedRecalc = true;
-    //dirs_seek(0);
 }
 
 

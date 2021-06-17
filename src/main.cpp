@@ -217,8 +217,8 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
     int type = 0;
     if (filenum == fc->curfile) type = 2;
     else if (dir_level)         type = 1;
-
     gui->files_highlight(pvGui, pvElem, type);
+
     return true;
 }
 
@@ -230,8 +230,6 @@ ListboxCache dirs_cache = {DIRS_CACHE_LINES, 0, dirs_lines};
 
 bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
-    snprintf(pStrItem, nStrItemLen, "%d:Dir", nItem);
-
     int dirnum = nItem+1;
 
     int index = cache_get_item(&dirs_cache, dirnum);
@@ -264,8 +262,8 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
 
     int type = 0;
     if (dirnum == fc->curdir)  type = 1;
- 
     gui->dirs_highlight(pvGui, pvElem, type);
+
     return true;
 }
 
@@ -298,6 +296,8 @@ bool fav_switch(int fav_num, bool init)
     pl->set_root(fav_path);
     gui->files_box(pl->filecnt, files_get_item);
     gui->dirs_box(pl->dircnt, dirs_get_item);
+
+    DEBUG("dircnt: %d\n", pl->dircnt);
 
     gui->fav_set(fav_num);
     gui->redraw();
@@ -761,12 +761,11 @@ bool dirs_goto_curdir()
 
 bool files_set_fav()
 {
-    char path[PATHNAME_MAX_LEN];
-
     int file_num = gui->files_sel;
     if (!pl->file_is_dir(file_num))
         return false;
 
+    char path[PATHNAME_MAX_LEN];
     pl->file_dirname(file_num, path, sizeof(path));
 
     int fav_num = gui->fav_sel;
@@ -781,6 +780,21 @@ bool files_set_fav()
 
 bool dirs_set_fav()
 {
+    int dirnum = gui->dirs_sel;
+    int index = cache_get_item(&dirs_cache, dirnum);
+    if (index == CACHE_MISS)
+        return false;
+    int file_num = dirs_cache.lines[index].flags >> 16;
+    
+    char path[PATHNAME_MAX_LEN];
+    pl->file_dirname(file_num, path, sizeof(path));
+
+    int fav_num = gui->fav_sel;
+    fav_set_path(fav_num, path);
+
+    ui_page = PAGE_FAV;
+    gui->page(ui_page);
+
     return true;
 }
 
