@@ -8,7 +8,7 @@
 #define XLISTBOX_MAX_STR 70  // длина одной строки экрана в байтах, не выделять память больше (UTF-8 - размер до 3x, 20 символов=60 байт)
 #define MAX_STR 70  // длина одной строки экрана в байтах, не выделять память больше (UTF-8 - размер до 3x, 20 символов=60 байт)
 
-enum {PAGE_INFO, PAGE_LIST, /*PAGE_PIC,*/ PAGE_FAV, PAGE_DIRS, PAGE_MAX};
+enum {PAGE_INFO, PAGE_FILES, /*PAGE_PIC,*/ PAGE_FAV, PAGE_DIRS, PAGE_MAX};
 
 
 class Gui
@@ -39,22 +39,22 @@ class Gui
         void repeat(bool val);
         void alive(bool running);
 
-        // page:list
-        int list_selfile = 1;
-        void list_seek(int by);
-        void list_select(int curfile);
-        void list_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
-        void list_highlight(void *m_gui, void *pElemRef, int type);
+        // page:files
+        int files_sel = 1;
+        void files_seek(int by);
+        void files_select(int curfile);
+        void files_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
+        void files_highlight(void *m_gui, void *pElemRef, int type);
 
         // page:fav
-        int fav_selfile = 1;
+        int fav_sel = 1;
         void fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
         void fav_seek(int by);
         void fav_set(int num);
         void fav_highlight(void *m_gui, void *pElemRef, int type);
         
         // page:dirs
-        int dirs_seldir = 1;
+        int dirs_sel = 1;
         void dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
         void dirs_seek(int by);
         void dirs_highlight(void *gslc, void *pElemRef, int type);

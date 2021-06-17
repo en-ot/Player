@@ -79,8 +79,8 @@ enum {
     INFO_MODE_ELEM, INFO_INDEX_ELEM, INFO_PGS1_ELEM, INFO_PGS2_ELEM, INFO_PGS3_ELEM, 
     INFO_PATH_ELEM, INFO_FILE_ELEM, INFO_BAND_ELEM, INFO_ARTIST_ELEM, INFO_ALBUM_ELEM, INFO_TITLE_ELEM,
 
-    //list
-    LIST_BOX_ELEM, LIST_SLIDER_ELEM, 
+    //files
+    FILES_BOX_ELEM, FILES_SLIDER_ELEM, 
 /*
     //pic
     PIC_PIC_ELEM, PIC_NAME_ELEM, 
@@ -94,9 +94,9 @@ enum {
     GUI_ELEM_MAX
 };
 
-#define INFO_ELEM_MAX     (LIST_BOX_ELEM  -INFO_MODE_ELEM)
-#define LIST_ELEM_MAX     (FAV_BOX_ELEM   -LIST_BOX_ELEM)
-//#define LIST_ELEM_MAX     (PIC_PIC_ELEM   -LIST_BOX_ELEM)
+#define INFO_ELEM_MAX     (FILES_BOX_ELEM  -INFO_MODE_ELEM)
+#define FILES_ELEM_MAX     (FAV_BOX_ELEM   -FILES_BOX_ELEM)
+//#define FILES_ELEM_MAX     (PIC_PIC_ELEM   -FILES_BOX_ELEM)
 //#define PIC_ELEM_MAX      (FAV_BOX_ELEM   -PIC_PIC_ELEM)
 #define FAV_ELEM_MAX      (DIRS_BOX_ELEM  -FAV_BOX_ELEM)
 #define DIRS_ELEM_MAX     (GUI_ELEM_MAX   -DIRS_BOX_ELEM)
@@ -287,31 +287,31 @@ void page_info_init()
 
 
 //###############################################################
-// page:list
+// page:files
 //###############################################################
-#define LIST_BACK_COL       COL_BLACK
+#define FILES_BACK_COL       COL_BLACK
 
-#define LIST_COL_NORMAL_B   COL_BLACK
-#define LIST_COL_NORMAL_F   COL_WHITE
-#define LIST_COL_PLAY_B     COL_RED_DARK
-#define LIST_COL_PLAY_F     COL_RED_LIGHT
-#define LIST_COL_DIR_B      COL_GREEN_DARK
-#define LIST_COL_DIR_F      COL_GREEN_LIGHT
+#define FILES_COL_NORMAL_B   COL_BLACK
+#define FILES_COL_NORMAL_F   COL_WHITE
+#define FILES_COL_PLAY_B     COL_RED_DARK
+#define FILES_COL_PLAY_F     COL_RED_LIGHT
+#define FILES_COL_DIR_B      COL_GREEN_DARK
+#define FILES_COL_DIR_F      COL_GREEN_LIGHT
 
-gslc_tsElem                 list_elem[LIST_ELEM_MAX];
-gslc_tsElemRef              list_ref[LIST_ELEM_MAX];
+gslc_tsElem                 files_elem[FILES_ELEM_MAX];
+gslc_tsElemRef              files_ref[FILES_ELEM_MAX];
 
-gslc_tsXListbox             list_box_elem;
-gslc_tsElemRef*             list_box_ref   = NULL;
+gslc_tsXListbox             files_box_elem;
+gslc_tsElemRef*             files_box_ref   = NULL;
 
-gslc_tsXSlider              list_slider_elem;
-gslc_tsElemRef*             list_slider_ref    = NULL;
+gslc_tsXSlider              files_slider_elem;
+gslc_tsElemRef*             files_slider_ref    = NULL;
 
-void page_list_init()
+void page_files_init()
 {
-    gslc_PageAdd(&gslc, PAGE_LIST, list_elem, LIST_ELEM_MAX, list_ref, LIST_ELEM_MAX);
-    list_box_ref   = create_listbox(PAGE_LIST, LIST_BOX_ELEM,    &list_box_elem,    LIST_BACK_COL);
-    list_slider_ref = create_slider(PAGE_LIST, LIST_SLIDER_ELEM, &list_slider_elem, LIST_BACK_COL);
+    gslc_PageAdd(&gslc, PAGE_FILES, files_elem, FILES_ELEM_MAX, files_ref, FILES_ELEM_MAX);
+    files_box_ref   = create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &files_box_elem,    FILES_BACK_COL);
+    files_slider_ref = create_slider(PAGE_FILES, FILES_SLIDER_ELEM, &files_slider_elem, FILES_BACK_COL);
 }
 
 
@@ -444,7 +444,7 @@ Gui::Gui()
     Serial.println("LCD init ...");
     gslc_init();
     page_info_init();
-    page_list_init();
+    page_files_init();
     //page_pic_init();
     page_fav_init();
     page_dirs_init();
@@ -487,7 +487,7 @@ void Gui::redraw()
 //###############################################################
 void Gui::page(int page_n)
 {
-    static gslc_tsColor page_back_col[] = {INFO_BACK_COL, LIST_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
+    static gslc_tsColor page_back_col[] = {INFO_BACK_COL, FILES_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
     gslc_SetPageCur(&gslc, page_n);
     gslc_SetBkgndColor(&gslc, page_back_col[page_n]);
 }
@@ -521,42 +521,44 @@ static int box_seek(gslc_tsXListbox * box, gslc_tsElemRef * box_ref, gslc_tsElem
 
 
 //###############################################################
-void Gui::list_select(int curfile)
+void Gui::files_select(int curfile)
 {
     int index = curfile-1;
-    gslc_ElemXListboxSetSel(&gslc, list_box_ref, index);
-    gslc_ElemXListboxSetScrollPos(&gslc, list_box_ref, index - BOX_LINES/2 + 1);
-    int sel = gslc_ElemXListboxGetSel(&gslc, list_box_ref);
-    list_selfile = sel + 1;
-    //slider_update(list_box_elem.nItemCnt, sel, list_box_ref);
+    gslc_ElemXListboxSetSel(&gslc, files_box_ref, index);
+    gslc_ElemXListboxSetScrollPos(&gslc, files_box_ref, index - BOX_LINES/2 + 1);
+    int sel = gslc_ElemXListboxGetSel(&gslc, files_box_ref);
+    files_sel = sel + 1;
+    //slider_update(files_box_elem.nItemCnt, sel, files_box_ref);
+    //files_seek(0);
+    //files_box_elem.bNeedRecalc = true;
 }
 
 
-void Gui::list_highlight(void *gslc, void *pElemRef, int type)
+void Gui::files_highlight(void *gslc, void *pElemRef, int type)
 {
-    static gslc_tsColor colors_b[] = {LIST_COL_NORMAL_B, LIST_COL_DIR_B, LIST_COL_PLAY_B};
-    static gslc_tsColor colors_f[] = {LIST_COL_NORMAL_F, LIST_COL_DIR_F, LIST_COL_PLAY_F};
-    gslc_tsElem * elem = &list_elem[LIST_BOX_ELEM-LIST_BOX_ELEM];
+    static gslc_tsColor colors_b[] = {FILES_COL_NORMAL_B, FILES_COL_DIR_B, FILES_COL_PLAY_B};
+    static gslc_tsColor colors_f[] = {FILES_COL_NORMAL_F, FILES_COL_DIR_F, FILES_COL_PLAY_F};
+    gslc_tsElem * elem = &files_elem[FILES_BOX_ELEM-FILES_BOX_ELEM];
     elem->colElemText       = colors_f[type];
     elem->colElemTextGlow   = colors_f[type];
     elem->colElemFill       = colors_b[type];
 }
 
 
-void Gui::list_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
+void Gui::files_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
 {
-    list_box_elem.pfuncXGet = cb;
-    list_box_elem.nItemCnt = cnt;
-    list_box_elem.nItemCurSel = 0;
-    list_box_elem.nItemTop = 0;
-    list_box_elem.bNeedRecalc = true;
-    //list_seek(0);
+    files_box_elem.pfuncXGet = cb;
+    files_box_elem.nItemCnt = cnt;
+    files_box_elem.nItemCurSel = 0;
+    files_box_elem.nItemTop = 0;
+    files_box_elem.bNeedRecalc = true;
+    //files_seek(0);
 }
 
 
-void Gui::list_seek(int by)
+void Gui::files_seek(int by)
 {
-    list_selfile = box_seek(&list_box_elem, list_box_ref, list_slider_ref, by) + 1;
+    files_sel = box_seek(&files_box_elem, files_box_ref, files_slider_ref, by) + 1;
 }
 
 
@@ -577,7 +579,7 @@ void Gui::fav_set(int num)
 
 void Gui::fav_seek(int by)
 {
-    fav_selfile = box_seek(&fav_box_elem, fav_box_ref, fav_slider_ref, by) + 1;
+    fav_sel = box_seek(&fav_box_elem, fav_box_ref, fav_slider_ref, by) + 1;
 }
 
 
@@ -608,8 +610,10 @@ void Gui::dirs_select(int curdir)
     gslc_ElemXListboxSetSel(&gslc, dirs_box_ref, index);
     gslc_ElemXListboxSetScrollPos(&gslc, dirs_box_ref, index - BOX_LINES/2 + 1);
     int sel = gslc_ElemXListboxGetSel(&gslc, dirs_box_ref);
-    dirs_seldir = sel + 1;
+    dirs_sel = sel + 1;
     //slider_update(dirs_box_elem.nItemCnt, sel, dirs_box_ref);
+    //dirs_seek(0);
+    //dirs_box_elem.bNeedRecalc = true;
 }
 
 
@@ -626,7 +630,7 @@ void Gui::dirs_highlight(void *gslc, void *pElemRef, int type)
 
 void Gui::dirs_seek(int by)
 {
-    dirs_seldir = box_seek(&dirs_box_elem, dirs_box_ref, dirs_slider_ref, by) + 1;
+    dirs_sel = box_seek(&dirs_box_elem, dirs_box_ref, dirs_slider_ref, by) + 1;
 }
 
 

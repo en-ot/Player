@@ -25,8 +25,8 @@ AnalogEncoder enc2(AENC2);
 
 Gui * gui;
 
-playlist * fc;   //playing
-playlist * pl;   //list
+playlist * fc;   //playing file
+playlist * pl;   //files and dirs playlist
 
 
 //###############################################################
@@ -179,15 +179,15 @@ void cache_init(ListboxCache * cache)
 
 
 //###############################################################
-#define LIST_CACHE_LINES 10
-CacheLine list_lines[LIST_CACHE_LINES] = {0};
-ListboxCache list_cache = {LIST_CACHE_LINES, 0, list_lines};
+#define FILES_CACHE_LINES 10
+CacheLine files_lines[FILES_CACHE_LINES] = {0};
+ListboxCache files_cache = {FILES_CACHE_LINES, 0, files_lines};
 
-bool list_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
+bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     int filenum = nItem+1;
 
-    int index = cache_get_item(&list_cache, filenum);
+    int index = cache_get_item(&files_cache, filenum);
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
@@ -206,19 +206,19 @@ bool list_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         pl->file_name(filenum, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
-        cache_put_item(&list_cache, filenum, buf, dir_level);
+        cache_put_item(&files_cache, filenum, buf, dir_level);
     }
     else
     {
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, list_cache.lines[index].txt);
-        dir_level = list_cache.lines[index].flags;
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, files_cache.lines[index].txt);
+        dir_level = files_cache.lines[index].flags;
     }
 
     int type = 0;
     if (filenum == fc->curfile) type = 2;
     else if (dir_level)         type = 1;
 
-    gui->list_highlight(pvGui, pvElem, type);
+    gui->files_highlight(pvGui, pvElem, type);
     return true;
 }
 
@@ -296,7 +296,7 @@ bool fav_switch(int fav_num, bool init)
     
     fc->set_root(fav_path);
     pl->set_root(fav_path);
-    gui->list_box(pl->filecnt, list_get_item);
+    gui->files_box(pl->filecnt, files_get_item);
     gui->dirs_box(pl->dircnt, dirs_get_item);
 
     gui->fav_set(fav_num);
@@ -305,7 +305,7 @@ bool fav_switch(int fav_num, bool init)
     display_header();
 
     playstack_init();
-    cache_init(&list_cache);
+    cache_init(&files_cache);
     cache_init(&dirs_cache);
 
     start_file(next_file, +1);
@@ -652,11 +652,11 @@ bool file_seek(int by)
 }
 
 
-bool list_seek(int by)
+bool files_seek(int by)
 {
     if (!by)
         return false;
-    gui->list_seek(by);
+    gui->files_seek(by);
     return true;
 }
 
@@ -713,7 +713,7 @@ bool change_volume(int change)
 }
 
 
-uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_LIST, PAGE_DIRS};
+uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
 
 bool change_page()
 {
@@ -736,18 +736,18 @@ bool change_page()
 }
 
 
-bool list_play_sel()
+bool files_play_sel()
 {
     ui_page = PAGE_INFO;
     gui->page(ui_page);
-    play_file_num(gui->list_selfile, FAIL_NEXT);
+    play_file_num(gui->files_sel, FAIL_NEXT);
     return true;
 }
 
 
-bool list_goto_curfile()
+bool files_goto_curfile()
 {
-    gui->list_select(fc->curfile);
+    gui->files_select(fc->curfile);
     return true;
 }
 
@@ -759,17 +759,17 @@ bool dirs_goto_curdir()
 }
 
 
-bool list_set_fav()
+bool files_set_fav()
 {
     char path[PATHNAME_MAX_LEN];
 
-    int file_num = gui->list_selfile;
+    int file_num = gui->files_sel;
     if (!pl->file_is_dir(file_num))
         return false;
 
     pl->file_dirname(file_num, path, sizeof(path));
 
-    int fav_num = gui->fav_selfile;
+    int fav_num = gui->fav_sel;
     fav_set_path(fav_num, path);
 
     ui_page = PAGE_FAV;
@@ -793,7 +793,7 @@ bool dirs_play_sel()
 
 bool fav_reset()
 {
-    int fav_num = gui->fav_selfile;
+    int fav_num = gui->fav_sel;
     fav_set_path(fav_num, "/");
     return true;
 }
@@ -801,7 +801,7 @@ bool fav_reset()
 
 bool fav_set_num()
 {
-    int fav_num = gui->fav_selfile;
+    int fav_num = gui->fav_sel;
     fav_switch(fav_num, false);
     ui_page = PAGE_INFO;
     gui->page(ui_page);
@@ -845,10 +845,10 @@ Controls info_ctrl = {{
     toggle_repeat,     toggle_shuffle,      // b3_long,     b3_short
 }};
 
-Controls list_ctrl = {{
-    change_volume,      list_seek   },{     // volume,      seek
-    nothing,            list_goto_curfile,  // vol_long,    vol_short
-    list_set_fav,       list_play_sel,       // seek_long,   seek_short
+Controls files_ctrl = {{
+    change_volume,      files_seek   },{     // volume,      seek
+    nothing,            files_goto_curfile,  // vol_long,    vol_short
+    files_set_fav,      files_play_sel,       // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short
     nothing,            nothing,            // b2_long,     b2_short
     nothing,            nothing,            // b3_long,     b3_short
@@ -875,7 +875,7 @@ Controls dirs_ctrl = {{
 Controls controls[PAGE_MAX] = 
 {
     info_ctrl,
-    list_ctrl,
+    files_ctrl,
     fav_ctrl,
     dirs_ctrl,
 };
