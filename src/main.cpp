@@ -281,15 +281,32 @@ bool fav_switch(int fav_num, bool init)
 //###############################################################
 char fav_str[FAV_MAX][XLISTBOX_MAX_STR] = {0};
 
+
+void fav_set_str(int fav_num, const char * path)
+{
+    int nItem = fav_num - 1;
+    sprintf(fav_str[nItem], "%d ", fav_num);
+    strlcat(fav_str[nItem], path, sizeof(fav_str[nItem]));
+}
+
+
 void fav_init()
 {
-
+    char tmp[XLISTBOX_MAX_STR];
+    int fav_num;
+    for (fav_num = 1; fav_num <= FAV_MAX; fav_num++)
+    {
+        int nItem = fav_num - 1;
+        prefs_get_path(fav_num, tmp, sizeof(tmp));
+        if (!tmp[0]) strcpy(tmp, "/");
+        fav_set_str(fav_num, tmp);
+    }
 }
+
 
 void fav_set_path(int fav_num, const char * path)
 {
-    int nItem = fav_num - 1;
-    strlcpy(fav_str[nItem], path, sizeof(fav_str[nItem]));
+    fav_set_str(fav_num, path);
     prefs_set_path(fav_num, path);
     gui->redraw();
 }
@@ -298,17 +315,7 @@ void fav_set_path(int fav_num, const char * path)
 bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     int fav_num = nItem + 1;
-    if (!fav_str[nItem][0])
-    {
-        int x = sprintf(fav_str[nItem], "%d ", fav_num);
-
-        prefs_get_path(fav_num, &fav_str[nItem][x], nStrItemLen-x);
-        if (!fav_str[nItem][x])
-        {
-            strcpy(&fav_str[nItem][x], "/");
-        }
-    }
-
+    
     int type = (fav_num == cur_fav_num) ? 1 : 0;
     gui->fav_highlight(pvGui, pvElem, type);
 
@@ -715,6 +722,9 @@ bool set_fav()
     int fav_num = gui->fav_selfile;
     fav_set_path(fav_num, path);
 
+    ui_page = PAGE_FAV;
+    gui->page(ui_page);
+
     return true;
 }
 
@@ -725,7 +735,6 @@ bool reset_fav()
     fav_set_path(fav_num, "/");
     return true;
 }
-
 
 
 bool set_fav_num()
@@ -881,7 +890,9 @@ void memory_loop()
     t0 = t;
     uint32_t freeheap = ESP.getFreeHeap();
     if (freeheap < 100000)
-        need_print = true;
+    {
+       need_print = true;
+    }
     
     if (need_print)
     {
