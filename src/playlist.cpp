@@ -89,9 +89,10 @@ size_t playlist::entry_name(File & file, char * buf, int len)
 }
 
 
-size_t playlist::file_name(int num, char * dst, int len)
+//###############################################################
+size_t playlist::file_name(int file_num, char * dst, int len)
 {
-    if (!find_file(num))
+    if (!find_file(file_num))
     {
         dst[0] = 0;
         return 0;
@@ -101,9 +102,9 @@ size_t playlist::file_name(int num, char * dst, int len)
 }
 
 
-size_t playlist::file_dirname(int num, char * dst, int len)
+size_t playlist::file_dirname(int file_num, char * dst, int len)
 {
-    if (!find_file(num))
+    if (!find_file(file_num))
     {
         dst[0] = 0;
         return 0;
@@ -131,10 +132,10 @@ size_t playlist::file_dirname(int num, char * dst, int len)
 }
 
 
-size_t playlist::file_pathname(int num, char * dst, int len)
+size_t playlist::file_pathname(int file_num, char * dst, int len)
 {
     int x;
-    x = file_dirname(num, dst, len);
+    x = file_dirname(file_num, dst, len);
     if (!x)
         return 0;
     dst[x++] = '/';
@@ -143,9 +144,9 @@ size_t playlist::file_pathname(int num, char * dst, int len)
 }
 
 
-bool playlist::file_is_dir(int num)
+bool playlist::file_is_dir(int file_num)
 {
-    if (!find_file(num))
+    if (!find_file(file_num))
         return false;
 
     return entry.isDirectory();
@@ -163,11 +164,11 @@ void playlist::rewind()
 }
 
 
-bool playlist::find_file0(int num)
+bool playlist::find_file0(int file_num)
 {
     while (true)
     {
-        if (curfile == num)
+        if (curfile == file_num)
         {
             return true;
         }
@@ -194,7 +195,7 @@ bool playlist::find_file0(int num)
             }
         }
 
-        if (curfile == num)
+        if (curfile == file_num)
         {
             return true;
         }
@@ -202,14 +203,14 @@ bool playlist::find_file0(int num)
 }
 
 
-bool playlist::find_file(int num)
+bool playlist::find_file(int file_num)
 {
-    if (find_file0(num))
+    if (find_file0(file_num))
         return true;
     
     rewind();
 
-    if (find_file0(num))
+    if (find_file0(file_num))
         return true;
 
     rewind();
@@ -226,7 +227,7 @@ void playlist::scan_files(int *fcnt, int *dcnt)
 }
 
 
-void playlist::find_dir(int dir_num)
+bool playlist::find_dir(int dir_num)
 {
     dir_num = clamp1(dir_num, dircnt);
 
@@ -240,5 +241,6 @@ void playlist::find_dir(int dir_num)
             find_file0(1);
         }
     }
+    return true;
 }
 

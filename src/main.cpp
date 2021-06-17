@@ -111,7 +111,6 @@ void display_header()
 
 
 //###############################################################
-#define LIST_CACHE_LINES 10
 
 typedef struct
 {
@@ -121,16 +120,12 @@ typedef struct
     char txt[XLISTBOX_MAX_STR];
 } CacheLine;
 
-CacheLine list_lines[LIST_CACHE_LINES] = {0};
-
 typedef struct
 {
     int cnt;
     int access;
     CacheLine * lines;
 } ListboxCache;
-
-ListboxCache list_cache = {LIST_CACHE_LINES, 0, list_lines};
 
 #define CACHE_MISS -1
 #define CACHE_EMPTY 0
@@ -183,7 +178,12 @@ void cache_init(ListboxCache * cache)
     memset(cache->lines, 0, sizeof(CacheLine) * cache->cnt);
 }
 
+
 //###############################################################
+#define LIST_CACHE_LINES 10
+CacheLine list_lines[LIST_CACHE_LINES] = {0};
+ListboxCache list_cache = {LIST_CACHE_LINES, 0, list_lines};
+
 bool list_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     int filenum = nItem+1;
@@ -227,9 +227,46 @@ bool list_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
 
 
 //###############################################################
+#define DIRS_CACHE_LINES 10
+CacheLine dirs_lines[DIRS_CACHE_LINES] = {0};
+ListboxCache dirs_cache = {DIRS_CACHE_LINES, 0, dirs_lines};
+
 bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     snprintf(pStrItem, nStrItemLen, "%d:Dir", nItem);
+
+    int dirnum = nItem+1;
+
+    int index = cache_get_item(&dirs_cache, dirnum);
+    int dir_level = 0;
+    if (index == CACHE_MISS)
+    {
+        if (!pl->find_dir(dirnum))
+            return false;
+
+        char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
+
+        int disp = 0;
+        dir_level = pl->level + 1;
+        disp = dir_level*2-2;
+
+        pl->file_name(pl->curfile, &buf[disp], sizeof(buf)-disp);
+        snprintf(pStrItem, nStrItemLen, "%d-%s", dirnum, buf);
+
+        cache_put_item(&dirs_cache, dirnum, buf, dir_level);
+
+        //Serial.println(buf);
+    }
+    else
+    {
+        snprintf(pStrItem, nStrItemLen, "%d-%s", dirnum, dirs_cache.lines[index].txt);
+        dir_level = dirs_cache.lines[index].flags;
+    }
+
+    int type = 0;
+    if (dirnum == fc->curdir)  type = 1;
+ 
+    gui->dirs_highlight(pvGui, pvElem, type);
     return true;
 }
 
@@ -296,7 +333,6 @@ void fav_init()
     int fav_num;
     for (fav_num = 1; fav_num <= FAV_MAX; fav_num++)
     {
-        int nItem = fav_num - 1;
         prefs_get_path(fav_num, tmp, sizeof(tmp));
         if (!tmp[0]) strcpy(tmp, "/");
         fav_set_str(fav_num, tmp);
@@ -372,7 +408,6 @@ void setup()
     step(4);
 
     gui->fav_box(FAV_MAX, fav_get_item);
-    gui->dirs_box(15, dirs_get_item);
     step(5);
 
     fav_init();
@@ -381,6 +416,8 @@ void setup()
     fc = new playlist();
     pl = new playlist();
     step(7);
+
+    gui->dirs_box(fc->dircnt, dirs_get_item);
 
     fav_switch(cur_fav_num, true);
     step(8);
@@ -670,7 +707,7 @@ bool change_volume(int change)
 }
 
 
-uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_LIST};
+uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_LIST, PAGE_DIRS};
 
 bool change_page()
 {

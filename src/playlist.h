@@ -23,16 +23,16 @@ class playlist
 
         void set_root(String path);
 
-        bool find_file(int num);
-        void find_dir(int dir_num);
+        bool find_file(int file_num);
+        bool find_dir(int dir_num);
 
         // size_t curdirname(char * dst, int len);
         // size_t curfilename(char * buf, int len);
         
-        size_t file_name(int num, char * buf, int len);
-        size_t file_dirname(int num, char * dst, int len);
-        size_t file_pathname(int num, char * dst, int len);
-        bool file_is_dir(int num);
+        size_t file_name(int file_num, char * buf, int len);
+        size_t file_dirname(int file_num, char * dst, int len);
+        size_t file_pathname(int file_num, char * dst, int len);
+        bool file_is_dir(int file_num);
 
         int dircnt;
         int curdir;
@@ -44,7 +44,7 @@ class playlist
         
     private:
         size_t entry_name(File & file, char * buf, int len);
-        bool find_file0(int num);
+        bool find_file0(int file_num);
         void rewind();
         void scan_files(int *fcnt, int *dcnt);
 

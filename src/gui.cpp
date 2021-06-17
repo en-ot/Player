@@ -416,6 +416,11 @@ void page_fav_init()
 //###############################################################
 #define DIRS_BACK_COL       COL_GREEN_DARK
 
+#define DIRS_COL_NORMAL_B   COL_GREEN_DARK
+#define DIRS_COL_NORMAL_F   COL_WHITE
+#define DIRS_COL_PLAY_B     COL_GREEN_DARK
+#define DIRS_COL_PLAY_F     COL_RED_LIGHT
+
 gslc_tsElem                 dirs_elem[DIRS_ELEM_MAX];
 gslc_tsElemRef              dirs_ref[DIRS_ELEM_MAX];
 
@@ -582,6 +587,17 @@ void Gui::dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
     dirs_box_elem.pfuncXGet = cb;
     dirs_box_elem.nItemCnt = cnt;
     dirs_box_elem.bNeedRecalc = true;
+}
+
+
+void Gui::dirs_highlight(void *gslc, void *pElemRef, int type)
+{
+    static gslc_tsColor colors_b[] = {DIRS_COL_NORMAL_B, DIRS_COL_PLAY_B};
+    static gslc_tsColor colors_f[] = {DIRS_COL_NORMAL_F, DIRS_COL_PLAY_F};
+    gslc_tsElem * elem = &dirs_elem[DIRS_BOX_ELEM-DIRS_BOX_ELEM];
+    elem->colElemText       = colors_f[type];
+    elem->colElemTextGlow   = colors_f[type];
+    elem->colElemFill       = colors_b[type];
 }
 
 
