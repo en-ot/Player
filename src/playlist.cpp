@@ -205,15 +205,18 @@ bool playlist::find_file0(int file_num)
 
 bool playlist::find_file(int file_num)
 {
+    if (curfile > file_num)
+    {
+        rewind();
+    }
+
     if (find_file0(file_num))
+    {
         return true;
+    }
     
     rewind();
 
-    if (find_file0(file_num))
-        return true;
-
-    rewind();
     return false;
 }
 
@@ -233,12 +236,18 @@ bool playlist::find_dir(int dir_num)
 
     Serial.print("Find dir ");
     Serial.println(dir_num);
+
+    if (curdir > dir_num)
+    {
+        rewind();
+    }
+
     while (curdir != dir_num)
     {
         if (!find_file0(curfile + 1))
         {
-            rewind();
-            find_file0(1);
+            Serial.println("Not found");
+            return false;
         }
     }
     return true;

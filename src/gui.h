@@ -58,6 +58,8 @@ class Gui
         void dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
         void dirs_seek(int by);
         void dirs_highlight(void *gslc, void *pElemRef, int type);
+        void dirs_select(int curdir);
+
 };
 
 

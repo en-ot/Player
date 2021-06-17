@@ -56,8 +56,8 @@
 #define COL_BLUE        ((gslc_tsColor) { 0, 0, 192})
 #define COL_BLUE_LIGHT  ((gslc_tsColor) { 0, 0, 255})
 
-#define COL_FRAME           COL_WHITE
-#define COL_TEXT_NORMAL     COL_WHITE
+#define COL_FRAME       COL_WHITE
+#define COL_TEXT_NORMAL COL_WHITE
 #define COL_ERROR       ((gslc_tsColor) { 255, 0, 255})
 
 
@@ -494,12 +494,41 @@ void Gui::page(int page_n)
 
 
 //###############################################################
+static void slider_update(int nItemCnt, int sel, gslc_tsElemRef * slider_ref)
+{
+    int max = nItemCnt - 1;
+    if (max < 1) 
+        max = 1;
+    
+    int pos = SLIDER_POS_MAX * sel / max;
+    gslc_ElemXSliderSetPos(&gslc, slider_ref, pos);
+}
+
+
+static int box_seek(gslc_tsXListbox * box, gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int by)
+{
+    //todo: calc box from ref
+    int sel = gslc_ElemXListboxGetSel(&gslc, box_ref);
+    sel -= by;
+    gslc_ElemXListboxSetSel(&gslc, box_ref, sel);
+
+    sel = gslc_ElemXListboxGetSel(&gslc, box_ref);
+
+    slider_update(box->nItemCnt, sel, slider_ref);
+
+    return sel;
+}
+
+
+//###############################################################
 void Gui::list_select(int curfile)
 {
     int index = curfile-1;
     gslc_ElemXListboxSetSel(&gslc, list_box_ref, index);
     gslc_ElemXListboxSetScrollPos(&gslc, list_box_ref, index - BOX_LINES/2 + 1);
-    list_selfile = gslc_ElemXListboxGetSel(&gslc, list_box_ref) + 1;
+    int sel = gslc_ElemXListboxGetSel(&gslc, list_box_ref);
+    list_selfile = sel + 1;
+    //slider_update(list_box_elem.nItemCnt, sel, list_box_ref);
 }
 
 
@@ -521,31 +550,13 @@ void Gui::list_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
     list_box_elem.nItemCurSel = 0;
     list_box_elem.nItemTop = 0;
     list_box_elem.bNeedRecalc = true;
-}
-
-
-static int listbox_seek(gslc_tsXListbox * box, gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int by)
-{
-    //todo: вычислять box, slider
-    int sel = gslc_ElemXListboxGetSel(&gslc, box_ref);
-    sel -= by;
-    gslc_ElemXListboxSetSel(&gslc, box_ref, sel);
-
-    sel = gslc_ElemXListboxGetSel(&gslc, box_ref);
-
-    int max = box->nItemCnt - 1;
-    if (max < 1) max = 1;
-    
-    int pos = SLIDER_POS_MAX * sel / max;
-    gslc_ElemXSliderSetPos(&gslc, slider_ref, pos);
-
-    return sel;
+    //list_seek(0);
 }
 
 
 void Gui::list_seek(int by)
 {
-    list_selfile = listbox_seek(&list_box_elem, list_box_ref, list_slider_ref, by) + 1;
+    list_selfile = box_seek(&list_box_elem, list_box_ref, list_slider_ref, by) + 1;
 }
 
 
@@ -566,7 +577,7 @@ void Gui::fav_set(int num)
 
 void Gui::fav_seek(int by)
 {
-    fav_selfile = listbox_seek(&fav_box_elem, fav_box_ref, fav_slider_ref, by) + 1;
+    fav_selfile = box_seek(&fav_box_elem, fav_box_ref, fav_slider_ref, by) + 1;
 }
 
 
@@ -587,6 +598,18 @@ void Gui::dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
     dirs_box_elem.pfuncXGet = cb;
     dirs_box_elem.nItemCnt = cnt;
     dirs_box_elem.bNeedRecalc = true;
+    //dirs_seek(0);
+}
+
+
+void Gui::dirs_select(int curdir)
+{
+    int index = curdir-1;
+    gslc_ElemXListboxSetSel(&gslc, dirs_box_ref, index);
+    gslc_ElemXListboxSetScrollPos(&gslc, dirs_box_ref, index - BOX_LINES/2 + 1);
+    int sel = gslc_ElemXListboxGetSel(&gslc, dirs_box_ref);
+    dirs_seldir = sel + 1;
+    //slider_update(dirs_box_elem.nItemCnt, sel, dirs_box_ref);
 }
 
 
@@ -603,7 +626,7 @@ void Gui::dirs_highlight(void *gslc, void *pElemRef, int type)
 
 void Gui::dirs_seek(int by)
 {
-    dirs_seldir = listbox_seek(&dirs_box_elem, dirs_box_ref, dirs_slider_ref, by) + 1;
+    dirs_seldir = box_seek(&dirs_box_elem, dirs_box_ref, dirs_slider_ref, by) + 1;
 }
 
 

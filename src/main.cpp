@@ -98,8 +98,6 @@ static void audio_task(void * pvParameters)
 
 
 //###############################################################
-// Setup
-//###############################################################
 void display_header()
 {
     gui->alive(true);
@@ -111,12 +109,13 @@ void display_header()
 
 
 //###############################################################
-
+// cache
+//###############################################################
 typedef struct
 {
     int key;
     int access;
-    int flags;
+    uint32_t flags;
     char txt[XLISTBOX_MAX_STR];
 } CacheLine;
 
@@ -208,8 +207,6 @@ bool list_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
         cache_put_item(&list_cache, filenum, buf, dir_level);
-
-        //Serial.println(buf);
     }
     else
     {
@@ -256,8 +253,6 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
         cache_put_item(&dirs_cache, dirnum, buf, dir_level | (filenum << 16));
-
-        //Serial.println(buf);
     }
     else
     {
@@ -302,6 +297,8 @@ bool fav_switch(int fav_num, bool init)
     fc->set_root(fav_path);
     pl->set_root(fav_path);
     gui->list_box(pl->filecnt, list_get_item);
+    gui->dirs_box(pl->dircnt, dirs_get_item);
+
     gui->fav_set(fav_num);
     gui->redraw();
 
@@ -309,6 +306,7 @@ bool fav_switch(int fav_num, bool init)
 
     playstack_init();
     cache_init(&list_cache);
+    cache_init(&dirs_cache);
 
     start_file(next_file, +1);
 
@@ -319,7 +317,6 @@ bool fav_switch(int fav_num, bool init)
 }
 
 
-//###############################################################
 char fav_str[FAV_MAX][XLISTBOX_MAX_STR] = {0};
 
 
@@ -366,7 +363,10 @@ bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 
 
 //###############################################################
-#define STEP_TOTAL 8
+// Setup
+//###############################################################
+#define STEP_TOTAL 10
+
 void step(int curstep)
 {
     static unsigned long t0 = 0;
@@ -418,13 +418,15 @@ void setup()
     step(6);
 
     fc = new playlist();
-    pl = new playlist();
     step(7);
+ 
+    pl = new playlist();
+    step(8);
 
-    gui->dirs_box(fc->dircnt, dirs_get_item);
+    step(9);
 
     fav_switch(cur_fav_num, true);
-    step(8);
+    step(10);
 }
 
 
@@ -734,7 +736,7 @@ bool change_page()
 }
 
 
-bool play_selfile()
+bool list_play_sel()
 {
     ui_page = PAGE_INFO;
     gui->page(ui_page);
@@ -750,7 +752,14 @@ bool list_goto_curfile()
 }
 
 
-bool set_fav()
+bool dirs_goto_curdir()
+{
+    gui->dirs_select(fc->curdir);
+    return true;
+}
+
+
+bool list_set_fav()
 {
     char path[PATHNAME_MAX_LEN];
 
@@ -770,7 +779,19 @@ bool set_fav()
 }
 
 
-bool reset_fav()
+bool dirs_set_fav()
+{
+    return true;
+}
+
+
+bool dirs_play_sel()
+{
+    return true;
+}
+
+
+bool fav_reset()
 {
     int fav_num = gui->fav_selfile;
     fav_set_path(fav_num, "/");
@@ -778,7 +799,7 @@ bool reset_fav()
 }
 
 
-bool set_fav_num()
+bool fav_set_num()
 {
     int fav_num = gui->fav_selfile;
     fav_switch(fav_num, false);
@@ -827,7 +848,7 @@ Controls info_ctrl = {{
 Controls list_ctrl = {{
     change_volume,      list_seek   },{     // volume,      seek
     nothing,            list_goto_curfile,  // vol_long,    vol_short
-    set_fav,            play_selfile,       // seek_long,   seek_short
+    list_set_fav,       list_play_sel,       // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short
     nothing,            nothing,            // b2_long,     b2_short
     nothing,            nothing,            // b3_long,     b3_short
@@ -836,7 +857,7 @@ Controls list_ctrl = {{
 Controls fav_ctrl = {{
     change_volume,      fav_seek   },{      // volume,      seek      
     nothing,            nothing,            // vol_long,    vol_short 
-    reset_fav,          set_fav_num,        // seek_long,   seek_short
+    fav_reset,          fav_set_num,        // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short  
     nothing,            nothing,            // b2_long,     b2_short
     nothing,            nothing,            // b3_long,     b3_short  
@@ -844,8 +865,8 @@ Controls fav_ctrl = {{
 
 Controls dirs_ctrl = {{
     change_volume,      dirs_seek   },{     // volume,      seek      
-    nothing,            list_goto_curfile,  // vol_long,    vol_short 
-    nothing,            nothing,            // seek_long,   seek_short
+    nothing,            dirs_goto_curdir,   // vol_long,    vol_short 
+    dirs_set_fav,       dirs_play_sel,        // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short  
     nothing,            nothing,            // b2_long,     b2_short
     nothing,            nothing,            // b3_long,     b3_short  
