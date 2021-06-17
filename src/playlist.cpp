@@ -237,19 +237,22 @@ bool playlist::find_dir(int dir_num)
     Serial.print("Find dir ");
     Serial.println(dir_num);
 
-    if (curdir > dir_num)
+    if (curdir >= dir_num)
     {
         rewind();
     }
 
-    while (curdir != dir_num)
+    int file_num = curfile;
+    while (curdir != dir_num) 
     {
-        if (!find_file0(curfile + 1))
+        if (!find_file0(file_num))
         {
             Serial.println("Not found");
             return false;
         }
+        file_num += 1;
     }
+
     return true;
 }
 
