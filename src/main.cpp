@@ -787,6 +787,15 @@ bool dirs_set_fav()
 
 bool dirs_play_sel()
 {
+    int dirnum = gui->dirs_sel;
+    int index = cache_get_item(&dirs_cache, dirnum);
+    if (index == CACHE_MISS)
+        return false;
+    int file_num = dirs_cache.lines[index].flags >> 16;
+
+    ui_page = PAGE_INFO;
+    gui->page(ui_page);
+    play_file_num(file_num, FAIL_NEXT);
     return true;
 }
 
