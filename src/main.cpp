@@ -407,6 +407,7 @@ void setup()
 
     if (!SD.begin()) 
     {
+        gui->error("SDcard error");
         SD.initErrorHalt(); // SdFat-lib helper function
     }
     step(4);

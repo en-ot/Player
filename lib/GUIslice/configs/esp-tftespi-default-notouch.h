@@ -149,7 +149,7 @@ extern "C" {
   // - Note that the inclusion of the SD library consumes considerable
   //   RAM and flash memory which could be problematic for Arduino models
   //   with limited resources.
-  #define GSLC_SD_EN    1
+  #define GSLC_SD_EN    0
 
   // Enable support for SPIFFS File System access
   // - Set to 1 to enable, 0 to disable

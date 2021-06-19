@@ -708,6 +708,15 @@ void Gui::path(const char * text)
 
 
 //###############################################################
+void Gui::error(const char * errtxt)
+{
+    page(PAGE_INFO);
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], errtxt);
+    redraw();
+    loop();
+}
+
+//###############################################################
 static int vol = 0;
 static char rep = '?';
 static char shf = '?';

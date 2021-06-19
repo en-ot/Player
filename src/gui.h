@@ -24,6 +24,8 @@ class Gui
         void page(int p);
         void redraw();
 
+        void error(const char * errtxt);
+
         // page:info
         void index(const char * text);
         void time_progress(uint32_t index, uint32_t total);
