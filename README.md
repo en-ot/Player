@@ -15,6 +15,7 @@ with Unicode smooth font: latin, greek, cyrillic, japanese (incomplete yet)
 Controls:
 - First encoder is used to change volume / jump to next/previous file (with stack of recently played files)
 - Second encoder is used to seek within file, play/pause, navigate in playlist.
+- Three buttons are used to change page (song info, favourites, playlist, folders), jump between folders, change shuffle mode
 
 Display:
 - Filesystem and font support Unicode.
@@ -22,6 +23,7 @@ Display:
 - Info page is displaying current dir, file, mp3 tag info, play time on LCD
 - Favourites page shows the list of user-defined favourite folders
 - Playlist page is displaying current playlist, where any file can be choosen to play and any folder can be added to favourites.
+- Folders page is displaying only folder names, for quick navigation.
 
 ![Info page](pictures/page_info.jpg)
 ![Favourites_page](pictures/page_favourites.jpg)
