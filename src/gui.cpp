@@ -195,7 +195,7 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 #define INFO_GAP 2
 
 #define INFO_MODE_ICON_RECT     (gslc_tsRect){x, 0, INFO_ICON_W, INFO_ICON_H}
-#define INFO_MODE_W 80
+#define INFO_MODE_W 40
 #define INFO_MODE_RECT      (gslc_tsRect){x, 0, INFO_MODE_W, LINE_H}
 #define INFO_MODE_COL       COL_GREEN_DARK
 
@@ -293,33 +293,42 @@ const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
 
 void page_info_init()
 {
-    gslc_PageAdd                    (&gslc, PAGE_INFO, info_elem, INFO_ELEM_MAX, info_ref, INFO_ELEM_MAX);
+    gslc_PageAdd(&gslc, PAGE_INFO, info_elem, INFO_ELEM_MAX, info_ref, INFO_ELEM_MAX);
     gslc_tsElemRef* pElemRef = NULL;
 
     int r = 0;
     int16_t x = 0;
 
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_PLAY_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
-        gslc_GetImageFromProg((const unsigned char*)icons[ICON_PLAY0], GSLC_IMGREF_FMT_BMP24)); 
-    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    gslc_tsImgRef imgref1;
+    gslc_tsImgRef imgref2;
+
+    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_PLAY0], GSLC_IMGREF_FMT_BMP24);
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_PLAY_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    gslc_ElemSetCol(&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
     info_mode_icons_ref[r++] = pElemRef;
     x += INFO_ICON_W + INFO_GAP;
 
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_SHUFFLE_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
-        gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_OFF], GSLC_IMGREF_FMT_BMP24)); 
-    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_OFF], GSLC_IMGREF_FMT_BMP24);
+    imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_ON], GSLC_IMGREF_FMT_BMP24);
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_SHUFFLE_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
+    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
+    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
     info_mode_icons_ref[r++] = pElemRef;
     x += INFO_ICON_W + INFO_GAP;
 
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_REPEAT_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
-        gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_OFF], GSLC_IMGREF_FMT_BMP24)); 
-    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_OFF], GSLC_IMGREF_FMT_BMP24);
+    imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_ON], GSLC_IMGREF_FMT_BMP24);
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_REPEAT_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
+    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
+    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
     info_mode_icons_ref[r++] = pElemRef;
     x += INFO_ICON_W + INFO_GAP;
 
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_VOLUME_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
-        gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME], GSLC_IMGREF_FMT_BMP24)); 
-    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME], GSLC_IMGREF_FMT_BMP24);
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_VOLUME_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    gslc_ElemSetCol(&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
     info_mode_icons_ref[r++] = pElemRef;
     x += INFO_ICON_W;
 
@@ -801,37 +810,23 @@ void Gui::error(const char * errtxt)
 }
 
 //###############################################################
-static int vol = 0;
-static char rep = '?';
-static char shf = '?';
-static char alv = '?';
-
-void Gui::mode()
-{
-    char t[20];
-    sprintf(t, "%c %c %2i %c", rep, shf, vol, alv);
-    gslc_ElemSetTxtStr(&gslc, info_mode_ref, t);
-}
-
-
 void Gui::volume(int volume)
 {
-    vol = volume;
-    mode();
+    char t[20];
+    sprintf(t, " %2i", volume);
+    gslc_ElemSetTxtStr(&gslc, info_mode_ref, t);
 }
 
 
 void Gui::repeat(bool val)
 {
-    rep = val ? 'O' : '.';
-    mode();
+    gslc_ElemSetGlow(&gslc, info_mode_icons_ref[INFO_REPEAT_ICON], val);
 }
 
 
 void Gui::shuffle(bool val)
 {
-    shf = val ? 'X' : '=';
-    mode();
+    gslc_ElemSetGlow(&gslc, info_mode_icons_ref[INFO_SHUFFLE_ICON], val);
 }
 
 

@@ -15,7 +15,7 @@ class Gui
 {
     private:
         bool initialized = false;
-        void mode();
+        // void mode();
 
     public:
         Gui();
