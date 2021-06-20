@@ -248,7 +248,34 @@ char                        info_lines_str[INFO_LINES][MAX_STR] = {0};
 gslc_tsElemRef*             info_lines_ref[INFO_LINES] = {0};
 gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 
-#include "Icons/exit_n24.h"
+#include "Icons/icon_disk0.h"
+#include "Icons/icon_disk1.h"
+#include "Icons/icon_disk2.h"
+#include "Icons/icon_disk3.h"
+#include "Icons/icon_pause.h"
+
+#include "Icons/icon_path.h"
+#include "Icons/icon_file.h"
+#include "Icons/icon_band.h"
+#include "Icons/icon_artist.h"
+#include "Icons/icon_album.h"
+#include "Icons/icon_title.h"
+
+
+enum {
+    ICON_PAUSE, ICON_PLAY0, ICON_PLAY1, ICON_PLAY2, ICON_PLAY3,
+    ICON_SHUFFLE_OFF, ICON_SHUFFLE_ON, ICON_REPEAT_OFF, ICON_REPEAT_ON,
+    ICON_PATH, ICON_FILE, ICON_BAND, ICON_ARTIST, ICON_ALBUM, ICON_TITLE,
+    //ICON_ERROR,
+    ICONS_TOTAL
+};
+
+const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
+    icon_pause, icon_disk0, icon_disk1, icon_disk2, icon_disk3,
+    icon_artist, icon_artist, icon_artist, icon_artist,
+    icon_path, icon_file, icon_band, icon_artist, icon_album, icon_title,
+};
+
 
 void page_info_init()
 {
@@ -291,8 +318,9 @@ void page_info_init()
         info_lines_ref[i] = pElemRef;
 
         pElemRef = gslc_ElemCreateImg(&gslc, INFO_PATH_ICON+i, PAGE_INFO, INFO_ICON_RECT,
-            gslc_GetImageFromProg((const unsigned char*)exit_n24, GSLC_IMGREF_FMT_BMP24)); 
+            gslc_GetImageFromProg((const unsigned char*)icons[ICON_PATH+i], GSLC_IMGREF_FMT_BMP24)); 
         //gslc_ElemSetFillEn(&gslc, pElemRef, true); // On slow displays disable transparency to prevent full redraw
+        gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, info_colors[i], info_colors[i]);
         info_icons_ref[i] = pElemRef;
 
         y += INFO_LINE_STEP;
