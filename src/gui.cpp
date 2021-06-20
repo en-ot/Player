@@ -71,11 +71,12 @@ enum {
     FONT_MAX
 };
 
-#define LCD_H 240
-#define LCD_W 320
+#define LCD_H ((int16_t)240)
+#define LCD_W ((int16_t)320)
 
 enum {
     //info
+    INFO_PLAY_ICON, INFO_SHUFFLE_ICON, INFO_REPEAT_ICON, INFO_VOLUME_ICON,
     INFO_MODE_ELEM, INFO_INDEX_ELEM, INFO_PGS1_ELEM, INFO_PGS2_ELEM, INFO_PGS3_ELEM, 
     INFO_PATH_ELEM, INFO_FILE_ELEM, INFO_BAND_ELEM, INFO_ARTIST_ELEM, INFO_ALBUM_ELEM, INFO_TITLE_ELEM,
     INFO_PATH_ICON, INFO_FILE_ICON, INFO_BAND_ICON, INFO_ARTIST_ICON, INFO_ALBUM_ICON, INFO_TITLE_ICON,
@@ -95,12 +96,15 @@ enum {
     GUI_ELEM_MAX
 };
 
-#define INFO_ELEM_MAX     (FILES_BOX_ELEM  -INFO_MODE_ELEM)
+#define INFO_ELEM_MAX     (FILES_BOX_ELEM  -INFO_PLAY_ICON)
 #define FILES_ELEM_MAX     (FAV_BOX_ELEM   -FILES_BOX_ELEM)
 //#define FILES_ELEM_MAX     (PIC_PIC_ELEM   -FILES_BOX_ELEM)
 //#define PIC_ELEM_MAX      (FAV_BOX_ELEM   -PIC_PIC_ELEM)
 #define FAV_ELEM_MAX      (DIRS_BOX_ELEM  -FAV_BOX_ELEM)
 #define DIRS_ELEM_MAX     (GUI_ELEM_MAX   -DIRS_BOX_ELEM)
+
+#define INFO_MODE_ICONS     INFO_MODE_ELEM-INFO_PLAY_ICON
+
 
 gslc_tsGui                  gslc;
 gslc_tsDriver               m_drv;
@@ -186,12 +190,16 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 //###############################################################
 #define INFO_BACK_COL       COL_GRAY_DARK
 
+#define INFO_ICON_W LINE_H
+#define INFO_ICON_H LINE_H
 #define INFO_GAP 2
-#define INFO_MODE_W 100
-#define INFO_MODE_RECT      (gslc_tsRect){0, 0, INFO_MODE_W, LINE_H}
+
+#define INFO_MODE_ICON_RECT     (gslc_tsRect){x, 0, INFO_ICON_W, INFO_ICON_H}
+#define INFO_MODE_W 80
+#define INFO_MODE_RECT      (gslc_tsRect){x, 0, INFO_MODE_W, LINE_H}
 #define INFO_MODE_COL       COL_GREEN_DARK
 
-#define INFO_INDEX_RECT     (gslc_tsRect){INFO_MODE_W+INFO_GAP, 0, LCD_W-INFO_MODE_W-INFO_GAP, LINE_H}
+#define INFO_INDEX_RECT     (gslc_tsRect){x, 0, (uint16_t)(LCD_W-x), LINE_H}
 #define INFO_INDEX_COL      COL_GREEN_DARK
 
 #define INFO_ICON_W         LINE_H
@@ -231,6 +239,7 @@ enum {
 
 char                        info_mode_str[20] = "                   ";
 gslc_tsElemRef*             info_mode_ref = NULL;
+gslc_tsElemRef*             info_mode_icons_ref[INFO_MODE_ICONS] = {0};
 
 char                        info_index_str[MAX_STR] = {0};
 gslc_tsElemRef*             info_index_ref = NULL;
@@ -253,6 +262,11 @@ gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 #include "Icons/icon_disk2.h"
 #include "Icons/icon_disk3.h"
 #include "Icons/icon_pause.h"
+#include "Icons/icon_shuffle_off.h"
+#include "Icons/icon_shuffle_on.h"
+#include "Icons/icon_repeat_off.h"
+#include "Icons/icon_repeat_on.h"
+#include "Icons/icon_volume.h"
 
 #include "Icons/icon_path.h"
 #include "Icons/icon_file.h"
@@ -264,7 +278,7 @@ gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 
 enum {
     ICON_PAUSE, ICON_PLAY0, ICON_PLAY1, ICON_PLAY2, ICON_PLAY3,
-    ICON_SHUFFLE_OFF, ICON_SHUFFLE_ON, ICON_REPEAT_OFF, ICON_REPEAT_ON,
+    ICON_SHUFFLE_OFF, ICON_SHUFFLE_ON, ICON_REPEAT_OFF, ICON_REPEAT_ON, ICON_VOLUME, 
     ICON_PATH, ICON_FILE, ICON_BAND, ICON_ARTIST, ICON_ALBUM, ICON_TITLE,
     //ICON_ERROR,
     ICONS_TOTAL
@@ -272,7 +286,7 @@ enum {
 
 const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
     icon_pause, icon_disk0, icon_disk1, icon_disk2, icon_disk3,
-    icon_artist, icon_artist, icon_artist, icon_artist,
+    icon_shuffle_off, icon_shuffle_on, icon_repeat_off, icon_repeat_on, icon_volume, 
     icon_path, icon_file, icon_band, icon_artist, icon_album, icon_title,
 };
 
@@ -282,10 +296,38 @@ void page_info_init()
     gslc_PageAdd                    (&gslc, PAGE_INFO, info_elem, INFO_ELEM_MAX, info_ref, INFO_ELEM_MAX);
     gslc_tsElemRef* pElemRef = NULL;
 
+    int r = 0;
+    int16_t x = 0;
+
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_PLAY_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
+        gslc_GetImageFromProg((const unsigned char*)icons[ICON_PLAY0], GSLC_IMGREF_FMT_BMP24)); 
+    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    info_mode_icons_ref[r++] = pElemRef;
+    x += INFO_ICON_W + INFO_GAP;
+
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_SHUFFLE_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
+        gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_OFF], GSLC_IMGREF_FMT_BMP24)); 
+    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    info_mode_icons_ref[r++] = pElemRef;
+    x += INFO_ICON_W + INFO_GAP;
+
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_REPEAT_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
+        gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_OFF], GSLC_IMGREF_FMT_BMP24)); 
+    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    info_mode_icons_ref[r++] = pElemRef;
+    x += INFO_ICON_W + INFO_GAP;
+
+    pElemRef = gslc_ElemCreateImg(&gslc, INFO_VOLUME_ICON, PAGE_INFO, INFO_MODE_ICON_RECT,
+        gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME], GSLC_IMGREF_FMT_BMP24)); 
+    gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    info_mode_icons_ref[r++] = pElemRef;
+    x += INFO_ICON_W;
+
     pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_MODE_ELEM, PAGE_INFO, INFO_MODE_RECT, info_mode_str, sizeof(info_mode_str), FONT_BUILTIN5X8);
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
     info_mode_ref = pElemRef;
+    x += INFO_MODE_W + INFO_GAP;
 
     pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_INDEX_ELEM, PAGE_INFO, INFO_INDEX_RECT, info_index_str, sizeof(info_index_str), FONT_BUILTIN5X8);
     gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
@@ -319,7 +361,6 @@ void page_info_init()
 
         pElemRef = gslc_ElemCreateImg(&gslc, INFO_PATH_ICON+i, PAGE_INFO, INFO_ICON_RECT,
             gslc_GetImageFromProg((const unsigned char*)icons[ICON_PATH+i], GSLC_IMGREF_FMT_BMP24)); 
-        //gslc_ElemSetFillEn(&gslc, pElemRef, true); // On slow displays disable transparency to prevent full redraw
         gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, info_colors[i], info_colors[i]);
         info_icons_ref[i] = pElemRef;
 
