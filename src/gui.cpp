@@ -837,10 +837,20 @@ void Gui::shuffle(bool val)
 
 void Gui::alive(bool running)
 {
-    static int index = 0;
-    static char sym[] = "-\\|/";
-    alv = running ? sym[++index %= 4] : 'P';
-    mode();
+    static int index = ICON_PAUSE;
+    if (running)
+    {
+        index++;
+        if (index > ICON_PLAY3)
+            index = ICON_PLAY0;
+    }
+    else
+    {
+        index = ICON_PAUSE;
+    }
+
+    gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
+    gslc_ElemSetImage(&gslc, info_mode_icons_ref[INFO_PLAY_ICON], imgref, imgref);
 }
 
 
