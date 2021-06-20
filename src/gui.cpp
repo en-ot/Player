@@ -78,6 +78,7 @@ enum {
     //info
     INFO_MODE_ELEM, INFO_INDEX_ELEM, INFO_PGS1_ELEM, INFO_PGS2_ELEM, INFO_PGS3_ELEM, 
     INFO_PATH_ELEM, INFO_FILE_ELEM, INFO_BAND_ELEM, INFO_ARTIST_ELEM, INFO_ALBUM_ELEM, INFO_TITLE_ELEM,
+    INFO_PATH_ICON, INFO_FILE_ICON, INFO_BAND_ICON, INFO_ARTIST_ICON, INFO_ALBUM_ICON, INFO_TITLE_ICON,
 
     //files
     FILES_BOX_ELEM, FILES_SLIDER_ELEM, 
@@ -193,6 +194,9 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 #define INFO_INDEX_RECT     (gslc_tsRect){INFO_MODE_W+INFO_GAP, 0, LCD_W-INFO_MODE_W-INFO_GAP, LINE_H}
 #define INFO_INDEX_COL      COL_GREEN_DARK
 
+#define INFO_ICON_W         LINE_H
+#define INFO_ICON_H         LINE_H
+
 #if (LINE_H==20)
 #define INFO_LINE_Y         (LINE_H * 2)
 #define INFO_LINE_STEP      (LINE_H + 3)
@@ -200,8 +204,10 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 #define INFO_LINE_Y         (LINE_H + 3)
 #define INFO_LINE_STEP      (LINE_H + 2)
 #endif
-#define INFO_LINE_RECT      (gslc_tsRect){0, y, LCD_W, LINE_H}
+#define INFO_LINE_RECT      (gslc_tsRect){INFO_ICON_W, y, LCD_W-INFO_ICON_W, LINE_H}
 gslc_tsColor                info_colors[] = {COL_BLUE_DARK, COL_BLUE_DARK, COL_RED_DARK, COL_RED_DARK, COL_RED_DARK, COL_RED_DARK};
+
+#define INFO_ICON_RECT      (gslc_tsRect){0, y, INFO_ICON_W, INFO_ICON_H}
 
 #define INFO_PGS1_W         60
 #define INFO_PGS3_W         60
@@ -240,6 +246,9 @@ gslc_tsElemRef*             info_pgs3_ref = NULL;
 
 char                        info_lines_str[INFO_LINES][MAX_STR] = {0};
 gslc_tsElemRef*             info_lines_ref[INFO_LINES] = {0};
+gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
+
+#include "Icons/exit_n24.h"
 
 void page_info_init()
 {
@@ -280,6 +289,12 @@ void page_info_init()
         gslc_ElemSetTxtCol          (&gslc, pElemRef, COL_TEXT_NORMAL);
         gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, info_colors[i], info_colors[i]);
         info_lines_ref[i] = pElemRef;
+
+        pElemRef = gslc_ElemCreateImg(&gslc, INFO_PATH_ICON+i, PAGE_INFO, INFO_ICON_RECT,
+            gslc_GetImageFromProg((const unsigned char*)exit_n24, GSLC_IMGREF_FMT_BMP24)); 
+        //gslc_ElemSetFillEn(&gslc, pElemRef, true); // On slow displays disable transparency to prevent full redraw
+        info_icons_ref[i] = pElemRef;
+
         y += INFO_LINE_STEP;
     }
 }
