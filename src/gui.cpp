@@ -1,3 +1,5 @@
+#include "debug.h"
+
 #include "pinout.h"
 
 #include <TFT_eSPI.h>      // Hardware-specific library
@@ -118,19 +120,19 @@ void gslc_init()
 
     if (!gslc_Init(&gslc,&m_drv,pages, PAGE_MAX, fonts, FONT_MAX))
     {
-        Serial.println("gslc init error");
+        DEBUG("gslc init error\n");
         return;
     }
 
     if (!gslc_FontSet(&gslc,FONT_BUILTIN20x32,GSLC_FONTREF_PTR,NULL,4))
     {
-        Serial.println("gslc fontset20 error");
+        DEBUG("gslc fontset20 error\n");
         return;
     }
 
     if (!gslc_FontSet(&gslc,FONT_BUILTIN5X8,GSLC_FONTREF_PTR,NULL,1))
     {
-        Serial.println("gslc fontset5 error");
+        DEBUG("gslc fontset5 error\n");
         return;
     }
 
@@ -140,7 +142,7 @@ void gslc_init()
     if (!gslc_FontSet(&gslc,FONT_SMOOTH,GSLC_FONTREF_PTR,FONT_NAME1,1))
 #endif
     {
-        Serial.println("gslc fontset2 error");
+        DEBUG("gslc fontset2 error\n");
         return;
     }
 }
@@ -534,7 +536,7 @@ void page_dirs_init()
 //###############################################################
 Gui::Gui()
 {
-    Serial.println("LCD init ...");
+    DEBUG("LCD init ...\n");
     gslc_init();
     page_info_init();
     page_files_init();
@@ -544,7 +546,7 @@ Gui::Gui()
 
     page(PAGE_INFO);
 
-    Serial.println("gslc initialized");
+    DEBUG("gslc initialized\n");
 
     tft.fillScreen(TFT_BLACK);
     tft.setTextWrap(false, false);
@@ -552,7 +554,7 @@ Gui::Gui()
 #ifdef SPIFFS_FONT
     if (!SPIFFS.begin()) 
     {
-        Serial.println("SPIFFS initialisation failed!");
+        DEBUG("SPIFFS initialisation failed!\n");
         while (1) 
             yield(); // Stay here twiddling thumbs waiting
     }
@@ -561,7 +563,7 @@ Gui::Gui()
     tft.loadFont(FONT_NAME1);
 
     initialized = true;
-    Serial.println("LCD init OK");
+    DEBUG("LCD init OK\n");
 }
 
 

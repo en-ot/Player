@@ -1,6 +1,8 @@
 #include <nvs_flash.h>
 #include "Preferences.h"
 
+#include "debug.h"
+
 #include "globals.h"
 #include "prefs.h"
 
@@ -102,7 +104,7 @@ int prefs_load_data(int fav_num, char * path, int len)
     filepos = prefs.getInt(prefs_key_filepos, 0);
     int size = prefs_get_path(fav_num, path, len);
 
-    Serial.printf("Fav:%i Dir:%s File:%i Pos:%i Vol:%i Sh:%i Rep:%i\n", fav_num, path, next_file, filepos, volume, shuffle, repeat);
+    DEBUG("Fav:%i Dir:%s File:%i Pos:%i Vol:%i Sh:%i Rep:%i\n", fav_num, path, next_file, filepos, volume, shuffle, repeat);
     
     return size;
 }
@@ -147,28 +149,28 @@ void prefs_loop()
         need_save_current_file = false;
         prefs.putInt(prefs_key_curfile, fc->curfile);
         prefs.putInt(prefs_key_filepos, filepos);
-        Serial.printf("File %i:%i saved\n", fc->curfile, filepos);
+        DEBUG("File %i:%i saved\n", fc->curfile, filepos);
     }
 
     if (need_save_repeat)
     {
         need_save_repeat = false;
         prefs.putBool(prefs_key_repeat, repeat);
-        Serial.printf("Repeat %i saved\n", repeat);
+        DEBUG("Repeat %i saved\n", repeat);
     }
 
     if (need_save_shuffle)
     {
         need_save_shuffle = false;
         prefs.putBool(prefs_key_shuffle, shuffle);
-        Serial.printf("Shuffle %i saved\n", shuffle);
+        DEBUG("Shuffle %i saved\n", shuffle);
     }
 
     if (need_save_volume)
     {
         need_save_volume = false;
         prefs.putInt(prefs_key_volume, volume);
-        Serial.printf("Volume %d saved\n", volume);
+        DEBUG("Volume %d saved\n", volume);
     }
 }
 

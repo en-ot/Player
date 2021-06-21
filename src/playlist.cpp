@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "debug.h"
 
 #include "playlist.h"
 
@@ -28,7 +29,7 @@ void playlist::set_root(String path)
     root_path = path;
     unsigned long t0 = millis();
     scan_files(&filecnt, &dircnt);
-    Serial.printf("root: %s, dirs: %i, files: %i, time: %lu\n", root_path.c_str(), dircnt, filecnt, millis() - t0);
+    DEBUG("root: %s, dirs: %i, files: %i, time: %lu\n", root_path.c_str(), dircnt, filecnt, millis() - t0);
 }
 
 
@@ -59,7 +60,7 @@ void playlist::set_root(String path)
 //         }
 //     }
 
-//     Serial.printf("rootcnt: %i\n", curroot);
+//     DEBUG("rootcnt: %i\n", curroot);
 //     return false;
 // }
 
@@ -73,7 +74,7 @@ void playlist::set_root(String path)
 
 //     unsigned long t0 = millis();
 //     scan_files(&filecnt, &dircnt);
-//     Serial.printf("root: %s, dirs: %i, files: %i, time: %lu\n", root_path.c_str(), dircnt, filecnt, millis() - t0);
+//     DEBUG("root: %s, dirs: %i, files: %i, time: %lu\n", root_path.c_str(), dircnt, filecnt, millis() - t0);
 // }
 
 
@@ -112,8 +113,7 @@ size_t playlist::file_dirname(int file_num, char * dst, int len)
 
     root_path.toCharArray(dst, len);
     int x = strlen(dst);
-    Serial.println(dst);
-    Serial.println(x);
+    DEBUG("dirname: %s[%d]\n", dst, x);
     if (x == 1) 
         x = 0;
     len -= x;
@@ -234,8 +234,7 @@ bool playlist::find_dir(int dir_num)
 {
     dir_num = clamp1(dir_num, dircnt);
 
-    Serial.print("Find dir ");
-    Serial.println(dir_num);
+    DEBUG("Find dir %d\n", dir_num);
 
     if (curdir >= dir_num)
     {
@@ -247,7 +246,7 @@ bool playlist::find_dir(int dir_num)
     {
         if (!find_file0(file_num))
         {
-            Serial.println("Not found");
+            DEBUG("Not found\n");
             return false;
         }
         file_num += 1;

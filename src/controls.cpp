@@ -503,7 +503,7 @@ void serial_loop()
         // if (SD.begin())
         // {
         //     filectrl_rewind();
-        //     Serial.println("Error Reset!");
+        //     DEBUG("Error Reset!\n");
         // }
     }
 

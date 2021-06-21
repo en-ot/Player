@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include "debug.h"
+
 #include "Audio.h"
 
 #include "globals.h"
@@ -112,7 +114,7 @@ void playctrl_loop()
             t_fileseek = t;
 
             filepos = audio.getAudioCurrentTime();
-            Serial.println(file_seek_by);
+            DEBUG("seek by %d\n", file_seek_by);
             int newpos = filepos + file_seek_by;
             file_seek_by = 0;
             if (newpos < 0)     newpos = 0;
@@ -169,22 +171,21 @@ void playctrl_loop()
 
 void audio_eof_mp3(const char *info)      //end of file
 {
-    Serial.printf("eof_mp3     %s\n", info);
+    DEBUG("eof_mp3     %s\n", info);
     play_file_next();
 }
 
 
 void audio_error_mp3(const char *info) 
 {
-    Serial.printf("error_mp3   %s\n", info);
+    DEBUG("error_mp3   %s\n", info);
     read_error = true;
 }
 
 
 void audio_info(const char *info) 
 {
-    Serial.print("info        "); 
-    Serial.println(info);
+    DEBUG("info        %s\n", info); 
 }
 
 
@@ -198,7 +199,7 @@ void audio_id3image(File& file, const size_t pos, const size_t size)
 {
     char filename[PATHNAME_MAX_LEN] = "";
     file.getName(filename, sizeof(filename)-1);
-    Serial.printf("Image %s %d %d\n", filename, pos, size);
+    DEBUG("Image %s %d %d\n", filename, pos, size);
 }
 
 
@@ -230,13 +231,13 @@ int start_file(int num, int updown)
     while (retry)
     {
         num = clamp1(num, fc->filecnt);
-        Serial.printf("Trying to play %d...\n", num);
+        DEBUG("Trying to play %d...\n", num);
 
         if (!fc->find_file(num))
         {
             snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
             xQueueSend(tag_queue, tmp, 0);
-            Serial.printf("no file %d\n", num);
+            DEBUG("no file %d\n", num);
             return fc->curfile;
         }
 
@@ -244,15 +245,15 @@ int start_file(int num, int updown)
         if (!fc->file_is_dir(num))
         {
             fc->file_name(num, filename, sizeof(filename));
-            //Serial.println(filename);
+            //DEBUG("%s\n", filename);
 
             int x = fc->file_dirname(num, dirname, sizeof(dirname));
-            //Serial.println(dirname);
+            //DEBUG("%s\n", dirname);
 
             strlcpy(filepath, dirname, sizeof(filepath));
             filepath[x++] = '/';
             strlcpy(&filepath[x], filename, sizeof(filepath)-x);
-            //Serial.println(filepath);
+            //DEBUG("%s\n", filepath);
             
             if (sound_start(filepath))
                 break;
@@ -269,7 +270,7 @@ int start_file(int num, int updown)
     {
         snprintf(tmp, sizeof(tmp)-1, "File: retry count 0");
         xQueueSend(tag_queue, tmp, 0);
-        Serial.printf("retry count\n");
+        DEBUG("retry count\n");
         return 0;
     }
     

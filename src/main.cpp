@@ -167,7 +167,7 @@ int dirs_file_num(int dirs_sel)
 //###############################################################
 bool fav_switch(int fav_num, bool init)
 {
-    Serial.printf("switch to fav %d, %d\n", fav_num, init);
+    DEBUG("switch to fav %d, %d\n", fav_num, init);
 
     if (!init)
     {
@@ -186,7 +186,7 @@ bool fav_switch(int fav_num, bool init)
     
     char fav_path[PATHNAME_MAX_LEN] = {0};
     prefs_load_data(fav_num, fav_path, sizeof(fav_path));
-    Serial.printf("fav path: %s\n", fav_path);
+    DEBUG("fav path: %s\n", fav_path);
     
     fc->set_root(fav_path);
     pl->set_root(fav_path);
@@ -252,7 +252,7 @@ bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
     gui->fav_highlight(pvGui, pvElem, type);
 
     strlcpy(pStrItem, fav_str[nItem], nStrItemLen);
-    Serial.println(pStrItem);
+    DEBUG("%s\n", pStrItem);
     return true;
 }
 
@@ -359,7 +359,7 @@ bool cmp(char * info, const char * tst, char ** p)
 
     len += 2;
     *p = &info[len];
-//    Serial.printf("%s: %s", tst, p); 
+//    DEBUG("%s: %s", tst, p); 
     return true;
 }
 
@@ -369,7 +369,7 @@ void print_hex(char * data, int len)
     int i;
     for (i = 0; i < len; i++)
     {
-        Serial.printf("%2X ", data[i]);
+        DEBUG("%2X ", data[i]);
     }
 }
 
@@ -396,9 +396,9 @@ void display_loop()
     msg[QUEUE_MSG_SIZE-1] = 0;
     if (res == pdTRUE)
     {
-        Serial.printf("id3data[%i]: %s\n", strlen(msg), msg);
+        DEBUG("id3data[%i]: %s\n", strlen(msg), msg);
 //        print_hex(msg, 20);
-//        Serial.println();
+//        DEBUG("\n");
 
         char * p;
              if (cmp(msg, "Artist", &p))    gui->artist(p);
@@ -441,11 +441,11 @@ void check_loop()
     if (tick && (read_error || SD.card()->errorCode()))
     {
         last_time = millis();
-        Serial.print('.');   
+        DEBUG(".");   
         if (SD.begin()) 
         {
             // filectrl_rewind();
-            Serial.println();                 
+            DEBUG("\n");                 
             read_error = false;   
 //            need_save_current_file = false;
             next_file = 1;
@@ -474,7 +474,7 @@ void memory_loop()
     if (need_print)
     {
         need_print = false;
-        Serial.printf("Memory free: %i\n", freeheap);
+        DEBUG("Memory free: %i\n", freeheap);
     }
 }
 
