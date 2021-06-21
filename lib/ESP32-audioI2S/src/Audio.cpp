@@ -3594,10 +3594,15 @@ uint8_t Audio::getVolume() {
     m_vol = 12; // if m_vol not found in table
     return m_vol;
 }
+
+void Audio::setReplayGain(float gain)
+{
+    m_replaygain = gain;
+}
 //---------------------------------------------------------------------------------------------------------------------
 int32_t Audio::Gain(int16_t s[2]) {
     int32_t v[2];
-    float step = (float)m_vol /64;
+    float step = (float)m_vol * m_replaygain * (1./64.);
     uint8_t l = 0, r = 0;
 
     if(m_balance < 0){

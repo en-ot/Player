@@ -188,9 +188,49 @@ void audio_info(const char *info)
     DEBUG("info        %s\n", info); 
 }
 
+int gain_index = 0;
+#define GAIN_TXT1 "UserDefinedText: "
+#define GAIN_TXT2 "replaygain_track_gain"
 
 void audio_id3data(const char *info)  //id3 metadata
 {
+    //UserDefinedText: replaygain_track_gain
+    //DEBUG("id3 \"%s\"\n", info);
+    int l1 = sizeof(GAIN_TXT1)-1;
+    if (!strncmp(info, GAIN_TXT1, l1))
+    {
+        DEBUG("%d %s\n", gain_index, &info[l1]);
+        int l2 = sizeof(GAIN_TXT2)-1;
+
+        int i = 0;
+        if (!strncmp(&info[l1], GAIN_TXT2, l2))
+        {
+            i = l1+l2;
+            gain_index = 2;
+        }
+        else if (gain_index == 2)
+        {
+            i = l1;
+        }
+        
+        if (i)
+        {
+            DEBUG("Replay gain: %s\n", &info[i]);
+            float gain = 0;
+            if (sscanf(&info[i], "%f", &gain))
+            {
+                DEBUG("Replay gain %f\n", gain);
+                gain = pow10f(-0.05*gain);
+                DEBUG("Replay gain %f\n", gain);
+                audio.setReplayGain(gain);
+            }
+            else
+            {
+                DEBUG("!sscanf\n");
+            }
+        }
+        gain_index++;
+    }
     xQueueSend(tag_queue, info, 0);
 }
 
@@ -255,6 +295,8 @@ int start_file(int num, int updown)
             strlcpy(&filepath[x], filename, sizeof(filepath)-x);
             //DEBUG("%s\n", filepath);
             
+            gain_index = 0;
+            audio.setReplayGain(1.);
             if (sound_start(filepath))
                 break;
         }

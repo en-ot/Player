@@ -123,6 +123,7 @@ public:
     void forceMono(bool m);
     void setBalance(int8_t bal = 0);
     void setVolume(uint8_t vol);
+    void setReplayGain(float gain);
     uint8_t getVolume();
 
 
@@ -282,6 +283,7 @@ private:
     int8_t          m_balance = 0;                  // -16 (mute left) ... +16 (mute right)
     uint8_t         m_ID3version=0;                 // revision, ID3 version
     uint8_t         m_vol=64;                       // volume
+    float           m_replaygain = 1;               // replay gain
     uint8_t         m_bitsPerSample = 16;           // bitsPerSample
     uint8_t         m_channels=2;
     uint8_t         m_i2s_num = I2S_NUM_0;          // I2S_NUM_0 or I2S_NUM_1
