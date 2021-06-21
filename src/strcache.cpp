@@ -1,9 +1,18 @@
 #include "strcache.h"
 
 //###############################################################
-// cache
+// strcache
 //###############################################################
-int cache_get_item(ListboxCache * cache, int key)
+StrCache::StrCache(int cnt, CacheLine * lines)
+{
+    access = 0;
+    memset(lines, 0, sizeof(CacheLine) * cnt);
+    this->lines = lines;
+    this->cnt = cnt;
+}
+
+
+int cache_get_item(StrCache * cache, int key)
 {
     int i;
     for (i = 0; i < cache->cnt; i++)
@@ -18,7 +27,7 @@ int cache_get_item(ListboxCache * cache, int key)
 }
 
 
-void cache_put_item(ListboxCache * cache, int key, char * buf, int flags)
+void cache_put_item(StrCache * cache, int key, char * buf, int flags)
 {
     int oldest_index = 0;
     int oldest_time = 0;
@@ -45,9 +54,7 @@ void cache_put_item(ListboxCache * cache, int key, char * buf, int flags)
 }
 
 
-void cache_init(ListboxCache * cache)
+void cache_init(StrCache * cache)
 {
-    cache->access = 0;
-    memset(cache->lines, 0, sizeof(CacheLine) * cache->cnt);
 }
 

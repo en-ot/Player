@@ -81,7 +81,7 @@ static void audio_task(void * pvParameters)
 //###############################################################
 #define FILES_CACHE_LINES 10
 CacheLine files_lines[FILES_CACHE_LINES] = {0};
-ListboxCache files_cache = {FILES_CACHE_LINES, 0, files_lines};
+StrCache files_cache(FILES_CACHE_LINES, files_lines);
 
 bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
@@ -126,7 +126,7 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
 //###############################################################
 #define DIRS_CACHE_LINES 10
 CacheLine dirs_lines[DIRS_CACHE_LINES] = {0};
-ListboxCache dirs_cache = {DIRS_CACHE_LINES, 0, dirs_lines};
+StrCache dirs_cache(DIRS_CACHE_LINES, dirs_lines);
 
 bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
