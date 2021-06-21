@@ -106,7 +106,7 @@ bool play_file_prev()
         int n = playstack_pop();
         if (n == 0)
             n = fc->curfile;
-        play_file_num(n, FAIL_NEXT);
+        play_file_num(n, FAIL_RANDOM);
     }
     else
     {

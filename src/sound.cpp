@@ -283,35 +283,42 @@ int start_file(int num, int updown)
         num = clamp1(num, fc->filecnt);
         DEBUG("Trying to play %d...\n", num);
 
-        if (!fc->find_file(num))
+        int level = playstack_is_instack(num);
+        if ((fc->filecnt <= PLAYSTACK_LEVELS) || (level == PLAYSTACK_NOT_IN_STACK) || (updown != FAIL_RANDOM))
         {
-            snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
-            xQueueSend(tag_queue, tmp, 0);
-            DEBUG("no file %d\n", num);
-            return fc->curfile;
+            if (!fc->find_file(num))
+            {
+                snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
+                xQueueSend(tag_queue, tmp, 0);
+                DEBUG("no file %d\n", num);
+                return fc->curfile;
+            }
+
+            if (!fc->file_is_dir(num))
+            {
+                fc->file_name(num, filename, sizeof(filename));
+                //DEBUG("%s\n", filename);
+
+                int x = fc->file_dirname(num, dirname, sizeof(dirname));
+                //DEBUG("%s\n", dirname);
+
+                strlcpy(filepath, dirname, sizeof(filepath));
+                filepath[x++] = '/';
+                strlcpy(&filepath[x], filename, sizeof(filepath)-x);
+                //DEBUG("%s\n", filepath);
+                
+                gain_index = 0;
+                is_gain = false;
+                audio.setReplayGain(1.);
+                if (sound_start(filepath))
+                    break;
+            }
         }
-
-
-        if (!fc->file_is_dir(num))
+        else
         {
-            fc->file_name(num, filename, sizeof(filename));
-            //DEBUG("%s\n", filename);
-
-            int x = fc->file_dirname(num, dirname, sizeof(dirname));
-            //DEBUG("%s\n", dirname);
-
-            strlcpy(filepath, dirname, sizeof(filepath));
-            filepath[x++] = '/';
-            strlcpy(&filepath[x], filename, sizeof(filepath)-x);
-            //DEBUG("%s\n", filepath);
-            
-            gain_index = 0;
-            is_gain = false;
-            audio.setReplayGain(1.);
-            if (sound_start(filepath))
-                break;
+            DEBUG("File is in stack %d\n", level);
         }
-
+ 
         retry--;
         if (updown == FAIL_RANDOM)
             num = file_random();

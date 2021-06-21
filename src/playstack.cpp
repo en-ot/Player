@@ -10,7 +10,7 @@ static int playstack_next_level = 0;
 //###############################################################
 void playstack_init()
 {
-    memset(playstack, 0, sizeof(playstack));
+    memset(playstack, PLAYSTACK_EMPTY, sizeof(playstack));
 }
 
 
@@ -23,8 +23,11 @@ void playstack_push(int num)
 
 int playstack_pop()
 {
-    playstack_next_level = (playstack_next_level - 2 + PLAYSTACK_LEVELS) % PLAYSTACK_LEVELS;
+    playstack_next_level = (playstack_next_level - 1 + PLAYSTACK_LEVELS) % PLAYSTACK_LEVELS;
+    playstack[playstack_next_level] = PLAYSTACK_EMPTY;
+    playstack_next_level = (playstack_next_level - 1 + PLAYSTACK_LEVELS) % PLAYSTACK_LEVELS;
     int n = playstack[playstack_next_level];
+    playstack[playstack_next_level] = PLAYSTACK_EMPTY;
     return n;
 }
 
@@ -36,8 +39,10 @@ int playstack_is_instack(int num)
     {
         int index = (playstack_next_level - i - 1 + PLAYSTACK_LEVELS) % PLAYSTACK_LEVELS;
         if (playstack[index] == num)
-            return index;
+            return i;
     }
     return PLAYSTACK_NOT_IN_STACK;
 }
+
+
 //###############################################################

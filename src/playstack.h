@@ -1,8 +1,9 @@
 #ifndef _PLAYSTACK_H_
 #define _PLAYSTACK_H_
 
-#define PLAYSTACK_LEVELS 20
+#define PLAYSTACK_LEVELS 100    //~8 hours
 #define PLAYSTACK_NOT_IN_STACK -1
+#define PLAYSTACK_EMPTY 0
 
 void playstack_init();
 void playstack_push(int num);
