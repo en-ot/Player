@@ -1,6 +1,8 @@
 // builtin libs
 #include <Arduino.h>
 
+#include "debug.h"
+
 // project
 #include "globals.h"
 #include "playstack.h"
@@ -64,30 +66,14 @@ QueueHandle_t tag_queue;
 
 
 //###############################################################
-// Realtime tasks
-//###############################################################
-
-TaskHandle_t audio_task_handle;
-static void audio_task(void * pvParameters)
-{
-    while (true)
-    {
-        sound_task();
-        vTaskDelay(1);      //5 ok, 7 bad
-    }
-}
-
-
-//###############################################################
-#define FILES_CACHE_LINES 10
-CacheLine files_lines[FILES_CACHE_LINES] = {0};
-StrCache files_cache(FILES_CACHE_LINES, files_lines);
+#define FILES_CACHE_LINES 20
+StrCache * files_cache;
 
 bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     int filenum = nItem+1;
 
-    int index = cache_get_item(&files_cache, filenum);
+    int index = files_cache->get(filenum);
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
@@ -106,12 +92,12 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
         pl->file_name(filenum, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
-        cache_put_item(&files_cache, filenum, buf, dir_level);
+        files_cache->put(filenum, buf, dir_level);
     }
     else
     {
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, files_cache.lines[index].txt);
-        dir_level = files_cache.lines[index].flags;
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, files_cache->lines[index].txt);
+        dir_level = files_cache->lines[index].flags;
     }
 
     int type = 0;
@@ -124,15 +110,14 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
 
 
 //###############################################################
-#define DIRS_CACHE_LINES 10
-CacheLine dirs_lines[DIRS_CACHE_LINES] = {0};
-StrCache dirs_cache(DIRS_CACHE_LINES, dirs_lines);
+#define DIRS_CACHE_LINES 20
+StrCache * dirs_cache;
 
 bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     int dirnum = nItem+1;
 
-    int index = cache_get_item(&dirs_cache, dirnum);
+    int index = dirs_cache->get(dirnum);
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
@@ -150,14 +135,14 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         pl->file_name(pl->curfile, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
-        cache_put_item(&dirs_cache, dirnum, buf, dir_level | (filenum << 16));
+        dirs_cache->put(dirnum, buf, dir_level | (filenum << 16));
     }
     else
     {
-        uint32_t flags = dirs_cache.lines[index].flags;
+        uint32_t flags = dirs_cache->lines[index].flags;
         int filenum = flags >> 16;
         dir_level = flags & 0xFFFF;
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, dirs_cache.lines[index].txt);
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, dirs_cache->lines[index].txt);
     }
 
     int type = 0;
@@ -171,12 +156,13 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
 int dirs_file_num(int dirs_sel)
 {
     int dirnum = dirs_sel;
-    int index = cache_get_item(&dirs_cache, dirnum);
+    int index = dirs_cache->get(dirnum);
     if (index == CACHE_MISS)
         return 0;
-    int file_num = dirs_cache.lines[index].flags >> 16;
+    int file_num = dirs_cache->lines[index].flags >> 16;
     return file_num;
 }
+
 
 //###############################################################
 bool fav_switch(int fav_num, bool init)
@@ -214,8 +200,8 @@ bool fav_switch(int fav_num, bool init)
     gui->redraw();
 
     playstack_init();
-    cache_init(&files_cache);
-    cache_init(&dirs_cache);
+    files_cache = new StrCache(FILES_CACHE_LINES);
+    dirs_cache = new StrCache(DIRS_CACHE_LINES);
 
     start_file(next_file, +1);
 
@@ -272,21 +258,34 @@ bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 
 
 //###############################################################
-// Setup
+// Init steps
 //###############################################################
-#define STEP_TOTAL 10
+#define STEPS_TOTAL 10
+unsigned long step_t0 = 0;
 
-void step(int curstep)
+void begin(const char * step_name)
 {
-    static unsigned long t0 = 0;
+    DEBUG("Init step: %s\n", step_name);
+    if (gui)
+    {
+        gui->step_begin(step_name);
+    }
+    step_t0 = millis();
+};
+
+
+void end(int curstep)
+{
     unsigned long t = millis();
-    gui->step_progress(curstep, STEP_TOTAL);
+    gui->step_progress(curstep, STEPS_TOTAL);
     gui->loop();
-    Serial.printf("Step %d:%dms\n", curstep, (int)(t - t0));
-    t0 = t;
+    DEBUG("Step %d end (%dms)\n", curstep, (int)(t - step_t0));
 }
 
 
+//###############################################################
+// Setup
+//###############################################################
 void setup() 
 {
     Serial.begin(115200);
@@ -294,50 +293,58 @@ void setup()
     {       // Wait for USB Serial
         SysCall::yield();
     }
-    Serial.println();
+    DEBUG("\n");
 
+    begin("gui");
     gui = new Gui();
-    step(0);
+    end(0);
 
+    begin("sound");
     sound_setup();
-    step(1);
+    end(1);
 
-    controls_init();
-
-    xTaskCreatePinnedToCore(audio_task, "audio_task", 5000, NULL, 2, &audio_task_handle, 1);
+    begin("queue");
     tag_queue = xQueueCreate(QUEUE_DEPTH, QUEUE_MSG_SIZE);
-    step(2);
+    end(2);
 
+    begin("controls");
+    controls_init();
+    end(3);
+
+    begin("prefs");
     if (controls_defaults())
     {
         prefs_erase_all();
     }
     cur_fav_num = prefs_load_curfav();
-    step(3);
+    end(4);
 
+    begin("sdcard");
     if (!SD.begin()) 
     {
         gui->error("SDcard init error");
         SD.initErrorHalt(); // SdFat-lib helper function
     }
-    step(4);
+    end(5);
 
+    begin("fav");
     gui->fav_box(FAV_MAX, fav_get_item);
-    step(5);
-
     fav_init();
-    step(6);
+    end(6);
 
+    begin("filectrl");
     fc = new playlist();
-    step(7);
+    end(7);
  
+    begin("playlist");
     pl = new playlist();
-    step(8);
+    end(8);
 
-    step(9);
+    end(9);
 
+    begin("start");
     fav_switch(cur_fav_num, true);
-    step(10);
+    end(10);
 }
 
 

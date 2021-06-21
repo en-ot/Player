@@ -22,17 +22,17 @@ typedef struct
 class StrCache
 {
     public:
-        StrCache(int cnt, CacheLine * lines);
+        StrCache(int cnt);
     
-    int cnt;
-    int access;
-    CacheLine * lines;
+        int cnt;
+        int access;
+        CacheLine * lines;
+        
+        int get(int key);
+        void put(int key, char * buf, int flags);
 };
 
 
-void cache_init(StrCache * cache);
-int cache_get_item(StrCache * cache, int key);
-void cache_put_item(StrCache * cache, int key, char * buf, int flags);
 
 
 #endif // _STRCACHE_H_

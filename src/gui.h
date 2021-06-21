@@ -25,11 +25,12 @@ class Gui
         void redraw();
 
         void error(const char * errtxt);
+        void step_begin(const char * errtxt);
+        void step_progress(uint32_t pos, uint32_t total);
 
         // page:info
         void index(const char * text);
         void time_progress(uint32_t index, uint32_t total);
-        void step_progress(uint32_t pos, uint32_t total);
         void band(const char * text);
         void artist(const char * text);
         void album(const char * text);

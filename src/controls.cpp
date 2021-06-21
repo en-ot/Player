@@ -36,7 +36,6 @@ static void enc_task(void * pvParameters)
 void controls_init()
 {
     xTaskCreatePinnedToCore(enc_task, "enc_task", 5000, NULL, 2, &enc_task_handle, 0);
-
 }
 
 

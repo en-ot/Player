@@ -10,23 +10,42 @@
 
 Audio audio;
 
+
 //###############################################################
 // Audio wrapper
 //###############################################################
+void playctrl_loop();
+
+TaskHandle_t audio_task_handle;
+static void sound_task(void * pvParameters)
+{
+    while (true)
+    {
+        audio.loop();
+        playctrl_loop();
+        vTaskDelay(1);      //5 ok, 7 bad
+    }
+}
+
+
 void sound_setup()
 {
-    audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);    
+    audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+    xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, 1);
 }
+
 
 bool sound_is_playing()
 {
     return audio.isRunning();
 }
 
+
 uint32_t sound_current_time()
 {
     return audio.getAudioCurrentTime();
 }
+
 
 uint32_t sound_duration()
 {
@@ -269,9 +288,4 @@ int start_file(int num, int updown)
 }
 
 
-void sound_task()
-{
-    audio.loop();
-    playctrl_loop();
-}
 

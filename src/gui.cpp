@@ -749,6 +749,15 @@ void Gui::step_progress(uint32_t pos, uint32_t total)
 }
 
 
+void Gui::step_begin(const char * errtxt)
+{
+    page(PAGE_INFO);
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], errtxt);
+    //redraw();
+    loop();
+}
+
+
 void Gui::time_progress(uint32_t pos, uint32_t total)
 {
     char t[15] = "";
@@ -804,7 +813,7 @@ void Gui::path(const char * text)
 void Gui::error(const char * errtxt)
 {
     page(PAGE_INFO);
-    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], errtxt);
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], errtxt);
     redraw();
     loop();
 }
