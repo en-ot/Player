@@ -6,8 +6,7 @@ flac doesn't work without PSRAM)
 from one of the user-defined favourite folders ("playlists") 
 with all subfolders (up to predefined depth).
 Each playlist stores it's current file and position, shuffle mode, volume.
-It can be used for Music, Audiobooks, Language learning with quick switch between "playlists"
-(it will be improved later)
+It can be used for Music, Audiobooks, Language learning with quick switch between playlists.
 
 Info page is displaying current dir, file, mp3 tag info, play time on LCD
 with Unicode smooth font: latin, greek, cyrillic, japanese (incomplete yet)
@@ -15,7 +14,7 @@ with Unicode smooth font: latin, greek, cyrillic, japanese (incomplete yet)
 Controls:
 - First encoder is used to change volume / jump to next/previous file (with stack of recently played files)
 - Second encoder is used to seek within file, play/pause, navigate in playlist.
-- Three buttons are used to change page (song info, favourites, playlist, folders), jump between folders, change shuffle mode
+- Three buttons are used to change page (song info, favourites, playlist, folders), jump between folders, change play mode
 
 Display:
 - Filesystem and font support Unicode.
