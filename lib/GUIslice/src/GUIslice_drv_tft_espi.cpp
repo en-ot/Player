@@ -404,7 +404,7 @@ bool gslc_DrvGetTxtSize(gslc_tsGui* pGui,gslc_tsFont* pFont,const char* pStr,gsl
 }
 
 bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,int16_t nY1,int8_t eTxtAlign,
-        gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt, gslc_tsColor colBg=GSLC_COL_BLACK)
+        gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt, gslc_tsColor colBg=GSLC_COL_BLACK, int scrpos=0)
 {
   uint16_t nColRaw = gslc_DrvAdaptColorToRaw(colTxt);
   uint16_t nColBgRaw = gslc_DrvAdaptColorToRaw(colBg);
@@ -453,7 +453,7 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   m_disp.setTextDatum(nDatum);
 
   m_disp.setViewport(nX0, nY0, nX1-nX0, nY1-nY0, true);//en-ot
-  m_disp.drawString(pStr,nTxtX-nX0, nTxtY-nY0);//en-ot
+  m_disp.drawString(pStr,nTxtX-nX0-scrpos, nTxtY-nY0);//en-ot
   m_disp.resetViewport();//en-ot
 
   #ifdef SMOOTH_FONT

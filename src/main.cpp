@@ -423,6 +423,7 @@ void display_loop()
         t0 = t;
         gui->alive(sound_is_playing());
         gui->gain(sound_is_gain());
+        gui->scroll();
         return;
     }
 }

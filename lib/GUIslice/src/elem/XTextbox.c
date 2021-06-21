@@ -542,7 +542,7 @@ bool gslc_ElemXTextboxDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedraw
       nTxtPixY = pElem->rElem.y + pBox->nMarginY + nCurY * pBox->nChSizeY;
 #if (DRV_OVERRIDE_TXT_ALIGN)
       gslc_DrvDrawTxtAlign(pGui,nTxtPixX,nTxtPixY,nTxtPixX,nTxtPixY,GSLC_ALIGN_TOP_LEFT,pElem->pTxtFont,
-            (char*)&(pBox->pBuf[nBufPos]),pElem->eTxtFlags,colTxt,colBg);
+            (char*)&(pBox->pBuf[nBufPos]),pElem->eTxtFlags,colTxt,colBg,0);
 #else
       gslc_DrvDrawTxt(pGui, nTxtPixX, nTxtPixY, pElem->pTxtFont, (char*)&(pBox->pBuf[nBufPos]), pElem->eTxtFlags, colTxt, colBg);
 #endif

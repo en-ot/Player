@@ -271,12 +271,12 @@ bool gslc_ElemXRingGaugeDraw(void* pvGui, void* pvElemRef, gslc_teRedrawType eRe
     // Erase old string content using "background" color
     if (strlen(pXRingGauge->acStrLast) != 0) {
       gslc_DrawTxtBase(pGui, pXRingGauge->acStrLast, pElem->rElem, pElem->pTxtFont, pElem->eTxtFlags,
-        pElem->eTxtAlign, colBg, GSLC_COL_BLACK, nMarginX, nMarginY);
+        pElem->eTxtAlign, colBg, GSLC_COL_BLACK, nMarginX, nMarginY, pElem->scrpos);
     }
 
     // Draw new string content
     gslc_DrawTxtBase(pGui, pElem->pStrBuf, pElem->rElem, pElem->pTxtFont, pElem->eTxtFlags,
-      pElem->eTxtAlign, colTxt, GSLC_COL_BLACK, nMarginX, nMarginY);
+      pElem->eTxtAlign, colTxt, GSLC_COL_BLACK, nMarginX, nMarginY, pElem->scrpos);
 
     // Save a copy of the new string content so we can support future erase
     gslc_StrCopy(pXRingGauge->acStrLast, pElem->pStrBuf, XRING_STR_MAX);

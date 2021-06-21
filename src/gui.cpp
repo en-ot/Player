@@ -8,7 +8,7 @@
 #include "GUIslice_drv.h"
 #include "elem/XProgress.h"
 #include "elem/XSlider.h"
-//#include "elem/XTextbox.h"
+#include "elem/XTextbox.h"
 #include "elem/XListbox.h"
 
 #include "gui.h"
@@ -196,7 +196,7 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 #define INFO_ICON_H LINE_H
 #define INFO_GAP 2
 
-#define INFO_MODE_ICON_RECT     (gslc_tsRect){x, 0, INFO_ICON_W, INFO_ICON_H}
+#define INFO_MODE_ICON_RECT (gslc_tsRect){x, 0, INFO_ICON_W, INFO_ICON_H}
 #define INFO_MODE_W 40
 #define INFO_MODE_RECT      (gslc_tsRect){x, 0, INFO_MODE_W, LINE_H}
 #define INFO_MODE_COL       COL_GREEN_DARK
@@ -372,6 +372,7 @@ void page_info_init()
         pElemRef = gslc_ElemCreateTxt(&gslc, INFO_PATH_ELEM+i, PAGE_INFO, INFO_LINE_RECT, info_lines_str[i], sizeof(info_lines_str[i]), FONT_BUILTIN5X8);
         gslc_ElemSetTxtCol          (&gslc, pElemRef, COL_TEXT_NORMAL);
         gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, info_colors[i], info_colors[i]);
+        //gslc_ElemSetTxtMarginXY     (&gslc, pElemRef, 2, 2);
         info_lines_ref[i] = pElemRef;
 
         pElemRef = gslc_ElemCreateImg(&gslc, INFO_PATH_ICON+i, PAGE_INFO, INFO_ICON_RECT,
@@ -383,6 +384,18 @@ void page_info_init()
     }
 }
 
+
+#define SCROLL_MAX 300
+int scrollpos = 0;
+void Gui::scroll()
+{
+    scrollpos++;
+    if (scrollpos >= SCROLL_MAX)
+        scrollpos = 0;
+    return;
+    info_lines_ref[INFO_FILE]->pElem->scrpos = scrollpos;
+    gslc_ElemSetRedraw(&gslc, info_lines_ref[INFO_FILE], GSLC_REDRAW_INC);
+}
 
 
 //###############################################################

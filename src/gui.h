@@ -23,6 +23,7 @@ class Gui
         void loop();
         void page(int p);
         void redraw();
+        void scroll();
 
         void error(const char * errtxt);
         void step_begin(const char * errtxt);

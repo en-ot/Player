@@ -1785,7 +1785,7 @@ void gslc_DrawFillSectorBase(gslc_tsGui* pGui, int16_t nQuality, int16_t nMidX, 
     nSegInd = (bClockwise)? (nSegStart + nStepInd) : (nSegStart - nStepInd - 1);
 
     nAng64 = (int32_t)(nSegInd * nStep64) % (int32_t)(360 * 64);
-	
+    
     #if defined(DBG_REDRAW)
     GSLC_DEBUG2_PRINT("FillSector:  StepInd=%d SegInd=%d (%d..%d) Ang64=%d\n", nStepInd, nSegInd, nSegStart, nSegEnd, nAng64);
     #endif
@@ -2932,7 +2932,7 @@ void gslc_ElemDraw(gslc_tsGui* pGui,int16_t nPageId,int16_t nElemId)
 }
 
 void gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf,gslc_tsRect rTxt,gslc_tsFont* pTxtFont,gslc_teTxtFlags eTxtFlags,
-  int8_t eTxtAlign,gslc_tsColor colTxt,gslc_tsColor colBg,int16_t nMarginW,int16_t nMarginH)
+  int8_t eTxtAlign,gslc_tsColor colTxt,gslc_tsColor colBg,int16_t nMarginW,int16_t nMarginH, int16_t scrpos)
 {
   int16_t   nElemX,nElemY;
   uint16_t  nElemW,nElemH;
@@ -2973,7 +2973,7 @@ void gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf,gslc_tsRect rTxt,gslc_tsFo
     int16_t nY1 = nY0 + nElemH - 2*nMarginH;
 
     gslc_DrvDrawTxtAlign(pGui,nX0,nY0,nX1,nY1,eTxtAlign,pTxtFont,
-            pStrBuf,eTxtFlags,colTxt,colBg);
+            pStrBuf,eTxtFlags,colTxt,colBg,scrpos);
 
 #else // DRV_OVERRIDE_TXT_ALIGN
 
@@ -3174,7 +3174,7 @@ bool gslc_ElemDrawByRef(gslc_tsGui* pGui,gslc_tsElemRef* pElemRef,gslc_teRedrawT
     // Note that we use the "inner" region for text placement to
     // avoid overlapping any frame
     gslc_DrawTxtBase(pGui, pElem->pStrBuf, rElemInner, pElem->pTxtFont, pElem->eTxtFlags,
-      pElem->eTxtAlign, colTxt, colBg, nMarginX, nMarginY);
+      pElem->eTxtAlign, colTxt, colBg, nMarginX, nMarginY, pElem->scrpos);
   }
 
   // --------------------------------------------------------------------------
@@ -4921,6 +4921,7 @@ void gslc_ResetElem(gslc_tsElem* pElem)
   pElem->nTxtMarginX      = 0;
   pElem->nTxtMarginY      = 0;
   pElem->pTxtFont         = NULL;
+  pElem->scrpos           = 0;
 
   pElem->pXData           = NULL;
   pElem->pfuncXEvent      = NULL; // UNUSED
