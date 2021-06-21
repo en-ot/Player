@@ -64,5 +64,7 @@ class Gui
 
 };
 
+extern Gui * gui;
+extern int ui_page;
 
 #endif // _MY_DISPLAY_H_

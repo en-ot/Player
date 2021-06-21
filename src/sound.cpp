@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "prefs.h"
 #include "playstack.h"
+#include "controls.h"
 
 #include "sound.h"
 
