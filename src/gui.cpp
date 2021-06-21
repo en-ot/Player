@@ -849,3 +849,13 @@ void Gui::alive(bool running)
 }
 
 
+void Gui::display_header(bool shuffle, bool repeat, int volume)
+{
+    gui->alive(true);
+    gui->shuffle(shuffle);
+    gui->repeat(repeat);
+    gui->volume(volume);
+    gui->index("");
+}
+
+

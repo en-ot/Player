@@ -46,6 +46,9 @@ extern "C" {
 // - NOTE: The XListbox element is in beta development.
 //         Therefore, its API is subject to change.
 // ============================================================================
+// TODO: Combine with GUIslice MAX_STR
+// Defines the maximum length of a listbox item
+#define XLISTBOX_MAX_STR        70 //en-ot
 
 // Define unique identifier for extended element type
 // - Select any number above GSLC_TYPE_BASE_EXTEND

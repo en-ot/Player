@@ -65,9 +65,6 @@ extern const char GSLC_PMEM ERRSTR_PXD_NULL[];
 
 // ----------------------------------------------------------------------------
 
-// TODO: Combine with GUIslice MAX_STR
-// Defines the maximum length of a listbox item
-#define XLISTBOX_MAX_STR        70 //en-ot
 
 // ============================================================================
 // Extended Element: Listbox

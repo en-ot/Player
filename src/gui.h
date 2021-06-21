@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include "elem/XListbox.h"
 
-#define XLISTBOX_MAX_STR 70  // длина одной строки экрана в байтах, не выделять память больше (UTF-8 - размер до 3x, 20 символов=60 байт)
+//#define XLISTBOX_MAX_STR 70  // длина одной строки экрана в байтах, не выделять память больше (UTF-8 - размер до 3x, 20 символов=60 байт)
 #define MAX_STR 70  // длина одной строки экрана в байтах, не выделять память больше (UTF-8 - размер до 3x, 20 символов=60 байт)
 
 enum {PAGE_INFO, PAGE_FILES, /*PAGE_PIC,*/ PAGE_FAV, PAGE_DIRS, PAGE_MAX};
@@ -40,6 +40,7 @@ class Gui
         void shuffle(bool val);
         void repeat(bool val);
         void alive(bool running);
+        void display_header(bool shuffle, bool repeat, int volume);
 
         // page:files
         int files_sel = 1;
