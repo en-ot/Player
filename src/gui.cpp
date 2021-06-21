@@ -268,7 +268,8 @@ gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 #include "Icons/icon_shuffle_on.h"
 #include "Icons/icon_repeat_off.h"
 #include "Icons/icon_repeat_on.h"
-#include "Icons/icon_volume.h"
+#include "Icons/icon_volume_gain.h"
+#include "Icons/icon_volume_nogain.h"
 
 #include "Icons/icon_path.h"
 #include "Icons/icon_file.h"
@@ -280,7 +281,7 @@ gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 
 enum {
     ICON_PAUSE, ICON_PLAY0, ICON_PLAY1, ICON_PLAY2, ICON_PLAY3,
-    ICON_SHUFFLE_OFF, ICON_SHUFFLE_ON, ICON_REPEAT_OFF, ICON_REPEAT_ON, ICON_VOLUME, 
+    ICON_SHUFFLE_OFF, ICON_SHUFFLE_ON, ICON_REPEAT_OFF, ICON_REPEAT_ON, ICON_VOLUME_NOGAIN, ICON_VOLUME_GAIN, 
     ICON_PATH, ICON_FILE, ICON_BAND, ICON_ARTIST, ICON_ALBUM, ICON_TITLE,
     //ICON_ERROR,
     ICONS_TOTAL
@@ -288,7 +289,7 @@ enum {
 
 const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
     icon_pause, icon_disk0, icon_disk1, icon_disk2, icon_disk3,
-    icon_shuffle_off, icon_shuffle_on, icon_repeat_off, icon_repeat_on, icon_volume, 
+    icon_shuffle_off, icon_shuffle_on, icon_repeat_off, icon_repeat_on, icon_volume_nogain, icon_volume_gain,
     icon_path, icon_file, icon_band, icon_artist, icon_album, icon_title,
 };
 
@@ -328,8 +329,11 @@ void page_info_init()
     info_mode_icons_ref[r++] = pElemRef;
     x += INFO_ICON_W + INFO_GAP;
 
-    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME], GSLC_IMGREF_FMT_BMP24);
+    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME_NOGAIN], GSLC_IMGREF_FMT_BMP24);
+    imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME_GAIN], GSLC_IMGREF_FMT_BMP24);
     pElemRef = gslc_ElemCreateImg(&gslc, INFO_VOLUME_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
+    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
     gslc_ElemSetCol(&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
     info_mode_icons_ref[r++] = pElemRef;
     x += INFO_ICON_W;

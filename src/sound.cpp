@@ -199,7 +199,7 @@ void audio_id3data(const char *info)  //id3 metadata
     int l1 = sizeof(GAIN_TXT1)-1;
     if (!strncmp(info, GAIN_TXT1, l1))
     {
-        DEBUG("%d %s\n", gain_index, &info[l1]);
+        //DEBUG("%d %s\n", gain_index, &info[l1]);
         int l2 = sizeof(GAIN_TXT2)-1;
 
         int i = 0;
@@ -215,18 +215,18 @@ void audio_id3data(const char *info)  //id3 metadata
         
         if (i)
         {
-            DEBUG("Replay gain: %s\n", &info[i]);
+            //DEBUG("Replay gain: %s\n", &info[i]);
             float gain = 0;
             if (sscanf(&info[i], "%f", &gain))
             {
-                DEBUG("Replay gain %f\n", gain);
+                //DEBUG("Replay gain %f\n", gain);
                 gain = pow10f(-0.05*gain);
                 DEBUG("Replay gain %f\n", gain);
                 audio.setReplayGain(gain);
             }
             else
             {
-                DEBUG("!sscanf\n");
+                //DEBUG("!sscanf\n");
             }
         }
         gain_index++;
