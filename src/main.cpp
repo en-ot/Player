@@ -196,14 +196,20 @@ bool fav_switch(int fav_num, bool init)
     DEBUG("dircnt: %d\n", pl->dircnt);
 
     gui->fav_set(fav_num);
-    gui->display_header(shuffle, repeat, volume);
+    gui->shuffle(shuffle);
+    gui->repeat(repeat);
+    gui->volume(volume);
+
+    gui->alive(false);
+    gui->gain(false);
+    gui->index("");
     gui->redraw();
 
     playstack_init();
     files_cache = new StrCache(FILES_CACHE_LINES);
     dirs_cache = new StrCache(DIRS_CACHE_LINES);
 
-    start_file(next_file, +1);
+    start_file(next_file, FAIL_NEXT);
 
     if (filepos)
         need_set_file_pos = true;
@@ -416,6 +422,7 @@ void display_loop()
     {
         t0 = t;
         gui->alive(sound_is_playing());
+        gui->gain(sound_is_gain());
         return;
     }
 }

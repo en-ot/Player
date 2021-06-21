@@ -38,10 +38,10 @@ class Gui
         void file(const char * text);
         void path(const char * text);
         void volume(int volume);
+        void gain(bool gain);
         void shuffle(bool val);
         void repeat(bool val);
         void alive(bool running);
-        void display_header(bool shuffle, bool repeat, int volume);
 
         // page:files
         int files_sel = 1;

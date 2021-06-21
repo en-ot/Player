@@ -825,6 +825,12 @@ void Gui::error(const char * errtxt)
 }
 
 //###############################################################
+void Gui::gain(bool gain)
+{
+    gslc_ElemSetGlow(&gslc, info_mode_icons_ref[INFO_VOLUME_ICON], gain);
+}
+
+
 void Gui::volume(int volume)
 {
     char t[20];
@@ -861,16 +867,6 @@ void Gui::alive(bool running)
 
     gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
     gslc_ElemSetImage(&gslc, info_mode_icons_ref[INFO_PLAY_ICON], imgref, imgref);
-}
-
-
-void Gui::display_header(bool shuffle, bool repeat, int volume)
-{
-    gui->alive(true);
-    gui->shuffle(shuffle);
-    gui->repeat(repeat);
-    gui->volume(volume);
-    gui->index("");
 }
 
 

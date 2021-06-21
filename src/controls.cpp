@@ -248,6 +248,7 @@ bool change_volume(int change)
 
     volume = new_volume;
     gui->volume(volume);
+    gui->gain(true);
     prefs_save_delayed(need_save_volume);
     return true;
 }

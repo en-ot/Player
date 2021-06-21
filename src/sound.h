@@ -9,6 +9,7 @@ int start_file(int num, int updown);
 void sound_setup();
 
 bool sound_is_playing();
+bool sound_is_gain();
 uint32_t sound_current_time();
 uint32_t sound_duration();
 void sound_pause();

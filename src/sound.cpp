@@ -13,6 +13,12 @@
 Audio audio;
 
 
+static int gain_index = 0;
+static bool is_gain = false;
+#define GAIN_TXT1 "UserDefinedText: "
+#define GAIN_TXT2 "replaygain_track_gain"
+
+
 //###############################################################
 // Audio wrapper
 //###############################################################
@@ -34,6 +40,12 @@ void sound_setup()
 {
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, 1);
+}
+
+
+bool sound_is_gain()
+{
+    return is_gain;
 }
 
 
@@ -188,9 +200,6 @@ void audio_info(const char *info)
     DEBUG("info        %s\n", info); 
 }
 
-int gain_index = 0;
-#define GAIN_TXT1 "UserDefinedText: "
-#define GAIN_TXT2 "replaygain_track_gain"
 
 void audio_id3data(const char *info)  //id3 metadata
 {
@@ -223,6 +232,7 @@ void audio_id3data(const char *info)  //id3 metadata
                 gain = pow10f(-0.05*gain);
                 DEBUG("Replay gain %f\n", gain);
                 audio.setReplayGain(gain);
+                is_gain = true;
             }
             else
             {
@@ -296,6 +306,7 @@ int start_file(int num, int updown)
             //DEBUG("%s\n", filepath);
             
             gain_index = 0;
+            is_gain = false;
             audio.setReplayGain(1.);
             if (sound_start(filepath))
                 break;
