@@ -634,7 +634,9 @@ typedef struct gslc_tsElem {
   int8_t              nTxtMarginX;      ///< Margin of overlay text within rect region (x offset)
   int8_t              nTxtMarginY;      ///< Margin of overlay text within rect region (y offset)
   gslc_tsFont*        pTxtFont;         ///< Ptr to Font for overlay text
-  int16_t             scrpos;//en-ot
+  
+  int16_t             scr_pos;//en-ot
+  bool                txt_fit;//en-ot
 
   // Extended data elements
   void*               pXData;           ///< Ptr to extended data structure
@@ -3330,8 +3332,8 @@ void gslc_ElemDraw(gslc_tsGui* pGui,int16_t nPageId,int16_t nElemId);
 ///
 /// \return none
 ///
-void gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf, gslc_tsRect rTxt, gslc_tsFont* pTxtFont, gslc_teTxtFlags eTxtFlags,
-  int8_t eTxtAlign, gslc_tsColor colTxt, gslc_tsColor colBg, int16_t nMarginW, int16_t nMarginH, int16_t scrpos);
+bool gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf, gslc_tsRect rTxt, gslc_tsFont* pTxtFont, gslc_teTxtFlags eTxtFlags,
+  int8_t eTxtAlign, gslc_tsColor colTxt, gslc_tsColor colBg, int16_t nMarginW, int16_t nMarginH, int16_t scr_pos);
 
 
 ///

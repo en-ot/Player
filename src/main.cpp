@@ -423,9 +423,16 @@ void display_loop()
         t0 = t;
         gui->alive(sound_is_playing());
         gui->gain(sound_is_gain());
-        gui->scroll();
         return;
     }
+
+    // static unsigned long t2 = 0;
+    // if (t - t2 > 1000)
+    // {
+    //     t2 = t;
+    //     gui->scroll();
+    //     return;
+    // }
 }
 
 

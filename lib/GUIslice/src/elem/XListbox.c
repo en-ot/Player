@@ -706,7 +706,7 @@ bool gslc_ElemXListboxDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedraw
 
       // Draw the aligned text string (by default it is GSLC_ALIGN_MID_LEFT)
       gslc_DrawTxtBase(pGui, acStr, rItemRect, pElem->pTxtFont, eTxtFlags,
-        pElem->eTxtAlign, colTxt, colFill, pElem->nTxtMarginX, pElem->nTxtMarginY, pElem->scrpos);
+        pElem->eTxtAlign, colTxt, colFill, pElem->nTxtMarginX, pElem->nTxtMarginY, pElem->scr_pos);
     }
 
   }

@@ -243,7 +243,7 @@ char                        info_mode_str[20] = "                   ";
 gslc_tsElemRef*             info_mode_ref = NULL;
 gslc_tsElemRef*             info_mode_icons_ref[INFO_MODE_ICONS] = {0};
 
-char                        info_index_str[MAX_STR] = {0};
+char                        info_index_str[INFO_INDEX_MAX_STR] = {0};
 gslc_tsElemRef*             info_index_ref = NULL;
 
 char                        info_pgs1_str[10] = {0};
@@ -255,7 +255,7 @@ gslc_tsElemRef*             info_pgs2_ref  = NULL;
 char                        info_pgs3_str[10] = {0};
 gslc_tsElemRef*             info_pgs3_ref = NULL;
 
-char                        info_lines_str[INFO_LINES][MAX_STR] = {0};
+char                        info_lines_str[INFO_LINES][INFO_LINE_MAX_STR] = {0};
 gslc_tsElemRef*             info_lines_ref[INFO_LINES] = {0};
 gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 
@@ -382,19 +382,6 @@ void page_info_init()
 
         y += INFO_LINE_STEP;
     }
-}
-
-
-#define SCROLL_MAX 300
-int scrollpos = 0;
-void Gui::scroll()
-{
-    scrollpos++;
-    if (scrollpos >= SCROLL_MAX)
-        scrollpos = 0;
-    return;
-    info_lines_ref[INFO_FILE]->pElem->scrpos = scrollpos;
-    gslc_ElemSetRedraw(&gslc, info_lines_ref[INFO_FILE], GSLC_REDRAW_INC);
 }
 
 
@@ -584,9 +571,46 @@ Gui::Gui()
 }
 
 
+#define SCROLL_STEP 50
+
 void Gui::loop()
 {
     gslc_Update(&gslc);
+
+    static unsigned long t2 = 0;
+    unsigned long t = millis();
+    if (t - t2 > 1000)
+    {
+        t2 = t;
+
+        int i;
+        for (i = 0; i < INFO_LINES; i++)
+        {
+            gslc_tsElemRef *pElemRef = info_lines_ref[i];
+            gslc_tsElem *pElem = pElemRef->pElem;
+
+            if (!pElem->txt_fit)
+            {
+                pElem->scr_pos += SCROLL_STEP;
+                gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+            }
+            else
+            {
+                if (pElem->scr_pos)
+                {
+                    gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+                    pElem->scr_pos = 0;
+                }
+            } 
+        }
+
+    }
+}
+
+
+void Gui::scroll()
+{
+
 }
 
 

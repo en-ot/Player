@@ -404,7 +404,7 @@ bool gslc_DrvGetTxtSize(gslc_tsGui* pGui,gslc_tsFont* pFont,const char* pStr,gsl
 }
 
 bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,int16_t nY1,int8_t eTxtAlign,
-        gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt, gslc_tsColor colBg=GSLC_COL_BLACK, int scrpos=0)
+        gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt, gslc_tsColor colBg=GSLC_COL_BLACK, int16_t scr_pos=0)
 {
   uint16_t nColRaw = gslc_DrvAdaptColorToRaw(colTxt);
   uint16_t nColBgRaw = gslc_DrvAdaptColorToRaw(colBg);
@@ -453,8 +453,9 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   m_disp.setTextDatum(nDatum);
 
   m_disp.setViewport(nX0, nY0, nX1-nX0, nY1-nY0, true);//en-ot
-  m_disp.drawString(pStr,nTxtX-nX0-scrpos, nTxtY-nY0);//en-ot
+  int16_t txt_width = m_disp.drawString(pStr, nTxtX-nX0-scr_pos, nTxtY-nY0);//en-ot
   m_disp.resetViewport();//en-ot
+
 
   #ifdef SMOOTH_FONT
     if (pFont->eFontRefType  == GSLC_FONTREF_FNAME){
@@ -463,7 +464,7 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   #endif
 
   // For now, always return true
-  return true;
+  return (txt_width-scr_pos) <= (nX1-nX0);
 }
 
 // NOTE: As TFT_eSPI performs some complex logic in determining the font

@@ -2931,9 +2931,11 @@ void gslc_ElemDraw(gslc_tsGui* pGui,int16_t nPageId,int16_t nElemId)
   gslc_ElemEvent(pGui,sEvent);
 }
 
-void gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf,gslc_tsRect rTxt,gslc_tsFont* pTxtFont,gslc_teTxtFlags eTxtFlags,
-  int8_t eTxtAlign,gslc_tsColor colTxt,gslc_tsColor colBg,int16_t nMarginW,int16_t nMarginH, int16_t scrpos)
+bool gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf,gslc_tsRect rTxt,gslc_tsFont* pTxtFont,gslc_teTxtFlags eTxtFlags,
+  int8_t eTxtAlign,gslc_tsColor colTxt,gslc_tsColor colBg,int16_t nMarginW,int16_t nMarginH, int16_t scr_pos)
 {
+  bool res = false;
+
   int16_t   nElemX,nElemY;
   uint16_t  nElemW,nElemH;
 
@@ -2972,8 +2974,8 @@ void gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf,gslc_tsRect rTxt,gslc_tsFo
     int16_t nX1 = nX0 + nElemW - 2*nMarginW;
     int16_t nY1 = nY0 + nElemH - 2*nMarginH;
 
-    gslc_DrvDrawTxtAlign(pGui,nX0,nY0,nX1,nY1,eTxtAlign,pTxtFont,
-            pStrBuf,eTxtFlags,colTxt,colBg,scrpos);
+    res = gslc_DrvDrawTxtAlign(pGui,nX0,nY0,nX1,nY1,eTxtAlign,pTxtFont,
+            pStrBuf,eTxtFlags,colTxt,colBg,scr_pos);
 
 #else // DRV_OVERRIDE_TXT_ALIGN
 
@@ -3025,6 +3027,7 @@ void gslc_DrawTxtBase(gslc_tsGui* pGui, char* pStrBuf,gslc_tsRect rTxt,gslc_tsFo
     // No text support in driver, so skip
 #endif // DRV_HAS_DRAW_TEXT
   }
+  return res;
 }
 
 // Draw an element to the active display
@@ -3173,8 +3176,8 @@ bool gslc_ElemDrawByRef(gslc_tsGui* pGui,gslc_tsElemRef* pElemRef,gslc_teRedrawT
 
     // Note that we use the "inner" region for text placement to
     // avoid overlapping any frame
-    gslc_DrawTxtBase(pGui, pElem->pStrBuf, rElemInner, pElem->pTxtFont, pElem->eTxtFlags,
-      pElem->eTxtAlign, colTxt, colBg, nMarginX, nMarginY, pElem->scrpos);
+    pElem->txt_fit = gslc_DrawTxtBase(pGui, pElem->pStrBuf, rElemInner, pElem->pTxtFont, pElem->eTxtFlags,
+      pElem->eTxtAlign, colTxt, colBg, nMarginX, nMarginY, pElem->scr_pos);
   }
 
   // --------------------------------------------------------------------------
@@ -3355,6 +3358,7 @@ void gslc_ElemSetTxtStr(gslc_tsGui* pGui,gslc_tsElemRef* pElemRef,const char* pS
   gslc_tsElem* pElem = gslc_GetElemFromRefD(pGui, pElemRef, __LINE__);
   if (!pElem) return;
 
+  pElem->scr_pos = 0;
   // Check for read-only status (in case the string was
   // defined in Flash/PROGMEM)
   if (pElem->nStrBufMax == 0) {
@@ -4921,7 +4925,7 @@ void gslc_ResetElem(gslc_tsElem* pElem)
   pElem->nTxtMarginX      = 0;
   pElem->nTxtMarginY      = 0;
   pElem->pTxtFont         = NULL;
-  pElem->scrpos           = 0;
+  pElem->scr_pos           = 0;
 
   pElem->pXData           = NULL;
   pElem->pfuncXEvent      = NULL; // UNUSED
