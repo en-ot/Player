@@ -571,49 +571,67 @@ Gui::Gui()
 }
 
 
+int scroll_times[INFO_LINES] = {0};
+unsigned long scroll_t0 = 0;
+#define SCROLL_DELAY 2000
+#define SCROLL_PERIOD 1000
 #define SCROLL_STEP 50
+
+void Gui::scroll_reset()
+{
+    int i;
+    for (i = 0; i < INFO_LINES; i++)
+    {
+        gslc_tsElemRef *pElemRef = info_lines_ref[i];
+        gslc_tsElem *pElem = pElemRef->pElem;
+        if (pElem->scr_pos)
+        {
+            pElem->scr_pos = 0;
+            gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+        }
+        scroll_times[i] = 0;
+    }
+    scroll_t0 = millis() + SCROLL_DELAY;
+}
+
 
 void Gui::loop()
 {
     gslc_Update(&gslc);
 
-    static unsigned long t2 = 0;
     unsigned long t = millis();
-    if (t - t2 > 1000)
+    if ((long)(t - scroll_t0) < SCROLL_PERIOD)
+        return;
+    scroll_t0 = t;
+
+    int i;
+    for (i = 0; i < INFO_LINES; i++)
     {
-        t2 = t;
+        gslc_tsElemRef *pElemRef = info_lines_ref[i];
+        gslc_tsElem *pElem = pElemRef->pElem;
 
-        int i;
-        for (i = 0; i < INFO_LINES; i++)
+        if (!pElem->txt_fit)
         {
-            gslc_tsElemRef *pElemRef = info_lines_ref[i];
-            gslc_tsElem *pElem = pElemRef->pElem;
-
-            if (!pElem->txt_fit)
+            if (scroll_times[i] < 1)
             {
                 pElem->scr_pos += SCROLL_STEP;
                 gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
             }
-            else
-            {
-                if (pElem->scr_pos)
-                {
-                    gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
-                    pElem->scr_pos = 0;
-                }
-            } 
         }
-
+        else
+        {
+            if (pElem->scr_pos)
+            {
+                pElem->scr_pos = 0;
+                scroll_times[i]++;
+                gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+            }
+        } 
     }
 }
 
 
-void Gui::scroll()
-{
-
-}
-
-
+//###############################################################
 void Gui::redraw()
 {
     gslc_PageRedrawSet(&gslc, true);
@@ -626,6 +644,7 @@ void Gui::page(int page_n)
     static gslc_tsColor page_back_col[] = {INFO_BACK_COL, FILES_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
     gslc_SetPageCur(&gslc, page_n);
     gslc_SetBkgndColor(&gslc, page_back_col[page_n]);
+    scroll_reset();
 }
 
 
@@ -848,6 +867,7 @@ void Gui::file(const char * text)
 
 void Gui::path(const char * text)
 {
+    scroll_reset();
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], text);
 }
 
@@ -899,6 +919,8 @@ void Gui::alive(bool running)
     }
     else
     {
+        if (index == ICON_PAUSE)
+            return;
         index = ICON_PAUSE;
     }
 
