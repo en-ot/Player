@@ -39,7 +39,7 @@ class Gui
         void album(const char * text);
         void title(const char * text);
         void file(const char * text);
-        void path(const char * text);
+        void path(const char * text, const char * root);
         void volume(int volume);
         void gain(bool gain);
         void shuffle(bool val);

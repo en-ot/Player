@@ -10,8 +10,8 @@
 #define PATHNAME_MAX_LEN 256
 #define FILENAME_MAX_LEN 256
 
-extern int rootcnt;
-extern int curroot;
+//extern int rootcnt;
+//extern int curroot;
 
 int clamp1(int num, int cnt);
 
@@ -42,13 +42,14 @@ class playlist
 
         int level = 0;
         
+        String root_path;
+
     private:
         size_t entry_name(File & file, char * buf, int len);
         bool find_file0(int file_num);
         void rewind();
         void scan_files(int *fcnt, int *dcnt);
 
-        String root_path;
         File dirs[DIR_DEPTH];
         File entry;
 };

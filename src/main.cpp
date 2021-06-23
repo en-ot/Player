@@ -412,7 +412,7 @@ void display_loop()
         else if (cmp(msg, "Album", &p))     gui->album(p);
         else if (cmp(msg, "Title", &p))     gui->title(p);
         else if (cmp(msg, "File", &p))      gui->file(p);
-        else if (cmp(msg, "Path", &p))      gui->path(p);
+        else if (cmp(msg, "Path", &p))      gui->path(p, fc->root_path.c_str());
         else if (cmp(msg, "Index", &p))     gui->index(p);
         return;
     }
@@ -481,7 +481,7 @@ void memory_loop()
 
     t0 = t;
     uint32_t freeheap = ESP.getFreeHeap();
-    if (freeheap < 100000)
+    if (freeheap < 80000)
     {
        need_print = true;
     }

@@ -8,6 +8,7 @@
 //###############################################################
 #define PATHNAME_MAX_LEN 256
 
+#define UNUSED(...) (void)__VA_ARGS__
 //###############################################################
 extern int file_seek_by;
 extern uint32_t filepos;
