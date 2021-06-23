@@ -43,6 +43,7 @@
 //###############################################################
 #define COL_BLACK       ((gslc_tsColor) { 0, 0, 0})
 #define COL_GRAY_DARK   ((gslc_tsColor) { 32, 32, 32})
+#define COL_GRAY        ((gslc_tsColor) { 64, 64, 64})
 #define COL_WHITE       ((gslc_tsColor) { 255, 255, 255})
 
 #define COL_GREEN_DARK  ((gslc_tsColor) { 0, 96, 0})
@@ -189,16 +190,20 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 //###############################################################
 // page:info
 //###############################################################
-#define INFO_BACK_COL       COL_GRAY_DARK
+#define INFO_BACK_COL       COL_BLACK
 
 #define INFO_ICON_W LINE_H
 #define INFO_ICON_H LINE_H
 #define INFO_GAP 2
 
-#define INFO_MODE_ICON_RECT (gslc_tsRect){x, 0, INFO_ICON_W, INFO_ICON_H}
-#define INFO_MODE_W 35
-#define INFO_MODE_RECT      (gslc_tsRect){x, 0, INFO_MODE_W, LINE_H}
 #define INFO_MODE_COL       COL_GREEN_DARK
+#define INFO_MODE_ICON_RECT (gslc_tsRect){x, 0, INFO_ICON_W, INFO_ICON_H}
+
+#define INFO_VOLUME_W 27
+#define INFO_VOLUME_RECT    (gslc_tsRect){x, 0, INFO_VOLUME_W, LINE_H}
+
+#define INFO_FAV_W 27
+#define INFO_FAV_RECT       (gslc_tsRect){x, 0, INFO_FAV_W, LINE_H}
 
 #define INFO_INDEX_RECT     (gslc_tsRect){x, 0, (uint16_t)(LCD_W-x), LINE_H}
 #define INFO_INDEX_COL      COL_GREEN_DARK
@@ -226,9 +231,9 @@ gslc_tsColor                info_colors[] = {COL_BLUE_DARK, COL_BLUE_DARK, COL_R
 #define INFO_PGS2_RECT      (gslc_tsRect){INFO_PGS1_W, LCD_H-LINE_H, INFO_PGS2_W, LINE_H}
 #define INFO_PGS3_RECT      (gslc_tsRect){LCD_W-INFO_PGS3_W, LCD_H-LINE_H, INFO_PGS3_W, LINE_H}
 #define INFO_PGS_FILL_COL   COL_GREEN_DARK
-#define INFO_PGS2_FILL_COL  COL_BLACK
-#define INFO_PGS_LINE_COL   COL_GREEN
-#define INFO_PGS_FRAME_COL  COL_WHITE
+#define INFO_PGS2_FILL_COL  COL_GRAY
+#define INFO_PGS2_LINE_COL  COL_GREEN
+#define INFO_PGS2_FRAME_COL COL_WHITE
 
 gslc_tsElem                 info_elem[INFO_ELEM_MAX];
 gslc_tsElemRef              info_ref[INFO_ELEM_MAX];
@@ -238,9 +243,12 @@ enum {
     INFO_LINES
 };
 
-char                        info_mode_str[20] = "                   ";
+char                        info_mode_str[20] = "";
 gslc_tsElemRef*             info_mode_ref = NULL;
 gslc_tsElemRef*             info_mode_icons_ref[INFO_MODE_ICONS] = {0};
+
+char                        info_fav_str[10] = "";
+gslc_tsElemRef*             info_fav_ref = NULL;
 
 char                        info_index_str[INFO_INDEX_MAX_STR] = {0};
 gslc_tsElemRef*             info_index_ref = NULL;
@@ -309,11 +317,11 @@ gslc_tsElemRef* create_icon(int elem_id, int icon1, int icon2, int16_t &x, int g
 
 gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsize, gslc_tsColor col, int16_t &x, int gap)
 {
-    gslc_tsElemRef* pElemRef = gslc_ElemCreateTxt   (&gslc, elem_id, PAGE_INFO, rect, str, strsize, FONT_BUILTIN5X8);
+    gslc_tsElemRef* pElemRef = gslc_ElemCreateTxt(&gslc, elem_id, PAGE_INFO, rect, str, strsize, FONT_BUILTIN5X8);
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, col, col);
     gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
-    x += INFO_MODE_W + gap;
+    x += INFO_VOLUME_W + gap;
     return pElemRef;
 }
 
@@ -326,9 +334,6 @@ void page_info_init()
     int r = 0;
     int16_t x = 0;
 
-    gslc_tsImgRef imgref1;
-    gslc_tsImgRef imgref2;
-
     info_mode_icons_ref[r++] = create_icon(INFO_PLAY_ICON, ICON_PAUSE, ICON_PAUSE, x, INFO_GAP);
 
     info_mode_icons_ref[r++] = create_icon(INFO_SHUFFLE_ICON, ICON_SHUFFLE_OFF, ICON_SHUFFLE_ON, x, INFO_GAP);
@@ -336,23 +341,14 @@ void page_info_init()
     info_mode_icons_ref[r++] = create_icon(INFO_REPEAT_ICON, ICON_REPEAT_OFF, ICON_REPEAT_ON, x, INFO_GAP);
 
     info_mode_icons_ref[r++] = create_icon(INFO_VOLUME_ICON, ICON_VOLUME_NOGAIN, ICON_VOLUME_GAIN, x, 0);
-    info_mode_ref = create_text(INFO_VOLUME_ELEM, INFO_MODE_RECT, info_mode_str, sizeof(info_mode_str), INFO_MODE_COL, x, INFO_GAP);
-    // pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_VOLUME_ELEM, PAGE_INFO, INFO_MODE_RECT, info_mode_str, sizeof(info_mode_str), FONT_BUILTIN5X8);
-    // gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
-    // gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
-    // info_mode_ref = pElemRef;
-    // x += INFO_MODE_W + INFO_GAP;
+    info_mode_ref = create_text(INFO_VOLUME_ELEM, INFO_VOLUME_RECT, info_mode_str, sizeof(info_mode_str), INFO_MODE_COL, x, INFO_GAP);
 
     // fav
     info_mode_icons_ref[r++] = create_icon(INFO_FAV_ICON, ICON_FAV, ICON_FAV, x, 0);
+    info_fav_ref = create_text(INFO_FAV_ELEM, INFO_FAV_RECT, info_fav_str, sizeof(info_fav_str), INFO_MODE_COL, x, INFO_GAP);
 
     // index
     info_index_ref = create_text(INFO_INDEX_ELEM, INFO_INDEX_RECT, info_index_str, sizeof(info_index_str), INFO_INDEX_COL, x, INFO_GAP);
-    // pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_INDEX_ELEM, PAGE_INFO, INFO_INDEX_RECT, info_index_str, sizeof(info_index_str), FONT_BUILTIN5X8);
-    // gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
-    // gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_WHITE);
-    // gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_INDEX_COL, INFO_INDEX_COL);
-    // info_index_ref = pElemRef;
 
     // progress
     pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_PGS1_ELEM, PAGE_INFO, INFO_PGS1_RECT, info_pgs1_str, sizeof(info_pgs1_str), FONT_BUILTIN5X8);
@@ -361,7 +357,8 @@ void page_info_init()
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_PGS_FILL_COL, INFO_PGS_FILL_COL);
     info_pgs1_ref = pElemRef;
 
-    pElemRef = gslc_ElemXProgressCreate(&gslc, INFO_PGS2_ELEM, PAGE_INFO, &info_pgs2_elem, INFO_PGS2_RECT, 0, INFO_PGS2_MAX, 0, INFO_PGS_LINE_COL, false);
+    pElemRef = gslc_ElemXProgressCreate(&gslc, INFO_PGS2_ELEM, PAGE_INFO, &info_pgs2_elem, INFO_PGS2_RECT, 0, INFO_PGS2_MAX, 0, INFO_PGS2_LINE_COL, false);
+    gslc_ElemSetCol                 (&gslc, pElemRef, INFO_PGS2_FRAME_COL, INFO_PGS2_FILL_COL, INFO_PGS2_FILL_COL);
     info_pgs2_ref = pElemRef;
 
     pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_PGS3_ELEM, PAGE_INFO, INFO_PGS3_RECT, info_pgs3_str, sizeof(info_pgs3_str), FONT_BUILTIN5X8);
@@ -731,7 +728,7 @@ void Gui::fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
 }
 
 
-void Gui::fav_set(int num)
+void Gui::fav_select(int num)
 {
     gslc_ElemXListboxSetSel(&gslc, fav_box_ref, num-1);
 }
@@ -796,6 +793,14 @@ void Gui::dirs_seek(int by)
 
 
 //###############################################################
+void Gui::fav(int fav_num)
+{
+    char t[10] = "";
+    sprintf(t, "%i", fav_num);
+    gslc_ElemSetTxtStr(&gslc, info_fav_ref, t);
+}
+
+
 void Gui::index(const char * text)
 {
     gslc_ElemSetTxtStr(&gslc, info_index_ref, text);
@@ -898,7 +903,7 @@ void Gui::gain(bool gain)
 void Gui::volume(int volume)
 {
     char t[20];
-    sprintf(t, " %2i", volume);
+    sprintf(t, "%2i", volume);
     gslc_ElemSetTxtStr(&gslc, info_mode_ref, t);
 }
 

@@ -434,7 +434,7 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
 
   // Default to mid-mid datum
   int8_t  nDatum = MC_DATUM;
-  int16_t nTxtX = nX0 + (nX1-nX0)/2 + 1;    //en-ot (?)
+  int16_t nTxtX = nX0 + (nX1-nX0)/2;    //en-ot (?)
   int16_t nTxtY = nY0 + (nY1-nY0)/2 + 1;    //en-ot (?)
 
   // Override the datum depending on alignment mode

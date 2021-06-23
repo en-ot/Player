@@ -336,7 +336,7 @@ int start_file(int num, int updown)
     
     playstack_push(num);
 
-    snprintf(tmp, sizeof(tmp)-1, "Index: %2i:%4i/%4i ", cur_fav_num, num, fc->filecnt);
+    snprintf(tmp, sizeof(tmp)-1, "Index: %4i:%4i", num, fc->filecnt);
     xQueueSend(tag_queue, tmp, 0);
     
     snprintf(tmp, sizeof(tmp)-1, "Path: %s", dirname);

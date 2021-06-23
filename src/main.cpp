@@ -195,7 +195,8 @@ bool fav_switch(int fav_num, bool init)
 
     DEBUG("dircnt: %d\n", pl->dircnt);
 
-    gui->fav_set(fav_num);
+    gui->fav_select(fav_num);
+    gui->fav(fav_num);
     gui->shuffle(shuffle);
     gui->repeat(repeat);
     gui->volume(volume);

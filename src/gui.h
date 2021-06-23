@@ -33,6 +33,7 @@ class Gui
 
         // page:info
         void index(const char * text);
+        void fav(int fav_num);
         void time_progress(uint32_t index, uint32_t total);
         void band(const char * text);
         void artist(const char * text);
@@ -57,7 +58,7 @@ class Gui
         int fav_sel = 1;
         void fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
         void fav_seek(int by);
-        void fav_set(int num);
+        void fav_select(int num);
         void fav_highlight(void *m_gui, void *pElemRef, int type);
         
         // page:dirs
