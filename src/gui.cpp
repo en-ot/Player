@@ -78,7 +78,7 @@ enum {
 enum {
     //info
     INFO_PLAY_ICON, INFO_SHUFFLE_ICON, INFO_REPEAT_ICON, INFO_VOLUME_ICON, INFO_FAV_ICON,
-    INFO_MODE_ELEM, INFO_INDEX_ELEM, INFO_PGS1_ELEM, INFO_PGS2_ELEM, INFO_PGS3_ELEM, 
+    INFO_VOLUME_ELEM, INFO_FAV_ELEM, INFO_INDEX_ELEM, INFO_PGS1_ELEM, INFO_PGS2_ELEM, INFO_PGS3_ELEM, 
     INFO_PATH_ELEM, INFO_FILE_ELEM, INFO_BAND_ELEM, INFO_ARTIST_ELEM, INFO_ALBUM_ELEM, INFO_TITLE_ELEM,
     INFO_PATH_ICON, INFO_FILE_ICON, INFO_BAND_ICON, INFO_ARTIST_ICON, INFO_ALBUM_ICON, INFO_TITLE_ICON,
 
@@ -104,7 +104,7 @@ enum {
 #define FAV_ELEM_MAX      (DIRS_BOX_ELEM  -FAV_BOX_ELEM)
 #define DIRS_ELEM_MAX     (GUI_ELEM_MAX   -DIRS_BOX_ELEM)
 
-#define INFO_MODE_ICONS     INFO_MODE_ELEM-INFO_PLAY_ICON
+#define INFO_MODE_ICONS     INFO_VOLUME_ELEM-INFO_PLAY_ICON
 
 
 gslc_tsGui                  gslc;
@@ -117,19 +117,19 @@ void gslc_init()
 {
     gslc_InitDebug(&DebugOut);
 
-    if (!gslc_Init(&gslc,&m_drv,pages, PAGE_MAX, fonts, FONT_MAX))
+    if (!gslc_Init(&gslc,&m_drv, pages, PAGE_MAX, fonts, FONT_MAX))
     {
         DEBUG("gslc init error\n");
         return;
     }
 
-    if (!gslc_FontSet(&gslc,FONT_BUILTIN20x32,GSLC_FONTREF_PTR,NULL,4))
+    if (!gslc_FontSet(&gslc, FONT_BUILTIN20x32, GSLC_FONTREF_PTR, NULL, 4))
     {
         DEBUG("gslc fontset20 error\n");
         return;
     }
 
-    if (!gslc_FontSet(&gslc,FONT_BUILTIN5X8,GSLC_FONTREF_PTR,NULL,1))
+    if (!gslc_FontSet(&gslc, FONT_BUILTIN5X8, GSLC_FONTREF_PTR, NULL, 1))
     {
         DEBUG("gslc fontset5 error\n");
         return;
@@ -138,7 +138,7 @@ void gslc_init()
 #ifdef SPIFFS_FONT
     if (!gslc_FontSet(&gslc,FONT_SMOOTH,GSLC_FONTREF_FNAME,FONT_NAME1,1))
 #else
-    if (!gslc_FontSet(&gslc,FONT_SMOOTH,GSLC_FONTREF_PTR,FONT_NAME1,1))
+    if (!gslc_FontSet(&gslc, FONT_SMOOTH, GSLC_FONTREF_PTR, FONT_NAME1, 1))
 #endif
     {
         DEBUG("gslc fontset2 error\n");
@@ -294,6 +294,20 @@ const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
 };
 
 
+void create_icon(int elem_id, int icon1, int icon2, int16_t &x, int &r, int gap)
+{
+    gslc_tsElemRef* pElemRef = NULL;
+    gslc_tsImgRef imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[icon1], GSLC_IMGREF_FMT_BMP24);
+    gslc_tsImgRef imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[icon2], GSLC_IMGREF_FMT_BMP24);
+    pElemRef = gslc_ElemCreateImg(&gslc, elem_id, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
+    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
+    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    info_mode_icons_ref[r++] = pElemRef;
+    x += INFO_ICON_W + gap;
+}
+
+
 void page_info_init()
 {
     gslc_PageAdd(&gslc, PAGE_INFO, info_elem, INFO_ELEM_MAX, info_ref, INFO_ELEM_MAX);
@@ -306,43 +320,47 @@ void page_info_init()
     gslc_tsImgRef imgref2;
 
     // play/pause
-    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_PLAY0], GSLC_IMGREF_FMT_BMP24);
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_PLAY_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
-    gslc_ElemSetCol(&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
-    info_mode_icons_ref[r++] = pElemRef;
-    x += INFO_ICON_W + INFO_GAP;
+    create_icon(INFO_PLAY_ICON, ICON_PAUSE, ICON_PAUSE, x, r, INFO_GAP);
+    // imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_PLAY0], GSLC_IMGREF_FMT_BMP24);
+    // pElemRef = gslc_ElemCreateImg(&gslc, INFO_PLAY_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    // gslc_ElemSetCol(&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    // info_mode_icons_ref[r++] = pElemRef;
+    // x += INFO_ICON_W + INFO_GAP;
 
     // shuffle
-    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_OFF], GSLC_IMGREF_FMT_BMP24);
-    imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_ON], GSLC_IMGREF_FMT_BMP24);
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_SHUFFLE_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
-    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
-    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
-    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
-    info_mode_icons_ref[r++] = pElemRef;
-    x += INFO_ICON_W + INFO_GAP;
+    create_icon(INFO_SHUFFLE_ICON, ICON_SHUFFLE_OFF, ICON_SHUFFLE_ON, x, r, INFO_GAP);
+    // imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_OFF], GSLC_IMGREF_FMT_BMP24);
+    // imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_SHUFFLE_ON], GSLC_IMGREF_FMT_BMP24);
+    // pElemRef = gslc_ElemCreateImg(&gslc, INFO_SHUFFLE_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    // gslc_ElemSetGlowEn(&gslc, pElemRef, true);
+    // gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
+    // gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    // info_mode_icons_ref[r++] = pElemRef;
+    // x += INFO_ICON_W + INFO_GAP;
 
     // repeat
-    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_OFF], GSLC_IMGREF_FMT_BMP24);
-    imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_ON], GSLC_IMGREF_FMT_BMP24);
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_REPEAT_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
-    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
-    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
-    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
-    info_mode_icons_ref[r++] = pElemRef;
-    x += INFO_ICON_W + INFO_GAP;
+    create_icon(INFO_REPEAT_ICON, ICON_REPEAT_OFF, ICON_REPEAT_ON, x, r, INFO_GAP);
+    // imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_OFF], GSLC_IMGREF_FMT_BMP24);
+    // imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_REPEAT_ON], GSLC_IMGREF_FMT_BMP24);
+    // pElemRef = gslc_ElemCreateImg(&gslc, INFO_REPEAT_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    // gslc_ElemSetGlowEn(&gslc, pElemRef, true);
+    // gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
+    // gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    // info_mode_icons_ref[r++] = pElemRef;
+    // x += INFO_ICON_W + INFO_GAP;
 
     // volume
-    imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME_NOGAIN], GSLC_IMGREF_FMT_BMP24);
-    imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME_GAIN], GSLC_IMGREF_FMT_BMP24);
-    pElemRef = gslc_ElemCreateImg(&gslc, INFO_VOLUME_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
-    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
-    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
-    gslc_ElemSetCol(&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
-    info_mode_icons_ref[r++] = pElemRef;
-    x += INFO_ICON_W;
+    create_icon(INFO_VOLUME_ICON, ICON_VOLUME_NOGAIN, ICON_VOLUME_GAIN, x, r, 0);
+    // imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME_NOGAIN], GSLC_IMGREF_FMT_BMP24);
+    // imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[ICON_VOLUME_GAIN], GSLC_IMGREF_FMT_BMP24);
+    // pElemRef = gslc_ElemCreateImg(&gslc, INFO_VOLUME_ICON, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    // gslc_ElemSetGlowEn(&gslc, pElemRef, true);
+    // gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
+    // gslc_ElemSetCol(&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    // info_mode_icons_ref[r++] = pElemRef;
+    // x += INFO_ICON_W;
 
-    pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_MODE_ELEM, PAGE_INFO, INFO_MODE_RECT, info_mode_str, sizeof(info_mode_str), FONT_BUILTIN5X8);
+    pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_VOLUME_ELEM, PAGE_INFO, INFO_MODE_RECT, info_mode_str, sizeof(info_mode_str), FONT_BUILTIN5X8);
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
     info_mode_ref = pElemRef;
