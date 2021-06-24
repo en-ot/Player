@@ -367,6 +367,73 @@ void page_info_init()
 
 
 //###############################################################
+int scroll_rounds[INFO_LINES] = {0};
+unsigned long scroll_t0[INFO_LINES];
+#define SCROLL_DELAY 2000
+#define SCROLL_PERIOD 200
+#define SCROLL_STEP 15
+
+void Gui::scroll_reset()
+{
+    int i;
+    for (i = 0; i < INFO_LINES; i++)
+    {
+        gslc_tsElemRef *pElemRef = info_lines_ref[i];
+        gslc_tsElem *pElem = pElemRef->pElem;
+        if (pElem->scr_pos)
+        {
+            pElem->scr_pos = 0;
+            gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+        }
+        scroll_rounds[i] = 0;
+        scroll_t0[i] = millis() + SCROLL_DELAY;
+    }
+}
+
+
+void Gui::scroll()
+{
+    unsigned long t = millis();
+
+    int i;
+    for (i = 0; i < INFO_LINES; i++)
+    {
+        if ((long)(t - scroll_t0[i]) < SCROLL_PERIOD)
+            continue;
+        scroll_t0[i] = t;        
+        
+        gslc_tsElemRef *pElemRef = info_lines_ref[i];
+        gslc_tsElem *pElem = pElemRef->pElem;
+
+        if (!pElem->txt_fit)
+        {
+            if (scroll_rounds[i] < 1)
+            {
+                pElem->scr_pos += SCROLL_STEP;
+                gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+            }
+        }
+        else
+        {
+            if (pElem->scr_pos)
+            {
+                if (scroll_rounds[i] < 1)
+                {
+                    scroll_rounds[i]++;
+                    scroll_t0[i] = t + SCROLL_DELAY;
+                }
+                else
+                {
+                    pElem->scr_pos = 0;
+                    gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+                }
+            }
+        } 
+    }
+}
+
+
+//###############################################################
 // page:files
 //###############################################################
 #define FILES_BACK_COL       COL_BLACK
@@ -552,73 +619,11 @@ Gui::Gui()
 }
 
 
-int scroll_rounds[INFO_LINES] = {0};
-unsigned long scroll_t0[INFO_LINES];
-//unsigned long scroll_t0 = 0;
-#define SCROLL_DELAY 2000
-#define SCROLL_PERIOD 200
-#define SCROLL_STEP 15
-
-void Gui::scroll_reset()
-{
-    int i;
-    for (i = 0; i < INFO_LINES; i++)
-    {
-        gslc_tsElemRef *pElemRef = info_lines_ref[i];
-        gslc_tsElem *pElem = pElemRef->pElem;
-        if (pElem->scr_pos)
-        {
-            pElem->scr_pos = 0;
-            gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
-        }
-        scroll_rounds[i] = 0;
-        scroll_t0[i] = millis() + SCROLL_DELAY;
-    }
-}
-
-
+//###############################################################
 void Gui::loop()
 {
     gslc_Update(&gslc);
-
-    unsigned long t = millis();
-
-
-    int i;
-    for (i = 0; i < INFO_LINES; i++)
-    {
-        if ((long)(t - scroll_t0[i]) < SCROLL_PERIOD)
-            continue;
-        scroll_t0[i] = t;        
-        
-        gslc_tsElemRef *pElemRef = info_lines_ref[i];
-        gslc_tsElem *pElem = pElemRef->pElem;
-
-        if (!pElem->txt_fit)
-        {
-            if (scroll_rounds[i] < 1)
-            {
-                pElem->scr_pos += SCROLL_STEP;
-                gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
-            }
-        }
-        else
-        {
-            if (pElem->scr_pos)
-            {
-                if (scroll_rounds[i] < 1)
-                {
-                    scroll_rounds[i]++;
-                    scroll_t0[i] = t + SCROLL_DELAY;
-                }
-                else
-                {
-                    pElem->scr_pos = 0;
-                    gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
-                }
-            }
-        } 
-    }
+    scroll();
 }
 
 
