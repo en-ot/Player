@@ -452,10 +452,9 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   }
   m_disp.setTextDatum(nDatum);
 
-  m_disp.setViewport(nX0, nY0, nX1-nX0, nY1-nY0, true);//en-ot
-  int16_t txt_width = m_disp.drawString(pStr, nTxtX-nX0-scr_pos, nTxtY-nY0);//en-ot
-  m_disp.resetViewport();//en-ot
-
+  m_disp.setViewport(nX0, nY0, nX1-nX0, nY1-nY0, false); //en-ot
+  int16_t txt_width = m_disp.drawString(pStr,nTxtX,nTxtY); //en-ot
+  m_disp.resetViewport(); //en-ot
 
   #ifdef SMOOTH_FONT
     if (pFont->eFontRefType  == GSLC_FONTREF_FNAME){
