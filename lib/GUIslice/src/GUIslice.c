@@ -1785,7 +1785,7 @@ void gslc_DrawFillSectorBase(gslc_tsGui* pGui, int16_t nQuality, int16_t nMidX, 
     nSegInd = (bClockwise)? (nSegStart + nStepInd) : (nSegStart - nStepInd - 1);
 
     nAng64 = (int32_t)(nSegInd * nStep64) % (int32_t)(360 * 64);
-    
+	
     #if defined(DBG_REDRAW)
     GSLC_DEBUG2_PRINT("FillSector:  StepInd=%d SegInd=%d (%d..%d) Ang64=%d\n", nStepInd, nSegInd, nSegStart, nSegEnd, nAng64);
     #endif

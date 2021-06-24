@@ -65,6 +65,9 @@ extern const char GSLC_PMEM ERRSTR_PXD_NULL[];
 
 // ----------------------------------------------------------------------------
 
+// TODO: Combine with GUIslice MAX_STR
+// Defines the maximum length of a listbox item
+//#define XLISTBOX_MAX_STR        20
 
 // ============================================================================
 // Extended Element: Listbox
@@ -517,7 +520,7 @@ gslc_tsElemRef* gslc_ElemXListboxCreate(gslc_tsGui* pGui,int16_t nElemId,int16_t
   pXData->nItemGap        = 2;
   pXData->colGap          = GSLC_COL_BLACK;
   pXData->nItemCurSelLast = XLISTBOX_SEL_NONE;
-  pXData->nGlowLast       = 0;
+  pXData->bGlowLast       = false;
   sElem.pXData            = (void*)(pXData);
   // Specify the custom drawing callback
   sElem.pfuncXDraw        = &gslc_ElemXListboxDraw;
@@ -565,8 +568,8 @@ bool gslc_ElemXListboxDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedraw
   gslc_tsElem*      pElem = gslc_GetElemFromRef(pGui,pElemRef);
 
   bool            bGlow        = (pElem->nFeatures & GSLC_ELEM_FEA_GLOW_EN) && gslc_ElemGetGlow(pGui,pElemRef);
-  int8_t          bGlowLast    = pListbox->nGlowLast;
-  int16_t          nItemCurSel  = pListbox->nItemCurSel; //en-ot
+  bool            bGlowLast    = pListbox->bGlowLast;
+  int16_t         nItemCurSel  = pListbox->nItemCurSel;
 
 
   gslc_tsRect rElemRect;
@@ -585,7 +588,7 @@ bool gslc_ElemXListboxDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedraw
   }
 
   // Update last state
-  pListbox->nGlowLast = bGlow;
+  pListbox->bGlowLast = bGlow;
 
   // If full redraw and gap is enabled:
   // - Clear background with gap color, as list items
@@ -626,17 +629,17 @@ bool gslc_ElemXListboxDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedraw
 
 
   // Loop through the items in the list
-  int16_t nItemTop = pListbox->nItemTop;    //en-ot
-  int16_t nItemCnt = pListbox->nItemCnt;    //en-ot
-  int16_t nItemInd;                         //en-ot
+  int16_t nItemTop = pListbox->nItemTop;
+  int16_t nItemCnt = pListbox->nItemCnt;
+  int16_t nItemInd;
 
   // Note that nItemTop is always pointing to an
   // item index at the start of a row
 
   // Determine the list indices to display in the visible window due to scrolling
-  int16_t nDispIndMax = (nRows * nCols);    //en-ot
+  int16_t nDispIndMax = (nRows * nCols);
 
-  for (int16_t nDispInd = 0; nDispInd < nDispIndMax; nDispInd++) {    //en-ot
+  for (int16_t nDispInd = 0; nDispInd < nDispIndMax; nDispInd++) {
 
     // Calculate the item index based on the display index
     nItemInd = nItemTop + nDispInd;
@@ -648,13 +651,12 @@ bool gslc_ElemXListboxDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedraw
 
     // Fetch the list item
     bool bOk = gslc_ElemXListboxGetItem(pGui, pElemRef, nItemInd, acStr, XLISTBOX_MAX_STR);
-    //gslc_DebugPrintf("%d %s\n", nItemInd, acStr);
     if (!bOk) {
       // TODO: Erorr handling
       break;
     }
 
-    int16_t   nItemIndX, nItemIndY; //en-ot
+    int16_t   nItemIndX, nItemIndY;
     int16_t   nItemOuterW, nItemOuterH;
 
     // Convert linear count into row & column
@@ -680,8 +682,6 @@ bool gslc_ElemXListboxDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedraw
     // Determine the color based on state
     colFill = (bItemSel) ? pElem->colElemFillGlow : pElem->colElemFill;
     colTxt = (bItemSel) ? pElem->colElemTextGlow : pElem->colElemText;
-
-    //gslc_DebugPrintf("col %d %d\n", colFill, colTxt);
 
     bool bDoRedraw = false;
     if (eRedraw == GSLC_REDRAW_FULL) {
@@ -799,8 +799,8 @@ bool gslc_ElemXListboxTouch(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, i
     break;
   }
 
-  uint8_t nCols = pListbox->nCols;
-  uint8_t nRows = pListbox->nRows;
+  int8_t nCols = pListbox->nCols;
+  int8_t nRows = pListbox->nRows;
 
   // If we need to update the Listbox selection, calculate the value
   // and perform the update
@@ -968,9 +968,9 @@ bool gslc_ElemXListboxSetSel(gslc_tsGui* pGui,gslc_tsElemRef* pElemRef, int16_t 
 
     // Now ensure that the selection is still visible,
     // otherwise force a scroll
-    int16_t nItemTop = pListbox->nItemTop;  //en-ot
-    int16_t nItemCnt = pListbox->nItemCnt;  //en-ot
-    int16_t nRange   = pListbox->nRows * pListbox->nCols;   //en-ot
+    int16_t nItemTop = pListbox->nItemTop;
+    int16_t nItemCnt = pListbox->nItemCnt;
+    int16_t nRange   = pListbox->nRows * pListbox->nCols;
 
     if (nItemCurSel == XLISTBOX_SEL_NONE) {
     } else if (nItemCurSel < nItemTop) {

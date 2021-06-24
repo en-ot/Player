@@ -434,7 +434,7 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
 
   // Default to mid-mid datum
   int8_t  nDatum = MC_DATUM;
-  int16_t nTxtX = nX0 + (nX1-nX0)/2;    //en-ot (?)
+  int16_t nTxtX = nX0 + (nX1-nX0)/2;
   int16_t nTxtY = nY0 + (nY1-nY0)/2 + 1;    //en-ot (?)
 
   // Override the datum depending on alignment mode
@@ -1060,7 +1060,6 @@ bool gslc_DrvDrawImage(gslc_tsGui* pGui,int16_t nDstX,int16_t nDstY,gslc_tsImgRe
     GSLC_DEBUG_PRINT("DBG: DrvDrawImage() unsupported source eImgFlags=%d\n", sImgRef.eImgFlags);
     return false;
   }
-  return false;
 }
 
 #if (GSLC_SPIFFS_EN)
@@ -1605,6 +1604,15 @@ bool gslc_TDrvInitTouch(gslc_tsGui* pGui,const char* acDev) {
     pGui->nTouchCalXMax = ADATOUCH_X_MAX;
     pGui->nTouchCalYMin = ADATOUCH_Y_MIN;
     pGui->nTouchCalYMax = ADATOUCH_Y_MAX;
+    #if defined(ADATOUCH_PRESS_MIN)
+      pGui->nTouchCalPressMin = ADATOUCH_PRESS_MIN;
+      pGui->nTouchCalPressMax = ADATOUCH_PRESS_MAX;
+    #else
+      // For backward compatibility, if these config settings
+      // were not included in the config file, provide defaults.
+      pGui->nTouchCalPressMin = 200;
+      pGui->nTouchCalPressMax = 4000;
+    #endif
   #endif // DRV_TOUCH_CALIB
 
   // Support touch controllers with swapped X & Y
