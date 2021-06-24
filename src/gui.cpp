@@ -10,34 +10,12 @@
 #include "debug.h"
 #include "globals.h"
 
+#include "font.h"
+
 #include "gui.h"
-
-
-//#define SPIFFS_FONT
-
-//#define FONTSIZE 18
-#define FONTSIZE 24
 
 //#define LINE_H 20 //font 18
 #define LINE_H 28 //font 24
-
-#if (FONTSIZE==18)
-#ifdef SPIFFS_FONT
-#define FONT_NAME1 "x318"
-#else
-#define FONT_NAME1 x318
-#include "Fonts/x318.h"
-#endif
-
-#elif (FONTSIZE==24)
-#ifdef SPIFFS_FONT
-#define FONT_NAME1 "x324"
-#else
-#define FONT_NAME1 x324
-#include "Fonts/x324.h"
-#endif
-
-#endif
 
 
 //###############################################################
