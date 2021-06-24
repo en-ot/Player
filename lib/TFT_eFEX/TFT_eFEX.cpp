@@ -252,13 +252,13 @@ void TFT_eFEX::drawJpeg(String filename, int16_t xpos, int16_t ypos, TFT_eSprite
   }
 
   // Open the named file (the Jpeg decoder library will close it after rendering image)
-  //fs::File jpegFile = SPIFFS.open( filename, "r");    // File handle reference for SPIFFS
-    File jpegFile = SD.open( filename, FILE_READ);  // or, file handle reference for SD library
+  fs::File jpegFile = SPIFFS.open( filename, "r");    // File handle reference for SPIFFS
+  //  File jpegFile = SD.open( filename, FILE_READ);  // or, file handle reference for SD library
  
   // Use one of the three following methods to initialise the decoder:
   //boolean decoded = JpegDec.decodeFsFile(jpegFile); // Pass a SPIFFS file handle to the decoder,
-  boolean decoded = JpegDec.decodeSdFile(jpegFile); // or pass the SD file handle to the decoder,
-  //boolean decoded = JpegDec.decodeFsFile(filename);  // or pass the filename (leading / distinguishes SPIFFS files)
+  //boolean decoded = JpegDec.decodeSdFile(jpegFile); // or pass the SD file handle to the decoder,
+  boolean decoded = JpegDec.decodeFsFile(filename);  // or pass the filename (leading / distinguishes SPIFFS files)
                                    // Note: the filename can be a String or character array type
   if (decoded) {
     // render the image onto the screen at given coordinates
@@ -473,13 +473,13 @@ void TFT_eFEX::jpegInfo(String filename) {
   }
 
   // Open the named file (the Jpeg decoder library abort will close it after reading image info)
-  //fs::File jpegFile = SPIFFS.open( filename, "r");    // File handle reference for SPIFFS
-    File jpegFile = SD.open( filename, FILE_READ);  // or, file handle reference for SD library
+  fs::File jpegFile = SPIFFS.open( filename, "r");    // File handle reference for SPIFFS
+  //  File jpegFile = SD.open( filename, FILE_READ);  // or, file handle reference for SD library
  
   // Use one of the three following methods to initialise the decoder:
   //boolean decoded = JpegDec.decodeFsFile(jpegFile); // Pass a SPIFFS file handle to the decoder,
-  boolean decoded = JpegDec.decodeSdFile(jpegFile); // or pass the SD file handle to the decoder,
-  //boolean decoded = JpegDec.decodeFsFile(filename);  // or pass the filename (leading / distinguishes SPIFFS files)
+  //boolean decoded = JpegDec.decodeSdFile(jpegFile); // or pass the SD file handle to the decoder,
+  boolean decoded = JpegDec.decodeFsFile(filename);  // or pass the filename (leading / distinguishes SPIFFS files)
 
   static const char line[] PROGMEM =  "===============";
   if (decoded) {
