@@ -2,7 +2,7 @@
  * Audio.cpp
  *
  *  Created on: Oct 26,2018
- *  Updated on: May 15,2021
+ *  Updated on: Jun 06,2021
  *      Author: Wolle (schreibfaul1)
  *
  */
@@ -10,6 +10,10 @@
 #include "mp3_decoder/mp3_decoder.h"
 #include "aac_decoder/aac_decoder.h"
 #include "flac_decoder/flac_decoder.h"
+
+#ifdef SDFATFS_USED
+//fs::SDFATFS SD_SDFAT;
+#endif
 
 //---------------------------------------------------------------------------------------------------------------------
 AudioBuffer::AudioBuffer(size_t maxBlockSize) {
@@ -575,6 +579,7 @@ bool Audio::connecttoFS(fs::FS &fs, const char* path) {
 bool Audio::connecttospeech(const char* speech, const char* lang){
 
     setDefaults();
+    bool     f_ct = false;
     String   host = "translate.google.com.vn";
     String   path = "/translate_tts";
     uint32_t bytesCanBeWritten = 0;
@@ -583,12 +588,12 @@ bool Audio::connecttospeech(const char* speech, const char* lang){
     int16_t  bytesDecoded = 0;
     uint32_t contentLength = 0;
 
-    String tts =  path + "?ie=UTF-8&q=" + urlencode(speech) +
-                  "&tl=" + lang + "&client=tw-ob";
+    String tts =  path + "?ie=UTF-8" +
+                  "&tl=" + lang + "&client=tw-ob" + "&q=" + urlencode(speech) ;
 
     String resp = String("GET ") + tts + String(" HTTP/1.1\r\n")
                 + String("Host: ") + host + String("\r\n")
-                + String("User-Agent: GoogleTTS for ESP32/1.0.0\r\n")
+                + String("User-Agent: Mozilla/5.0 \r\n")
                 + String("Accept-Encoding: identity\r\n")
                 + String("Accept: text/html\r\n")
                 + String("Connection: close\r\n\r\n");
@@ -602,29 +607,34 @@ bool Audio::connecttospeech(const char* speech, const char* lang){
     if(audio_info) audio_info(chbuf);
     while(clientsecure.connected()) {  // read the header
         String line = clientsecure.readStringUntil('\n');
-        if(line.startsWith("Content-Length:")){  // content length seen
-            m_contentlength = line.substring(15).toInt();
-            sprintf(chbuf, "Content-Length: %u bytes", m_contentlength);
-            if(audio_info) audio_info(chbuf);
-            m_codec = CODEC_MP3;
-            AACDecoder_FreeBuffers();
-            if(!MP3Decoder_AllocateBuffers()) return false;
-            sprintf(chbuf, "MP3Decoder has been initialized, free Heap: %u bytes", ESP.getFreeHeap());
-            if(audio_info) audio_info(chbuf);
+        if(line.startsWith("Content-Type")){
+            if(line.indexOf("audio/mpeg") > 12) f_ct = true; // Content-Type mpeg seen
         }
         line += "\n";
         if(line == "\r\n") break;
     }
-    if(!m_contentlength) return false;
+    if(f_ct){
+        m_codec = CODEC_MP3;
+        AACDecoder_FreeBuffers();
+        if(!MP3Decoder_AllocateBuffers()) return false;
+        sprintf(chbuf, "MP3Decoder has been initialized, free Heap: %u bytes", ESP.getFreeHeap());
+        if(audio_info) audio_info(chbuf);
+    }
+    else{
+        return false;
+    }
+
 
     while(!playI2Sremains()) {
         ;
     }
+
     while(clientsecure.available() == 0) {
         ;
     }
 
-    while(contentLength < m_contentlength) {
+    while(clientsecure.available()) {
+
         bytesCanBeWritten = InBuff.writeSpace();
         bytesAddedToBuffer = clientsecure.read(InBuff.getWritePtr(), bytesCanBeWritten);
         contentLength += bytesAddedToBuffer;
@@ -635,12 +645,15 @@ bool Audio::connecttospeech(const char* speech, const char* lang){
             while(InBuff.bufferFilled() >= InBuff.getMaxBlockSize()) { // mp3 frame complete?
                 bytesDecoded = sendBytes(InBuff.getReadPtr(), InBuff.bufferFilled());
                 InBuff.bytesWasRead(bytesDecoded);
+                contentLength -= bytesDecoded;
             }
         }
     }
     while(InBuff.bufferFilled()){
         bytesDecoded = sendBytes(InBuff.getReadPtr(), InBuff.bufferFilled());
         InBuff.bytesWasRead(bytesDecoded);
+        contentLength -= bytesDecoded;
+        if(contentLength < 100 || bytesDecoded < 10) break;
     }
 
     while(!playI2Sremains()) {
@@ -3409,7 +3422,7 @@ bool Audio::setTimeOffset(int sec){
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::setFilePos(uint32_t pos) {
     if(!audiofile) return false;
-    if(!m_avr_bitrate) return false;
+//    if(!m_avr_bitrate) return false;
     if(m_codec == CODEC_M4A) return false;
     m_f_playing = false;
     if(m_codec == CODEC_MP3) MP3Decoder_ClearBuffer();
@@ -3417,7 +3430,7 @@ bool Audio::setFilePos(uint32_t pos) {
     if(m_codec == CODEC_FLAC) FLACDecoderReset();
     InBuff.resetBuffer();
     if(pos < m_audioDataStart) pos = m_audioDataStart; // issue #96
-    m_audioCurrentTime = (pos-m_audioDataStart) * 8 / m_avr_bitrate; // #96
+    if(m_avr_bitrate) m_audioCurrentTime = (pos-m_audioDataStart) * 8 / m_avr_bitrate; // #96
     return audiofile.seek(pos);
 }
 //---------------------------------------------------------------------------------------------------------------------
