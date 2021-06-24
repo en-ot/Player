@@ -482,7 +482,7 @@ void memory_loop()
 
     t0 = t;
     uint32_t freeheap = ESP.getFreeHeap();
-    if (freeheap < 80000)
+    if (freeheap < 50000)
     {
        need_print = true;
     }
