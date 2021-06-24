@@ -46,7 +46,7 @@ extern bool need_save_file_pos;
 extern playlist * fc;   //playing
 extern playlist * pl;   //list
 
-#define QUEUE_MSG_SIZE 100
+#define QUEUE_MSG_SIZE 250
 extern QueueHandle_t tag_queue;
 
 

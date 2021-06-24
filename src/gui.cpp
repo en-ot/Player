@@ -555,8 +555,8 @@ Gui::Gui()
 int scroll_times[INFO_LINES] = {0};
 unsigned long scroll_t0 = 0;
 #define SCROLL_DELAY 2000
-#define SCROLL_PERIOD 1000
-#define SCROLL_STEP 50
+#define SCROLL_PERIOD 200
+#define SCROLL_STEP 15
 
 void Gui::scroll_reset()
 {
@@ -603,9 +603,16 @@ void Gui::loop()
         {
             if (pElem->scr_pos)
             {
-                pElem->scr_pos = 0;
-                scroll_times[i]++;
-                gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+                if (scroll_times[i] < 1)
+                {
+                    scroll_times[i]++;
+                    scroll_t0 = t + SCROLL_DELAY;
+                }
+                else
+                {
+                    pElem->scr_pos = 0;
+                    gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+                }
             }
         } 
     }
