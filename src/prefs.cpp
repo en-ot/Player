@@ -190,3 +190,8 @@ void prefs_save_now(bool &flag)
     prefs_loop();
 }
 
+
+int prefs_free(void)
+{
+    return prefs.freeEntries();
+}

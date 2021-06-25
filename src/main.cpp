@@ -12,6 +12,8 @@
 #include "controls.h"
 #include "strcache.h"
 
+#include "build_defs.h"
+#include "version.h"
 
 //###############################################################
 // gui input and output
@@ -274,13 +276,21 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
     switch (nItem)
     {
         case 0:
-            strlcpy(pStrItem, "Version", nStrItemLen);
+            strlcpy(pStrItem, "Version: " VERSION, nStrItemLen);
             break;
+        
         case 1:
-            strlcpy(pStrItem, "Date", nStrItemLen);
+            snprintf(pStrItem, nStrItemLen, "Date: %d.%02d.%d, %02d:%02d:%02d", 
+                COMPUTE_BUILD_DAY, COMPUTE_BUILD_MONTH, COMPUTE_BUILD_YEAR,
+                COMPUTE_BUILD_HOUR, COMPUTE_BUILD_MIN, COMPUTE_BUILD_SEC);
             break;
+        
         case 2:
-            snprintf(pStrItem, nStrItemLen, "Memory free: %d", gui_sys_freeheap);
+            snprintf(pStrItem, nStrItemLen, "Free Prefs: %d", prefs_free());
+            break;
+        
+        case 3:
+            snprintf(pStrItem, nStrItemLen, "Free Heap: %d", gui_sys_freeheap);
             break;
     }
     return true;
@@ -289,7 +299,7 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 
 void gui_sys_init()
 {
-    gui->sys_box(3, sys_get_item);
+    gui->sys_box(4, sys_get_item);
 }
 
 

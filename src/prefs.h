@@ -19,6 +19,8 @@ void prefs_save_delayed(bool &flag);
 
 void prefs_loop();
 
+int prefs_free(void);
+
 
 //###############################################################
 
