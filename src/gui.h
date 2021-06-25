@@ -70,6 +70,12 @@ class Gui
         void dirs_highlight(void *gslc, void *pElemRef, int type);
         void dirs_select(int curdir);
 
+        // page:sys
+        int sys_sel = 1;
+        void sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
+        void sys_seek(int by);
+        void sys_update();
+        
 };
 
 extern Gui * gui;

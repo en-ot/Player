@@ -18,6 +18,7 @@
 #include "gui_files.h"
 #include "gui_dirs.h"
 #include "gui_fav.h"
+#include "gui_sys.h"
 
 #include "gui_icons.h"
 
@@ -77,6 +78,7 @@ Gui::Gui()
     //page_pic_init();
     page_fav_init();
     page_dirs_init();
+    page_sys_init();
 
     page(PAGE_INFO);
 
@@ -576,57 +578,6 @@ void Gui::files_seek(int by)
 
 
 //###############################################################
-// page:fav
-//###############################################################
-gslc_tsElem                 fav_elem[FAV_ELEM_MAX];
-gslc_tsElemRef              fav_ref[FAV_ELEM_MAX];
-
-gslc_tsXListbox             fav_box_elem;
-gslc_tsElemRef*             fav_box_ref     = NULL;
-
-gslc_tsXSlider              fav_slider_elem;
-gslc_tsElemRef*             fav_slider_ref  = NULL;
-
-void page_fav_init()
-{
-    gslc_PageAdd(&gslc, PAGE_FAV, fav_elem, FAV_ELEM_MAX, fav_ref, FAV_ELEM_MAX);
-    fav_box_ref   = create_listbox(PAGE_FAV, FAV_BOX_ELEM,    &fav_box_elem,    FAV_BACK_COL);
-    fav_slider_ref = create_slider(PAGE_FAV, FAV_SLIDER_ELEM, &fav_slider_elem, FAV_BACK_COL);
-}
-
-
-void Gui::fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
-{
-    fav_box_elem.pfuncXGet = cb;
-    fav_box_elem.nItemCnt = cnt;
-    fav_box_elem.bNeedRecalc = true;
-}
-
-
-void Gui::fav_select(int num)
-{
-    gslc_ElemXListboxSetSel(&gslc, fav_box_ref, num-1);
-}
-
-
-void Gui::fav_seek(int by)
-{
-    fav_sel = box_seek(&fav_box_elem, fav_box_ref, fav_slider_ref, by) + 1;
-}
-
-
-void Gui::fav_highlight(void *gslc, void *pElemRef, int type)
-{
-    static gslc_tsColor colors_b[] = {FAV_COL_NORMAL_B, FAV_COL_PLAY_B};
-    static gslc_tsColor colors_f[] = {FAV_COL_NORMAL_F, FAV_COL_PLAY_F};
-    gslc_tsElem * elem = &fav_elem[FAV_BOX_ELEM-FAV_BOX_ELEM];
-    elem->colElemText       = colors_f[type];
-    elem->colElemTextGlow   = colors_f[type];
-    elem->colElemFill       = colors_b[type];
-}
-
-
-//###############################################################
 // page:dirs
 //###############################################################
 gslc_tsElem                 dirs_elem[DIRS_ELEM_MAX];
@@ -686,6 +637,95 @@ void Gui::dirs_seek(int by)
 }
 
 
+//###############################################################
+// page:fav
+//###############################################################
+gslc_tsElem                 fav_elem[FAV_ELEM_MAX];
+gslc_tsElemRef              fav_ref[FAV_ELEM_MAX];
+
+gslc_tsXListbox             fav_box_elem;
+gslc_tsElemRef*             fav_box_ref     = NULL;
+
+gslc_tsXSlider              fav_slider_elem;
+gslc_tsElemRef*             fav_slider_ref  = NULL;
+
+void page_fav_init()
+{
+    gslc_PageAdd(&gslc, PAGE_FAV, fav_elem, FAV_ELEM_MAX, fav_ref, FAV_ELEM_MAX);
+    fav_box_ref   = create_listbox(PAGE_FAV, FAV_BOX_ELEM,    &fav_box_elem,    FAV_BACK_COL);
+    fav_slider_ref = create_slider(PAGE_FAV, FAV_SLIDER_ELEM, &fav_slider_elem, FAV_BACK_COL);
+}
+
+
+void Gui::fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
+{
+    fav_box_elem.pfuncXGet = cb;
+    fav_box_elem.nItemCnt = cnt;
+    fav_box_elem.bNeedRecalc = true;
+}
+
+
+void Gui::fav_select(int num)
+{
+    gslc_ElemXListboxSetSel(&gslc, fav_box_ref, num-1);
+}
+
+
+void Gui::fav_seek(int by)
+{
+    fav_sel = box_seek(&fav_box_elem, fav_box_ref, fav_slider_ref, by) + 1;
+}
+
+
+void Gui::fav_highlight(void *gslc, void *pElemRef, int type)
+{
+    static gslc_tsColor colors_b[] = {FAV_COL_NORMAL_B, FAV_COL_PLAY_B};
+    static gslc_tsColor colors_f[] = {FAV_COL_NORMAL_F, FAV_COL_PLAY_F};
+    gslc_tsElem * elem = &fav_elem[FAV_BOX_ELEM-FAV_BOX_ELEM];
+    elem->colElemText       = colors_f[type];
+    elem->colElemTextGlow   = colors_f[type];
+    elem->colElemFill       = colors_b[type];
+}
+
+
+//###############################################################
+// page:sys
+//###############################################################
+gslc_tsElem                 sys_elem[SYS_ELEM_MAX];
+gslc_tsElemRef              sys_ref[SYS_ELEM_MAX];
+
+gslc_tsXListbox             sys_box_elem;
+gslc_tsElemRef*             sys_box_ref     = NULL;
+
+gslc_tsXSlider              sys_slider_elem;
+gslc_tsElemRef*             sys_slider_ref  = NULL;
+
+void page_sys_init()
+{
+    gslc_PageAdd(&gslc, PAGE_SYS, sys_elem, SYS_ELEM_MAX, sys_ref, SYS_ELEM_MAX);
+    sys_box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &sys_box_elem,    SYS_BACK_COL);
+    sys_slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &sys_slider_elem, SYS_BACK_COL);
+}
+
+
+void Gui::sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
+{
+    sys_box_elem.pfuncXGet = cb;
+    sys_box_elem.nItemCnt = cnt;
+    sys_box_elem.bNeedRecalc = true;
+}
+
+
+void Gui::sys_update()
+{
+    gslc_ElemSetRedraw(&gslc, sys_box_ref, GSLC_REDRAW_INC);
+}
+
+
+void Gui::sys_seek(int by)
+{
+    sys_sel = box_seek(&sys_box_elem, sys_box_ref, sys_slider_ref, by) + 1;
+}
 
 
 //###############################################################

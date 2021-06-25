@@ -277,6 +277,25 @@ bool change_page()
 }
 
 
+bool sys_page()
+{
+    sound_pause();
+    gui_sys_update();
+    ui_page = PAGE_SYS;
+    gui->page(ui_page);
+    return true;
+}
+
+
+bool sys_seek(int by)
+{
+    if (!by)
+        return false;
+    gui->sys_seek(by);
+    return true;
+}
+
+
 bool files_play_sel()
 {
     ui_page = PAGE_INFO;
@@ -414,15 +433,6 @@ Controls files_ctrl = {{
     nothing,            nothing,            // b3_long,     b3_short
 }};
 
-Controls fav_ctrl = {{
-    change_volume,      fav_seek   },{      // volume,      seek      
-    nothing,            nothing,            // vol_long,    vol_short 
-    fav_reset,          fav_set_num,        // seek_long,   seek_short
-    nothing,            change_page,        // b1_long,     b1_short  
-    nothing,            nothing,            // b2_long,     b2_short
-    nothing,            nothing,            // b3_long,     b3_short  
-}};
-
 Controls dirs_ctrl = {{
     change_volume,      dirs_seek   },{     // volume,      seek      
     nothing,            dirs_goto_curdir,   // vol_long,    vol_short 
@@ -432,12 +442,32 @@ Controls dirs_ctrl = {{
     nothing,            nothing,            // b3_long,     b3_short  
 }};
 
+Controls fav_ctrl = {{
+    change_volume,      fav_seek   },{      // volume,      seek      
+    nothing,            nothing,            // vol_long,    vol_short 
+    fav_reset,          fav_set_num,        // seek_long,   seek_short
+    nothing,            change_page,        // b1_long,     b1_short  
+    nothing,            sys_page,           // b2_long,     b2_short
+    nothing,            nothing,            // b3_long,     b3_short  
+}};
+
+Controls sys_ctrl = {{
+    change_volume,      sys_seek   },{      // volume,      seek      
+    nothing,            nothing,            // vol_long,    vol_short 
+    nothing,            nothing,            // seek_long,   seek_short
+    nothing,            change_page,        // b1_long,     b1_short  
+    nothing,            nothing,            // b2_long,     b2_short
+    nothing,            nothing,            // b3_long,     b3_short  
+}};
+
+
 Controls controls[PAGE_MAX] = 
 {
     info_ctrl,
     files_ctrl,
     fav_ctrl,
     dirs_ctrl,
+    sys_ctrl,
 };
 
 

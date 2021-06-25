@@ -56,6 +56,9 @@ bool fav_switch(int fav_num, bool init);
 void fav_set_path(int fav_num, const char * path);
 
 int dirs_file_num(int dirs_sel);
+
+void gui_sys_update();
+
 //###############################################################
 
 

@@ -230,19 +230,6 @@ void fav_set_str(int fav_num, const char * path)
 }
 
 
-void fav_init()
-{
-    char tmp[XLISTBOX_MAX_STR];
-    int fav_num;
-    for (fav_num = 1; fav_num <= FAV_MAX; fav_num++)
-    {
-        prefs_get_path(fav_num, tmp, sizeof(tmp));
-        if (!tmp[0]) strcpy(tmp, "/");
-        fav_set_str(fav_num, tmp);
-    }
-}
-
-
 void fav_set_path(int fav_num, const char * path)
 {
     fav_set_str(fav_num, path);
@@ -261,6 +248,55 @@ bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
     strlcpy(pStrItem, fav_str[nItem], nStrItemLen);
     DEBUG("%s\n", pStrItem);
     return true;
+}
+
+
+void fav_init()
+{
+    gui->fav_box(FAV_MAX, fav_get_item);
+    char tmp[XLISTBOX_MAX_STR];
+    int fav_num;
+    for (fav_num = 1; fav_num <= FAV_MAX; fav_num++)
+    {
+        prefs_get_path(fav_num, tmp, sizeof(tmp));
+        if (!tmp[0]) strcpy(tmp, "/");
+        fav_set_str(fav_num, tmp);
+    }
+}
+
+
+//###############################################################
+uint32_t gui_sys_freeheap;
+
+bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
+{
+    //char str[30] = "";
+    switch (nItem)
+    {
+        case 0:
+            strlcpy(pStrItem, "Version", nStrItemLen);
+            break;
+        case 1:
+            strlcpy(pStrItem, "Date", nStrItemLen);
+            break;
+        case 2:
+            snprintf(pStrItem, nStrItemLen, "Memory free: %d", gui_sys_freeheap);
+            break;
+    }
+    return true;
+}
+
+
+void gui_sys_init()
+{
+    gui->sys_box(3, sys_get_item);
+}
+
+
+void gui_sys_update()
+{
+    gui_sys_freeheap = ESP.getFreeHeap();
+    gui->sys_update();
 }
 
 
@@ -335,7 +371,6 @@ void setup()
     end(5);
 
     begin("fav");
-    gui->fav_box(FAV_MAX, fav_get_item);
     fav_init();
     end(6);
 
@@ -347,6 +382,8 @@ void setup()
     pl = new playlist();
     end(8);
 
+    begin("gui_sys");
+    gui_sys_init();
     end(9);
 
     begin("start");

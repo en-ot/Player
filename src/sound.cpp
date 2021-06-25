@@ -18,6 +18,7 @@ static bool is_gain = false;
 #define GAIN_TXT1 "UserDefinedText: "
 #define GAIN_TXT2 "replaygain_track_gain"
 
+int sound_errors=0;
 
 //###############################################################
 // Audio wrapper
@@ -319,6 +320,7 @@ int start_file(int num, int updown)
             DEBUG("File is in stack %d\n", level);
         }
  
+        sound_errors += 1;
         retry--;
         if (updown == FAIL_RANDOM)
             num = file_random();

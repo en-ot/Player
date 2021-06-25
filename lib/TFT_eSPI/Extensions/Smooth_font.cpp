@@ -310,6 +310,12 @@ void TFT_eSPI::unloadFont( void )
 ** Function name:           readInt32
 ** Description:             Get a 32 bit integer from the font file
 *************************************************************************************x*/
+inline uint32_t reverse32(uint32_t val)
+{
+  return (val<<24) | (val<<8&0xFF0000) | (val>>8&0xFF00) | (val>>24);
+}
+
+
 uint32_t TFT_eSPI::readInt32(void)
 {
   uint32_t val = 0;
@@ -324,10 +330,12 @@ uint32_t TFT_eSPI::readInt32(void)
   else
 #endif
   {
-    val |= pgm_read_byte(fontPtr++) << 24;
-    val |= pgm_read_byte(fontPtr++) << 16;
-    val |= pgm_read_byte(fontPtr++) << 8;
-    val |= pgm_read_byte(fontPtr++);
+    val = reverse32(pgm_read_dword(fontPtr));
+    fontPtr += 4;
+    // val |= pgm_read_byte(fontPtr++) << 24;
+    // val |= pgm_read_byte(fontPtr++) << 16;
+    // val |= pgm_read_byte(fontPtr++) << 8;
+    // val |= pgm_read_byte(fontPtr++);
   }
 
   return val;
