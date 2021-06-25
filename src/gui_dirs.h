@@ -1,0 +1,8 @@
+#define DIRS_BACK_COL       COL_GREEN_DARK
+
+#define DIRS_COL_NORMAL_B   COL_GREEN_DARK
+#define DIRS_COL_NORMAL_F   COL_WHITE
+#define DIRS_COL_PLAY_B     COL_GREEN_DARK
+#define DIRS_COL_PLAY_F     COL_RED_LIGHT
+
+void page_dirs_init();
