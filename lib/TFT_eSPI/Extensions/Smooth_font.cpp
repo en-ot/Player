@@ -149,16 +149,30 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
 ** Function name:           loadMetrics
 ** Description:             Get the metrics for each glyph and store in RAM
 *************************************************************************************x*/
+#pragma pack(push, 1)
 typedef struct
 {
-  uint32_t gUnicode;
-  uint32_t gHeight;
-  uint32_t gWidth;
-  uint32_t gxAdvance;
-  uint32_t gdY;
-  uint32_t gdX;
+  uint16_t gUnicode_dummy;
+  uint16_t gUnicode;
+
+  uint8_t gHeight_dummy[3];
+  uint8_t gHeight;
+
+  uint8_t gWidth_dummy[3];
+  uint8_t gWidth;
+
+  uint8_t gxAdvance_dummy[3];
+  uint8_t gxAdvance;
+ 
+  uint16_t gdY_dummy;
+  uint16_t gdY;
+
+  uint8_t gdX_dummy[3];
+  uint8_t gdX;
+
   uint32_t dummy;
 } CharMetrics;
+#pragma pack(pop)
 
 
 inline uint32_t reverse32(uint32_t val)
@@ -167,10 +181,16 @@ inline uint32_t reverse32(uint32_t val)
 }
 
 
+inline uint16_t reverse16(uint16_t val)
+{
+  return (val<<8) | (val>>8);
+}
+
+
 uint16_t TFT_eSPI::gUnicode(uint16_t gNum)
 {
   CharMetrics * m = &((CharMetrics *)(&gFont.gArray[24]))[gNum];
-  return reverse32(m->gUnicode);
+  return reverse16(m->gUnicode);
 }
 
 
@@ -218,11 +238,11 @@ void TFT_eSPI::loadMetrics(void)
   {
     CharMetrics * m = &((CharMetrics *)(&gFont.gArray[24]))[gNum];
     //gUnicode[gNum] = reverse32(m->gUnicode);
-    gHeight[gNum] = reverse32(m->gHeight);
-    gWidth[gNum] = reverse32(m->gWidth);
-    gxAdvance[gNum] = reverse32(m->gxAdvance);
-    gdY[gNum] = reverse32(m->gdY);
-    gdX[gNum] = reverse32(m->gdX);
+    gHeight[gNum] = m->gHeight;
+    gWidth[gNum] = m->gWidth;
+    gxAdvance[gNum] = m->gxAdvance;
+    gdY[gNum] = reverse16(m->gdY);
+    gdX[gNum] = m->gdX;
     //fontPtr += sizeof(CharMetrics);
 
     // gUnicode[gNum]  = (uint16_t)readInt32(); // Unicode code point value
@@ -376,9 +396,11 @@ uint32_t TFT_eSPI::readInt32(void)
 *************************************************************************************x*/
 bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 {
+  CharMetrics * m = ((CharMetrics *)(&gFont.gArray[24]));
+  uint16_t r = reverse16(unicode);
   for (uint16_t i = 0; i < gFont.gCount; i++)
   {
-    if (gUnicode(i) == unicode)
+    if (m[i].gUnicode == r)
     {
       *index = i;
       return true;
