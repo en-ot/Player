@@ -2415,14 +2415,14 @@ void TFT_eSprite::drawGlyph(uint16_t code)
 
     if (newSprite)
     {
-      createSprite(gWidth[gNum], gFont.yAdvance);
+      createSprite(m->gWidth, gFont.yAdvance);
       if(fg != bg) fillSprite(bg);
       cursor_x = -gdX[gNum];
       cursor_y = 0;
     }
     else
     {
-      if( textwrapX && ((cursor_x + gWidth[gNum] + gdX[gNum]) > width())) {
+      if( textwrapX && ((cursor_x + m->gWidth + gdX[gNum]) > width())) {
         cursor_y += gFont.yAdvance;
         cursor_x = 0;
       }
@@ -2455,7 +2455,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
         fontFile.read(pbuffer, gWidth[gNum]);
       }
 #endif
-      for (int32_t x = 0; x < gWidth[gNum]; x++)
+      for (int32_t x = 0; x < m->gWidth; x++)
       {
 #ifdef FONT_FS_AVAILABLE
         if (fs_font) {
@@ -2463,7 +2463,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
         }
         else
 #endif
-        pixel = pgm_read_byte(gPtr + gBitmap[gNum] + x + gWidth[gNum] * y);
+        pixel = pgm_read_byte(gPtr + gBitmap[gNum] + x + m->gWidth * y);
 
         if (pixel)
         {
@@ -2540,8 +2540,9 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
       uint16_t unicode = decodeUTF8((uint8_t*)cbuffer, &n, len - n);
       if (getUnicodeIndex(unicode, &index))
       {
+        const CharMetrics * m = &cm[index];
         if (n == 0) sWidth -= gdX[index];
-        if (n == len-1) sWidth += ( gWidth[index] + gdX[index]);
+        if (n == len-1) sWidth += ( m->gWidth + gdX[index]);
         else sWidth += gxAdvance[index];
       }
       else sWidth += gFont.spaceWidth + 1;
@@ -2577,7 +2578,7 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
 int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 {
   bool newSprite = !_created;
-  int16_t sWidth = gWidth[index];
+  int16_t sWidth = cm[index].gWidth;
 
   if (newSprite)
   {
