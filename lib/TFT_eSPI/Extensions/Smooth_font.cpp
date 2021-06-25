@@ -149,56 +149,12 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
 ** Function name:           loadMetrics
 ** Description:             Get the metrics for each glyph and store in RAM
 *************************************************************************************x*/
-#pragma pack(push, 1)
-typedef struct
-{
-  uint16_t gUnicode_dummy;
-  uint16_t gUnicode;
-
-  uint8_t gHeight_dummy[3];
-  uint8_t gHeight;
-
-  uint8_t gWidth_dummy[3];
-  uint8_t gWidth;
-
-  uint8_t gxAdvance_dummy[3];
-  uint8_t gxAdvance;
- 
-  uint16_t gdY_dummy;
-  uint16_t gdY;
-
-  uint8_t gdX_dummy[3];
-  uint8_t gdX;
-
-  uint32_t dummy;
-} CharMetrics;
-#pragma pack(pop)
-
-
-inline uint32_t reverse32(uint32_t val)
-{
-  return (val<<24) | (val<<8&0xFF0000) | (val>>8&0xFF00) | (val>>24);
-}
-
-
-inline uint16_t reverse16(uint16_t val)
-{
-  return (val<<8) | (val>>8);
-}
-
-
-uint16_t TFT_eSPI::gUnicode(uint16_t gNum)
-{
-  CharMetrics * m = &((CharMetrics *)(&gFont.gArray[24]))[gNum];
-  return reverse16(m->gUnicode);
-}
-
-
 //#define SHOW_ASCENT_DESCENT
 void TFT_eSPI::loadMetrics(void)
 {
   uint32_t headerPtr = 24;
   uint32_t bitmapPtr = headerPtr + gFont.gCount * 28;
+  cm = (CharMetrics *)(&gFont.gArray[headerPtr]);
 
 #if defined (ESP32) && defined (CONFIG_SPIRAM_SUPPORT)
   if ( psramFound() )
@@ -236,12 +192,12 @@ void TFT_eSPI::loadMetrics(void)
 
   while (gNum < gFont.gCount)
   {
-    CharMetrics * m = &((CharMetrics *)(&gFont.gArray[24]))[gNum];
+    const CharMetrics * m = &cm[gNum];
     //gUnicode[gNum] = reverse32(m->gUnicode);
     gHeight[gNum] = m->gHeight;
     gWidth[gNum] = m->gWidth;
     gxAdvance[gNum] = m->gxAdvance;
-    gdY[gNum] = reverse16(m->gdY);
+    gdY[gNum] = reverse16(m->gdY_r);
     gdX[gNum] = m->gdX;
     //fontPtr += sizeof(CharMetrics);
 
@@ -276,10 +232,11 @@ void TFT_eSPI::loadMetrics(void)
     */
 
     // Different glyph sets have different descent values not always based on "p", so get maximum glyph descent
+    uint16_t unicode = reverse16(m->gUnicode_r); 
     if (((int16_t)gHeight[gNum] - (int16_t)gdY[gNum]) > gFont.maxDescent)
     {
       // Avoid UTF coding values and characters that tend to give duff values
-      if (((gUnicode(gNum) > 0x20) && (gUnicode(gNum) < 0xA0) && (gUnicode(gNum) != 0x7F)) || (gUnicode(gNum) > 0xFF))
+      if (((unicode > 0x20) && (unicode < 0xA0) && (unicode != 0x7F)) || (unicode > 0xFF))
       {
         gFont.maxDescent   = gHeight[gNum] - gdY[gNum];
 #ifdef SHOW_ASCENT_DESCENT
@@ -402,7 +359,7 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
   int i = 0;
   do
   {
-    uint16_t code = reverse16(m[i].gUnicode);
+    uint16_t code = reverse16(m[i].gUnicode_r);
     if (code == unicode)
     {
       *index = i;
@@ -419,15 +376,6 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
     i = (above+bottom)/2;
   } while (above > bottom);
 
-  // for (uint16_t i = 0; i < gFont.gCount; i++)
-  // {
-  //   uint16_t code = reverse16(m[i].gUnicode);
-  //   if (code == unicode)
-  //   {
-  //     *index = i;
-  //     return true;
-  //   }
-  // }
   return false;
 }
 

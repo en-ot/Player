@@ -29,7 +29,8 @@
     uint16_t maxDescent;             // Maximum descent found in font
   } fontMetrics;
 
-fontMetrics gFont = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
+  fontMetrics gFont = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
+  const CharMetrics * cm;
 
   // These are for the metrics for each individual glyph (so we don't need to seek this in file and waste time)
   //uint16_t* gUnicode = NULL;  //UTF-16 code, the codes are searched so do not need to be sequential
