@@ -149,6 +149,22 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
 ** Function name:           loadMetrics
 ** Description:             Get the metrics for each glyph and store in RAM
 *************************************************************************************x*/
+typedef struct
+{
+  uint32_t gUnicode;
+  uint32_t gHeight;
+  uint32_t gWidth;
+  uint32_t gxAdvance;
+  uint32_t gdY;
+  uint32_t gdX;
+} CharMetrics;
+
+inline uint32_t reverse32(uint32_t val)
+{
+  return (val<<24) | (val<<8&0xFF0000) | (val>>8&0xFF00) | (val>>24);
+}
+
+
 //#define SHOW_ASCENT_DESCENT
 void TFT_eSPI::loadMetrics(void)
 {
@@ -191,13 +207,22 @@ void TFT_eSPI::loadMetrics(void)
 
   while (gNum < gFont.gCount)
   {
-    gUnicode[gNum]  = (uint16_t)readInt32(); // Unicode code point value
-    gHeight[gNum]   =  (uint8_t)readInt32(); // Height of glyph
-    gWidth[gNum]    =  (uint8_t)readInt32(); // Width of glyph
-    gxAdvance[gNum] =  (uint8_t)readInt32(); // xAdvance - to move x cursor
-    gdY[gNum]       =  (int16_t)readInt32(); // y delta from baseline
-    gdX[gNum]       =   (int8_t)readInt32(); // x delta from cursor
-    readInt32(); // ignored
+    CharMetrics * m = (CharMetrics *)fontPtr;
+    gUnicode[gNum] = reverse32(m->gUnicode);
+    gHeight[gNum] = reverse32(m->gHeight);
+    gWidth[gNum] = reverse32(m->gWidth);
+    gxAdvance[gNum] = reverse32(m->gxAdvance);
+    gdY[gNum] = reverse32(m->gdY);
+    gdX[gNum] = reverse32(m->gdX);
+    fontPtr += 7*sizeof(uint32_t);
+
+    // gUnicode[gNum]  = (uint16_t)readInt32(); // Unicode code point value
+    // gHeight[gNum]   =  (uint8_t)readInt32(); // Height of glyph
+    // gWidth[gNum]    =  (uint8_t)readInt32(); // Width of glyph
+    // gxAdvance[gNum] =  (uint8_t)readInt32(); // xAdvance - to move x cursor
+    // gdY[gNum]       =  (int16_t)readInt32(); // y delta from baseline
+    // gdX[gNum]       =   (int8_t)readInt32(); // x delta from cursor
+    // readInt32(); // ignored
 
     //Serial.print("Unicode = 0x"); Serial.print(gUnicode[gNum], HEX); Serial.print(", gHeight  = "); Serial.println(gHeight[gNum]);
     //Serial.print("Unicode = 0x"); Serial.print(gUnicode[gNum], HEX); Serial.print(", gWidth  = "); Serial.println(gWidth[gNum]);
@@ -310,12 +335,6 @@ void TFT_eSPI::unloadFont( void )
 ** Function name:           readInt32
 ** Description:             Get a 32 bit integer from the font file
 *************************************************************************************x*/
-inline uint32_t reverse32(uint32_t val)
-{
-  return (val<<24) | (val<<8&0xFF0000) | (val>>8&0xFF00) | (val>>24);
-}
-
-
 uint32_t TFT_eSPI::readInt32(void)
 {
   uint32_t val = 0;
