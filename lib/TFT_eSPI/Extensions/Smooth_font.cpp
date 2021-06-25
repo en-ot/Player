@@ -157,6 +157,7 @@ typedef struct
   uint32_t gxAdvance;
   uint32_t gdY;
   uint32_t gdX;
+  uint32_t dummy;
 } CharMetrics;
 
 inline uint32_t reverse32(uint32_t val)
@@ -207,14 +208,14 @@ void TFT_eSPI::loadMetrics(void)
 
   while (gNum < gFont.gCount)
   {
-    CharMetrics * m = (CharMetrics *)fontPtr;
+    CharMetrics * m = &((CharMetrics *)(&gFont.gArray[24]))[gNum];
     gUnicode[gNum] = reverse32(m->gUnicode);
     gHeight[gNum] = reverse32(m->gHeight);
     gWidth[gNum] = reverse32(m->gWidth);
     gxAdvance[gNum] = reverse32(m->gxAdvance);
     gdY[gNum] = reverse32(m->gdY);
     gdX[gNum] = reverse32(m->gdX);
-    fontPtr += 7*sizeof(uint32_t);
+    //fontPtr += sizeof(CharMetrics);
 
     // gUnicode[gNum]  = (uint16_t)readInt32(); // Unicode code point value
     // gHeight[gNum]   =  (uint8_t)readInt32(); // Height of glyph
