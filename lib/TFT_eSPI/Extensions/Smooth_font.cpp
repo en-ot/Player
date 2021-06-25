@@ -353,13 +353,12 @@ uint32_t TFT_eSPI::readInt32(void)
 *************************************************************************************x*/
 bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 {
-  CharMetrics * m = ((CharMetrics *)(&gFont.gArray[24]));
   int above = gFont.gCount;
   int bottom = 0;
   int i = 0;
   do
   {
-    uint16_t code = reverse16(m[i].gUnicode_r);
+    uint16_t code = reverse16(cm[i].gUnicode_r);
     if (code == unicode)
     {
       *index = i;
@@ -537,7 +536,7 @@ void TFT_eSPI::showFont(uint32_t td)
     }
 
     setCursor(cursorX, cursorY);
-    drawGlyph(gUnicode(i));
+    drawGlyph(reverse16(cm[i].gUnicode_r));
     cursorX += gxAdvance[i];
     //cursorX +=  printToSprite( cursorX, cursorY, i );
     yield();

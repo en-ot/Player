@@ -2585,13 +2585,14 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 
     if (textcolor != textbgcolor) fillSprite(textbgcolor);
 
-    drawGlyph(gUnicode(index));
+    //todo:drawGlyphIndex
+    drawGlyph(reverse16(cm[index].gUnicode_r));
 
     pushSprite(x + gdX[index], y, textbgcolor);
     deleteSprite();
   }
 
-  else drawGlyph(gUnicode(index));
+  else drawGlyph(reverse16(cm[index].gUnicode_r));
 
   return gxAdvance[index];
 }
