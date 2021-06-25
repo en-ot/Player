@@ -35,7 +35,7 @@
   // These are for the metrics for each individual glyph (so we don't need to seek this in file and waste time)
   //uint16_t* gUnicode = NULL;  //UTF-16 code, the codes are searched so do not need to be sequential
   // uint16_t gUnicode(uint16_t gNum);
-  uint8_t*  gHeight = NULL;   //cheight
+  // uint8_t*  gHeight = NULL;   //cheight
   uint8_t*  gWidth = NULL;    //cwidth
   uint8_t*  gxAdvance = NULL; //setWidth
   int16_t*  gdY = NULL;       //topExtent

@@ -2410,7 +2410,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
 
   if (found)
   {
-
+    const CharMetrics * m = &cm[gNum];
     bool newSprite = !_created;
 
     if (newSprite)
@@ -2448,7 +2448,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
     int32_t cgy = cursor_y + gFont.maxAscent - gdY[gNum];
     int32_t cgx = cursor_x + gdX[gNum];
 
-    for (int32_t y = 0; y < gHeight[gNum]; y++)
+    for (int32_t y = 0; y < m->gHeight; y++)
     {
 #ifdef FONT_FS_AVAILABLE
       if (fs_font) {
