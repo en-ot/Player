@@ -397,15 +397,37 @@ uint32_t TFT_eSPI::readInt32(void)
 bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 {
   CharMetrics * m = ((CharMetrics *)(&gFont.gArray[24]));
-  uint16_t r = reverse16(unicode);
-  for (uint16_t i = 0; i < gFont.gCount; i++)
+  int above = gFont.gCount;
+  int bottom = 0;
+  int i = 0;
+  do
   {
-    if (m[i].gUnicode == r)
+    uint16_t code = reverse16(m[i].gUnicode);
+    if (code == unicode)
     {
       *index = i;
       return true;
     }
-  }
+    if (code > unicode)
+    {
+      above = i;
+    }
+    else
+    {
+      bottom = i+1;
+    }
+    i = (above+bottom)/2;
+  } while (above > bottom);
+
+  // for (uint16_t i = 0; i < gFont.gCount; i++)
+  // {
+  //   uint16_t code = reverse16(m[i].gUnicode);
+  //   if (code == unicode)
+  //   {
+  //     *index = i;
+  //     return true;
+  //   }
+  // }
   return false;
 }
 
