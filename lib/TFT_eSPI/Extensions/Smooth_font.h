@@ -38,7 +38,7 @@
   // uint8_t*  gHeight = NULL;   //cheight
   // uint8_t*  gWidth = NULL;    //cwidth
   // uint8_t*  gxAdvance = NULL; //setWidth
-  int16_t*  gdY = NULL;       //topExtent
+  // int16_t*  gdY = NULL;       //topExtent
   // int8_t*   gdX = NULL;       //leftExtent
   uint32_t* gBitmap = NULL;   //file pointer to greyscale bitmap
 

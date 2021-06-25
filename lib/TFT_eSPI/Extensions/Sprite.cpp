@@ -2445,7 +2445,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
     int16_t  xs = 0;
     uint16_t dl = 0;
     uint8_t pixel = 0;
-    int32_t cgy = cursor_y + gFont.maxAscent - gdY[gNum];
+    int32_t cgy = cursor_y + gFont.maxAscent - reverse16(m->gdY_r);
     int32_t cgx = cursor_x + m->gdX;
 
     for (int32_t y = 0; y < m->gHeight; y++)

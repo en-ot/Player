@@ -163,7 +163,7 @@ void TFT_eSPI::loadMetrics(void)
     // gHeight   =  (uint8_t*)ps_malloc( gFont.gCount );    // Height of glyph
     // gWidth    =  (uint8_t*)ps_malloc( gFont.gCount );    // Width of glyph
     // gxAdvance =  (uint8_t*)ps_malloc( gFont.gCount );    // xAdvance - to move x cursor
-    gdY       =  (int16_t*)ps_malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
+    // gdY       =  (int16_t*)ps_malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
     // gdX       =   (int8_t*)ps_malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
     gBitmap   = (uint32_t*)ps_malloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
   }
@@ -174,7 +174,7 @@ void TFT_eSPI::loadMetrics(void)
     // gHeight   =  (uint8_t*)malloc( gFont.gCount );    // Height of glyph
     // gWidth    =  (uint8_t*)malloc( gFont.gCount );    // Width of glyph
     // gxAdvance =  (uint8_t*)malloc( gFont.gCount );    // xAdvance - to move x cursor
-    gdY       =  (int16_t*)malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
+    // gdY       =  (int16_t*)malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
     // gdX       =   (int8_t*)malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
     gBitmap   = (uint32_t*)malloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
   }
@@ -197,7 +197,7 @@ void TFT_eSPI::loadMetrics(void)
     //gHeight[gNum] = m->gHeight;
     // gWidth[gNum] = m->gWidth;
     // gxAdvance[gNum] = m->gxAdvance;
-    gdY[gNum] = reverse16(m->gdY_r);
+    // gdY[gNum] = reverse16(m->gdY_r);
     // gdX[gNum] = m->gdX;
     //fontPtr += sizeof(CharMetrics);
 
@@ -233,14 +233,14 @@ void TFT_eSPI::loadMetrics(void)
 
     // Different glyph sets have different descent values not always based on "p", so get maximum glyph descent
     uint16_t unicode = reverse16(m->gUnicode_r); 
-    if (((int16_t)m->gHeight - (int16_t)gdY[gNum]) > gFont.maxDescent)
+    if (((int16_t)m->gHeight - (int16_t)reverse16(m->gdY_r)) > gFont.maxDescent)
     {
       // Avoid UTF coding values and characters that tend to give duff values
       if (((unicode > 0x20) && (unicode < 0xA0) && (unicode != 0x7F)) || (unicode > 0xFF))
       {
-        gFont.maxDescent   = m->gHeight - gdY[gNum];
+        gFont.maxDescent   = m->gHeight - reverse16(m->gdY_r);
 #ifdef SHOW_ASCENT_DESCENT
-        Serial.print("Unicode = 0x"); Serial.print(gUnicode[gNum], HEX); Serial.print(", maxDescent = "); Serial.println(gHeight[gNum] - gdY[gNum]);
+        Serial.print("Unicode = 0x"); Serial.print(gUnicode[gNum], HEX); Serial.print(", maxDescent = "); Serial.println(m->gHeight - reverse16(m->gdY_r));
 #endif
       }
     }
@@ -289,11 +289,11 @@ void TFT_eSPI::unloadFont( void )
   //   gxAdvance = NULL;
   // }
 
-  if (gdY)
-  {
-    free(gdY);
-    gdY = NULL;
-  }
+  // if (gdY)
+  // {
+  //   free(gdY);
+  //   gdY = NULL;
+  // }
 
   // if (gdX)
   // {
@@ -430,7 +430,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     }
 #endif
 
-    int16_t cy = cursor_y + gFont.maxAscent - gdY[gNum];
+    int16_t cy = cursor_y + gFont.maxAscent - reverse16(m->gdY_r);
     int16_t cx = cursor_x + m->gdX;
 
     int16_t  xs = cx;
