@@ -160,9 +160,17 @@ typedef struct
   uint32_t dummy;
 } CharMetrics;
 
+
 inline uint32_t reverse32(uint32_t val)
 {
   return (val<<24) | (val<<8&0xFF0000) | (val>>8&0xFF00) | (val>>24);
+}
+
+
+uint16_t TFT_eSPI::gUnicode(uint16_t gNum)
+{
+  CharMetrics * m = &((CharMetrics *)(&gFont.gArray[24]))[gNum];
+  return reverse32(m->gUnicode);
 }
 
 
@@ -175,7 +183,7 @@ void TFT_eSPI::loadMetrics(void)
 #if defined (ESP32) && defined (CONFIG_SPIRAM_SUPPORT)
   if ( psramFound() )
   {
-    gUnicode  = (uint16_t*)ps_malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
+    //gUnicode  = (uint16_t*)ps_malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
     gHeight   =  (uint8_t*)ps_malloc( gFont.gCount );    // Height of glyph
     gWidth    =  (uint8_t*)ps_malloc( gFont.gCount );    // Width of glyph
     gxAdvance =  (uint8_t*)ps_malloc( gFont.gCount );    // xAdvance - to move x cursor
@@ -186,7 +194,7 @@ void TFT_eSPI::loadMetrics(void)
   else
 #endif
   {
-    gUnicode  = (uint16_t*)malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
+    //gUnicode  = (uint16_t*)malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
     gHeight   =  (uint8_t*)malloc( gFont.gCount );    // Height of glyph
     gWidth    =  (uint8_t*)malloc( gFont.gCount );    // Width of glyph
     gxAdvance =  (uint8_t*)malloc( gFont.gCount );    // xAdvance - to move x cursor
@@ -209,7 +217,7 @@ void TFT_eSPI::loadMetrics(void)
   while (gNum < gFont.gCount)
   {
     CharMetrics * m = &((CharMetrics *)(&gFont.gArray[24]))[gNum];
-    gUnicode[gNum] = reverse32(m->gUnicode);
+    //gUnicode[gNum] = reverse32(m->gUnicode);
     gHeight[gNum] = reverse32(m->gHeight);
     gWidth[gNum] = reverse32(m->gWidth);
     gxAdvance[gNum] = reverse32(m->gxAdvance);
@@ -251,7 +259,7 @@ void TFT_eSPI::loadMetrics(void)
     if (((int16_t)gHeight[gNum] - (int16_t)gdY[gNum]) > gFont.maxDescent)
     {
       // Avoid UTF coding values and characters that tend to give duff values
-      if (((gUnicode[gNum] > 0x20) && (gUnicode[gNum] < 0xA0) && (gUnicode[gNum] != 0x7F)) || (gUnicode[gNum] > 0xFF))
+      if (((gUnicode(gNum) > 0x20) && (gUnicode(gNum) < 0xA0) && (gUnicode(gNum) != 0x7F)) || (gUnicode(gNum) > 0xFF))
       {
         gFont.maxDescent   = gHeight[gNum] - gdY[gNum];
 #ifdef SHOW_ASCENT_DESCENT
@@ -280,11 +288,11 @@ void TFT_eSPI::loadMetrics(void)
 *************************************************************************************x*/
 void TFT_eSPI::unloadFont( void )
 {
-  if (gUnicode)
-  {
-    free(gUnicode);
-    gUnicode = NULL;
-  }
+  // if (gUnicode)
+  // {
+  //   free(gUnicode);
+  //   gUnicode = NULL;
+  // }
 
   if (gHeight)
   {
@@ -370,7 +378,7 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 {
   for (uint16_t i = 0; i < gFont.gCount; i++)
   {
-    if (gUnicode[i] == unicode)
+    if (gUnicode(i) == unicode)
     {
       *index = i;
       return true;
@@ -537,7 +545,7 @@ void TFT_eSPI::showFont(uint32_t td)
     }
 
     setCursor(cursorX, cursorY);
-    drawGlyph(gUnicode[i]);
+    drawGlyph(gUnicode(i));
     cursorX += gxAdvance[i];
     //cursorX +=  printToSprite( cursorX, cursorY, i );
     yield();
