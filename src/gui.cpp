@@ -56,11 +56,7 @@ void gslc_init()
         return;
     }
 
-#ifdef SPIFFS_FONT
-    if (!gslc_FontSet(&gslc,FONT_SMOOTH,GSLC_FONTREF_FNAME,FONT_NAME1,1))
-#else
     if (!gslc_FontSet(&gslc, FONT_SMOOTH, GSLC_FONTREF_PTR, FONT_NAME1, 1))
-#endif
     {
         DEBUG("gslc fontset2 error\n");
         return;
@@ -86,15 +82,6 @@ Gui::Gui()
 
     tft.fillScreen(TFT_BLACK);
     tft.setTextWrap(false, false);
-
-#ifdef SPIFFS_FONT
-    if (!SPIFFS.begin()) 
-    {
-        DEBUG("SPIFFS initialisation failed!\n");
-        while (1) 
-            yield(); // Stay here twiddling thumbs waiting
-    }
-#endif
 
     tft.loadFont(FONT_NAME1);
 
