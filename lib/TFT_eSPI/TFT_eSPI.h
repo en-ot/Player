@@ -403,11 +403,11 @@ typedef struct
   uint8_t gxAdvance_dummy[3];
   uint8_t gxAdvance;
  
-  uint16_t gdY_dummy;
-  uint16_t gdY_r;
+  int16_t gdY_dummy;
+  int16_t gdY_r;
 
-  uint8_t gdX_dummy[3];
-  uint8_t gdX;
+  int8_t gdX_dummy[3];
+  int8_t gdX;
 
   uint32_t dummy;
 } CharMetrics;
