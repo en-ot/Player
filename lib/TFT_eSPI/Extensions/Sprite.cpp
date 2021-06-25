@@ -2417,19 +2417,19 @@ void TFT_eSprite::drawGlyph(uint16_t code)
     {
       createSprite(m->gWidth, gFont.yAdvance);
       if(fg != bg) fillSprite(bg);
-      cursor_x = -gdX[gNum];
+      cursor_x = -m->gdX;
       cursor_y = 0;
     }
     else
     {
-      if( textwrapX && ((cursor_x + m->gWidth + gdX[gNum]) > width())) {
+      if( textwrapX && ((cursor_x + m->gWidth + m->gdX) > width())) {
         cursor_y += gFont.yAdvance;
         cursor_x = 0;
       }
 
       if( textwrapY && ((cursor_y + gFont.yAdvance) > height())) cursor_y = 0;
 
-      if ( cursor_x == 0) cursor_x -= gdX[gNum];
+      if ( cursor_x == 0) cursor_x -= m->gdX;
     }
 
     uint8_t* pbuffer = nullptr;
@@ -2446,7 +2446,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
     uint16_t dl = 0;
     uint8_t pixel = 0;
     int32_t cgy = cursor_y + gFont.maxAscent - gdY[gNum];
-    int32_t cgx = cursor_x + gdX[gNum];
+    int32_t cgx = cursor_x + m->gdX;
 
     for (int32_t y = 0; y < m->gHeight; y++)
     {
@@ -2497,7 +2497,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
       pushSprite(cgx, cursor_y);
       deleteSprite();
     }
-    cursor_x += gxAdvance[gNum];
+    cursor_x += m->gxAdvance;
   }
   else
   {
@@ -2541,9 +2541,9 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
       if (getUnicodeIndex(unicode, &index))
       {
         const CharMetrics * m = &cm[index];
-        if (n == 0) sWidth -= gdX[index];
-        if (n == len-1) sWidth += ( m->gWidth + gdX[index]);
-        else sWidth += gxAdvance[index];
+        if (n == 0) sWidth -= m->gdX;
+        if (n == len-1) sWidth += ( m->gWidth + m->gdX);
+        else sWidth += m->gxAdvance;
       }
       else sWidth += gFont.spaceWidth + 1;
     }
@@ -2580,6 +2580,7 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
   bool newSprite = !_created;
   int16_t sWidth = cm[index].gWidth;
 
+  const CharMetrics * m = &cm[index];
   if (newSprite)
   {
     createSprite(sWidth, gFont.yAdvance);
@@ -2587,14 +2588,14 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
     if (textcolor != textbgcolor) fillSprite(textbgcolor);
 
     //todo:drawGlyphIndex
-    drawGlyph(reverse16(cm[index].gUnicode_r));
+    drawGlyph(reverse16(m->gUnicode_r));
 
-    pushSprite(x + gdX[index], y, textbgcolor);
+    pushSprite(x + m->gdX, y, textbgcolor);
     deleteSprite();
   }
 
-  else drawGlyph(reverse16(cm[index].gUnicode_r));
+  else drawGlyph(reverse16(m->gUnicode_r));
 
-  return gxAdvance[index];
+  return m->gxAdvance;
 }
 #endif

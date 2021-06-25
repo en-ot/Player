@@ -162,9 +162,9 @@ void TFT_eSPI::loadMetrics(void)
     //gUnicode  = (uint16_t*)ps_malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
     // gHeight   =  (uint8_t*)ps_malloc( gFont.gCount );    // Height of glyph
     // gWidth    =  (uint8_t*)ps_malloc( gFont.gCount );    // Width of glyph
-    gxAdvance =  (uint8_t*)ps_malloc( gFont.gCount );    // xAdvance - to move x cursor
+    // gxAdvance =  (uint8_t*)ps_malloc( gFont.gCount );    // xAdvance - to move x cursor
     gdY       =  (int16_t*)ps_malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
-    gdX       =   (int8_t*)ps_malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
+    // gdX       =   (int8_t*)ps_malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
     gBitmap   = (uint32_t*)ps_malloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
   }
   else
@@ -173,9 +173,9 @@ void TFT_eSPI::loadMetrics(void)
     //gUnicode  = (uint16_t*)malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
     // gHeight   =  (uint8_t*)malloc( gFont.gCount );    // Height of glyph
     // gWidth    =  (uint8_t*)malloc( gFont.gCount );    // Width of glyph
-    gxAdvance =  (uint8_t*)malloc( gFont.gCount );    // xAdvance - to move x cursor
+    // gxAdvance =  (uint8_t*)malloc( gFont.gCount );    // xAdvance - to move x cursor
     gdY       =  (int16_t*)malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
-    gdX       =   (int8_t*)malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
+    // gdX       =   (int8_t*)malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
     gBitmap   = (uint32_t*)malloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
   }
 
@@ -196,9 +196,9 @@ void TFT_eSPI::loadMetrics(void)
     //gUnicode[gNum] = reverse32(m->gUnicode);
     //gHeight[gNum] = m->gHeight;
     // gWidth[gNum] = m->gWidth;
-    gxAdvance[gNum] = m->gxAdvance;
+    // gxAdvance[gNum] = m->gxAdvance;
     gdY[gNum] = reverse16(m->gdY_r);
-    gdX[gNum] = m->gdX;
+    // gdX[gNum] = m->gdX;
     //fontPtr += sizeof(CharMetrics);
 
     // gUnicode[gNum]  = (uint16_t)readInt32(); // Unicode code point value
@@ -283,11 +283,11 @@ void TFT_eSPI::unloadFont( void )
   //   gWidth = NULL;
   // }
 
-  if (gxAdvance)
-  {
-    free(gxAdvance);
-    gxAdvance = NULL;
-  }
+  // if (gxAdvance)
+  // {
+  //   free(gxAdvance);
+  //   gxAdvance = NULL;
+  // }
 
   if (gdY)
   {
@@ -295,11 +295,11 @@ void TFT_eSPI::unloadFont( void )
     gdY = NULL;
   }
 
-  if (gdX)
-  {
-    free(gdX);
-    gdX = NULL;
-  }
+  // if (gdX)
+  // {
+  //   free(gdX);
+  //   gdX = NULL;
+  // }
 
   if (gBitmap)
   {
@@ -411,13 +411,13 @@ void TFT_eSPI::drawGlyph(uint16_t code)
   if (found)
   {
     const CharMetrics * m = &cm[gNum];
-    if (textwrapX && (cursor_x + m->gWidth + gdX[gNum] > width()))
+    if (textwrapX && (cursor_x + m->gWidth + m->gdX > width()))
     {
       cursor_y += gFont.yAdvance;
       cursor_x = 0;
     }
     if (textwrapY && ((cursor_y + gFont.yAdvance) >= height())) cursor_y = 0;
-    if (cursor_x == 0) cursor_x -= gdX[gNum];
+    if (cursor_x == 0) cursor_x -= m->gdX;
 
     uint8_t* pbuffer = nullptr;
     const uint8_t* gPtr = (const uint8_t*) gFont.gArray;
@@ -431,7 +431,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
 #endif
 
     int16_t cy = cursor_y + gFont.maxAscent - gdY[gNum];
-    int16_t cx = cursor_x + gdX[gNum];
+    int16_t cx = cursor_x + m->gdX;
 
     int16_t  xs = cx;
     uint32_t dl = 0;
@@ -494,7 +494,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     }
 
     if (pbuffer) free(pbuffer);
-    cursor_x += gxAdvance[gNum];
+    cursor_x += m->gxAdvance;
     endWrite();
   }
   else
@@ -523,12 +523,12 @@ void TFT_eSPI::showFont(uint32_t td)
   {
     // Check if this will need a new screen
     const CharMetrics * m = &cm[i];
-    if (cursorX + gdX[i] + m->gWidth >= width())  {
-      cursorX = -gdX[i];
+    if (cursorX + m->gdX + m->gWidth >= width())  {
+      cursorX = -m->gdX;
 
       cursorY += gFont.yAdvance;
       if (cursorY + gFont.maxAscent + gFont.descent >= height()) {
-        cursorX = -gdX[i];
+        cursorX = -m->gdX;
         cursorY = 0;
         delay(timeDelay);
         timeDelay = td;
@@ -537,8 +537,8 @@ void TFT_eSPI::showFont(uint32_t td)
     }
 
     setCursor(cursorX, cursorY);
-    drawGlyph(reverse16(cm[i].gUnicode_r));
-    cursorX += gxAdvance[i];
+    drawGlyph(reverse16(m->gUnicode_r));
+    cursorX += m->gxAdvance;
     //cursorX +=  printToSprite( cursorX, cursorY, i );
     yield();
   }

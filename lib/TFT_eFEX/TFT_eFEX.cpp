@@ -793,11 +793,11 @@ void TFT_eFEX::drawStringRTL(const char *string, int32_t *x, int32_t *y)
       if (found)
       {
         const CharMetrics * m = &_tft->cm[gNum];
-        poX -= ( m->gWidth + _tft->gdX[gNum] );
+        poX -= ( m->gWidth + m->gdX );
 
         if (poX < 0)
         {
-          poX = _tft->width() - ( m->gWidth + _tft->gdX[gNum] );
+          poX = _tft->width() - ( m->gWidth + m->gdX );
           poY += _tft->gFont.yAdvance;
           if (poY >= _tft->height()) poY = 0;
         }
@@ -1126,11 +1126,11 @@ void TFT_eFEX::drawStringRTLAr(const char *string, int32_t *x, int32_t *y)
         poY += _tft->gFont.yAdvance;
       }else if (found){
         const CharMetrics * m = &_tft->cm[gNum];
-        poX -= (m->gWidth + _tft->gdX[gNum]);
+        poX -= (m->gWidth + m->gdX);
 
         if (poX < 0)
         {
-          poX = _tft->width() - (m->gWidth + _tft->gdX[gNum]);
+          poX = _tft->width() - (m->gWidth + m->gdX);
           poY += _tft->gFont.yAdvance;
           if (poY >= _tft->height())
             poY = 0;
@@ -1208,11 +1208,11 @@ void TFT_eFEX::drawStringLTR(const char *string, int32_t *x, int32_t *y)
       if (found)
       {
         const CharMetrics * m = &_tft->cm[gNum];
-        poX -= ( m->gWidth + _tft->gdX[gNum] );
+        poX -= ( m->gWidth + m->gdX );
 
         if (poX < 0)
         {
-          poX = _tft->width() - ( m->gWidth + _tft->gdX[gNum] );
+          poX = _tft->width() - ( m->gWidth + m->gdX );
           poY += _tft->gFont.yAdvance;
           if (poY >= _tft->height()) poY = 0;
         }
