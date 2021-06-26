@@ -84,6 +84,7 @@ bool network_address(char * buf, int len)
 {
     IPAddress ip = WiFi.localIP();
     snprintf(buf, len, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    return true;
 }
 
 
