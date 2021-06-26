@@ -334,12 +334,33 @@ void Gui::step_progress(uint32_t pos, uint32_t total)
 }
 
 
-void Gui::step_begin(const char * errtxt)
+void Gui::step_begin(const char * text)
 {
     page(PAGE_INFO);
-    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], errtxt);
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], text);
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], "");
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_BAND], "");
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_ARTIST], "");
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_ALBUM], "");
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_TITLE], "");
     //redraw();
     loop();
+}
+
+
+void Gui::message(const char * message)
+{
+    page(PAGE_INFO);
+    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], message);
+    redraw();
+    loop();
+}
+
+
+void Gui::error(const char * errtxt)
+{
+    DEBUG("Error: %s\n", errtxt);
+    message(errtxt);
 }
 
 
@@ -393,15 +414,6 @@ void Gui::path(const char * text, const char * root)
     scroll_reset();
     UNUSED(root);
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], text);
-}
-
-
-void Gui::error(const char * errtxt)
-{
-    page(PAGE_INFO);
-    gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], errtxt);
-    redraw();
-    loop();
 }
 
 

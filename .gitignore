@@ -13,3 +13,5 @@ lib/JPEGDecoder/examples
 lib/TFT_eFEX/examples
 lib/ESP32-audioI2S/examples
 ~*.docx
+/src/credentials.h
+/output.map

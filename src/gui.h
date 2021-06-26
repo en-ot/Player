@@ -29,8 +29,9 @@ class Gui
         void scroll();
         void scroll_reset();
 
+        void message(const char * message);
         void error(const char * errtxt);
-        void step_begin(const char * errtxt);
+        void step_begin(const char * text);
         void step_progress(uint32_t pos, uint32_t total);
 
         // page:info

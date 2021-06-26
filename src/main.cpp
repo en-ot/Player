@@ -11,6 +11,7 @@
 #include "sound.h"
 #include "controls.h"
 #include "strcache.h"
+#include "network.h"
 
 #include "build_defs.h"
 #include "version.h"
@@ -272,7 +273,10 @@ uint32_t gui_sys_freeheap;
 
 bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
-    //char str[30] = "";
+    //char str[50] = "";
+    int pos = 0;
+    //char * ptr = str;
+
     switch (nItem)
     {
         case 0:
@@ -292,6 +296,18 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
         case 3:
             snprintf(pStrItem, nStrItemLen, "Free Heap: %d", gui_sys_freeheap);
             break;
+
+        case 4:
+            pos = strlcpy(pStrItem, "IP: ", nStrItemLen);
+            if (network_connected)
+            {
+                network_address(&pStrItem[pos], nStrItemLen-pos);
+            }
+            else
+            {
+                strlcat(pStrItem, "not connected", nStrItemLen);
+            }
+            break;
     }
     return true;
 }
@@ -299,7 +315,7 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 
 void gui_sys_init()
 {
-    gui->sys_box(4, sys_get_item);
+    gui->sys_box(5, sys_get_item);
 }
 
 
@@ -313,7 +329,7 @@ void gui_sys_update()
 //###############################################################
 // Init steps
 //###############################################################
-#define STEPS_TOTAL 10
+#define STEPS_TOTAL 11
 unsigned long step_t0 = 0;
 
 void begin(const char * step_name)
@@ -396,9 +412,13 @@ void setup()
     gui_sys_init();
     end(9);
 
+    begin("network");
+    network_init();
+    end(10);
+
     begin("start");
     fav_switch(cur_fav_num, true);
-    end(10);
+    end(11);
 }
 
 
@@ -552,6 +572,7 @@ void loop()
     display_loop();
     gui->loop();
     prefs_loop();
+    network_loop();
     check_loop();
     memory_loop();
     vTaskDelay(1);      //avoid watchdog
