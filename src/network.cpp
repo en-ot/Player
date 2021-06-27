@@ -2,7 +2,7 @@
 #include <ESPmDNS.h>
 
 #include "debug.h"
-//#include "sound.h"
+#include "sound.h"
 #include "gui.h"
 //#include "globals.h"
 
@@ -24,7 +24,7 @@ void ota_onEnd()
 
 void ota_onStart(bool sketch) 
 {
-    //sound_pause();
+    sound_pause();
     gui->step_begin("OTA Upload ");
     const char * type = sketch ? "sketch" : "filesystem";
     Serial.println(type);
@@ -52,13 +52,13 @@ void ota_onError(int error, const char * errtxt)
     gui->loop();
 }
 
+
 //###############################################################
 #ifdef HTTP_UPDATER
 
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <HTTPUpdateServer.h>
-
 
 
 WebServer httpServer(80);
