@@ -1,7 +1,3 @@
-//#define LINE_H 20 //font 18
-#define LINE_H 28 //font 24
-
-
 //###############################################################
 #define COL_BLACK       ((gslc_tsColor) { 0, 0, 0})
 #define COL_GRAY_DARK   ((gslc_tsColor) { 32, 32, 32})
@@ -10,27 +6,29 @@
 
 #define COL_GREEN_DARK  ((gslc_tsColor) { 0, 96, 0})
 #define COL_GREEN       ((gslc_tsColor) { 0, 192, 0})
-#define COL_GREEN_LIGHT ((gslc_tsColor) { 0, 255, 0})
+#define COL_GREEN_LIGHT ((gslc_tsColor) { 64, 255, 64})
 
 #define COL_RED_DARK    ((gslc_tsColor) { 96, 0, 0})
 #define COL_RED         ((gslc_tsColor) { 192, 0, 0})
-#define COL_RED_LIGHT   ((gslc_tsColor) { 255, 0, 0})
+#define COL_RED_LIGHT   ((gslc_tsColor) { 255, 64, 64})
 
 #define COL_BLUE_DARK   ((gslc_tsColor) { 0, 0, 96})
 #define COL_BLUE        ((gslc_tsColor) { 0, 0, 192})
-#define COL_BLUE_LIGHT  ((gslc_tsColor) { 0, 0, 255})
+#define COL_BLUE_LIGHT  ((gslc_tsColor) { 64, 64, 255})
 
 #define COL_FRAME       COL_WHITE
 #define COL_TEXT_NORMAL COL_WHITE
 #define COL_ERROR       ((gslc_tsColor) { 255, 0, 255})
 
+#define COL_SEL        COL_BLUE
+
+
+//###############################################################
 enum {
     FONT_BUILTIN5X8, FONT_BUILTIN20x32, FONT_SMOOTH,
     FONT_MAX
 };
 
-#define LCD_H ((int16_t)240)
-#define LCD_W ((int16_t)320)
 
 enum {
     //info
@@ -67,6 +65,28 @@ enum {
 
 #define INFO_MODE_ICONS     INFO_VOLUME_ELEM-INFO_PLAY_ICON
 
+
+//###############################################################
+#define LCD_H 240
+#define LCD_W 320
+
+//#define LINE_H 20 //font 18
+#define LINE_H 28 //font 24
+
+#define SLIDER_W       15
+#define BOX_Y          0
+#define BOX_X          0
+#define BOX_LINE_H     LINE_H
+#define BOX_H          (LCD_H-BOX_Y)
+#define BOX_W          (LCD_W-SLIDER_W-2)
+#define BOX_LINES      (BOX_H / BOX_LINE_H)
+#define BOX_RECT       (gslc_tsRect){BOX_X, BOX_Y, BOX_W, BOX_H}
+#define SLIDER_RECT    (gslc_tsRect){LCD_W - SLIDER_W, BOX_Y, SLIDER_W, BOX_H}
+
+#if (BOX_LINES != LISTBOX_LINES)
+#error CORRECT LISTBOX_LINES VALUE IN gui.h
+#endif
+
+#define SLIDER_RECT    (gslc_tsRect){LCD_W - SLIDER_W, BOX_Y, SLIDER_W, BOX_H}
 #define SLIDER_POS_MAX 240
 
-#define COL_SEL        COL_BLUE

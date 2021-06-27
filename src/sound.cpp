@@ -294,6 +294,8 @@ int start_file(int num, int updown)
                 DEBUG("no file %d\n", num);
                 return fc->curfile;
             }
+            
+            //DEBUG("Dir %d, File %d\n", fc->curdir, num);
 
             if (!fc->file_is_dir(num))
             {

@@ -1,14 +1,3 @@
-#define SLIDER_W       15
-#define BOX_Y          0
-#define BOX_X          0
-#define BOX_LINE_H     LINE_H
-#define BOX_H          (LCD_H-BOX_Y)
-#define BOX_W          (LCD_W-SLIDER_W-2)
-#define BOX_LINES      (BOX_H / BOX_LINE_H)
-#define BOX_RECT       (gslc_tsRect){BOX_X, BOX_Y, BOX_W, BOX_H}
-#define SLIDER_RECT    (gslc_tsRect){LCD_W - SLIDER_W, BOX_Y, SLIDER_W, BOX_H}
-
-
 #define SLIDER_COL     COL_WHITE
 
 #define FILES_BACK_COL       COL_BLACK

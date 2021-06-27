@@ -53,54 +53,6 @@ void Playlist::set_root(String path)
 
 
 //###############################################################
-
-
-// bool FileControl::scan_roots(int root_num)
-// {
-//     root_path = "/";
-//     File root = SD.open(root_path);
-//     curroot = 1;
-
-//     while (true)
-//     {
-//         if (curroot == root_num)
-//             return true;
-
-//         File file = root.openNextFile();
-//         if (!file)
-//             break;
-
-//         if (file.isDirectory())
-//         {
-//             char fname[FILENAME_MAX_LEN];
-//             filename(file, fname, sizeof(fname));
-//             root_path = String(fname);
-//             curroot += 1;
-//         }
-//     }
-
-//     DEBUG("rootcnt: %i\n", curroot);
-//     return false;
-// }
-
-// void FileControl::find_root(int root_num)
-// {
-//     root_num = clamp1(root_num, rootcnt);
-
-//     filecnt = 0;
-//     dircnt = 0;
-//     scan_roots(root_num);
-
-//     unsigned long t0 = millis();
-//     scan_files(&filecnt, &dircnt);
-//     DEBUG("root: %s, dirs: %i, files: %i, time: %lu\n", root_path.c_str(), dircnt, filecnt, millis() - t0);
-// }
-
-
-//###############################################################
-
-
-//###############################################################
 size_t Playlist::file_name(int file_num, char * dst, int len)
 {
     if (!find_file(file_num))
@@ -244,17 +196,21 @@ bool Playlist::find_dir(int dir_num)
 {
     dir_num = clamp1(dir_num, dircnt);
 
-    DEBUG("Find dir %d\n", dir_num);
+    //DEBUG("Find dir %d\n", dir_num);
 
     if (curdir >= dir_num)
     {
+        //DEBUG("Rewind\n");
         rewind();
     }
+    //DEBUG("Dir %d, File %d\n", curdir, curfile);
 
     int file_num = curfile;
     while (curdir != dir_num) 
     {
-        if (!find_file0(file_num))
+        bool res = find_file0(file_num);
+        //DEBUG("Dir %d, File %d\n", curdir, curfile);
+        if (!res)
         {
             DEBUG("Not found\n");
             return false;
@@ -262,6 +218,7 @@ bool Playlist::find_dir(int dir_num)
         file_num += 1;
     }
 
+    //DEBUG("Dir %d found\n", curdir);
     return true;
 }
 

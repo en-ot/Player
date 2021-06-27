@@ -249,7 +249,7 @@ bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
     gui->fav_highlight(pvGui, pvElem, type);
 
     strlcpy(pStrItem, fav_str[nItem], nStrItemLen);
-    DEBUG("%s\n", pStrItem);
+    //DEBUG("%s\n", pStrItem);
     return true;
 }
 

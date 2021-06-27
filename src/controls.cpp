@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "debug.h"
 
 #include "InputButton.h"
 #include "AnalogEncoder.h"
@@ -119,6 +120,7 @@ bool play_file_prev()
 bool play_dir_next()
 {
     next_dir = fc->curdir + 1;
+    next_updown = FAIL_NEXT;
     need_play_next_dir = true;
     return true;
 }
@@ -127,7 +129,7 @@ bool play_dir_next()
 bool play_dir_prev()
 {
     next_dir = fc->curdir - 1;
-    next_updown = FAIL_PREV;
+    next_updown = FAIL_NEXT;
     need_play_next_dir = true;
     return true;
 }
@@ -192,33 +194,6 @@ bool file_seek(int by)
 }
 
 
-bool files_seek(int by)
-{
-    if (!by)
-        return false;
-    gui->files_seek(by);
-    return true;
-}
-
-
-bool fav_seek(int by)
-{
-    if (!by)
-        return false;
-    gui->fav_seek(by);
-    return true;
-}
-
-
-bool dirs_seek(int by)
-{
-    if (!by)
-        return false;
-    gui->dirs_seek(by);
-    return true;
-}
-
-
 bool change_pause()
 {
     if (sound_is_playing())
@@ -254,53 +229,41 @@ bool change_volume(int change)
 }
 
 
-uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
-
-bool change_page()
-{
-    int i;
-    for (i = 0; i < sizeof(page_order); i++)
-    {
-        if (page_order[i] == ui_page)
-        {
-            i++;
-            break;
-        }
-    }
-    if (i >= sizeof(page_order)) i = 0;
-    ui_page = page_order[i];
-
-    sound_pause();
-
-    gui->page(ui_page);
-    return true;
-}
-
-
-bool sys_page()
-{
-    sound_pause();
-    gui_sys_update();
-    ui_page = PAGE_SYS;
-    gui->page(ui_page);
-    return true;
-}
-
-
-bool sys_seek(int by)
+//###############################################################
+bool files_seek(int by)
 {
     if (!by)
         return false;
-    gui->sys_seek(by);
+    gui->files_seek(by);
     return true;
 }
 
 
-bool files_play_sel()
+bool files_pgupdn(int by)
 {
-    ui_page = PAGE_INFO;
-    gui->page(ui_page);
-    play_file_num(gui->files_sel, FAIL_NEXT);
+    if (!by)
+        return false;
+    gui->files_seek(by * LISTBOX_LINES);
+    return true;
+}
+
+
+bool files_dir_prev()
+{
+    pl->find_file(gui->files_sel);
+    pl->find_dir(pl->curdir-1);
+    //DEBUG("goto %d\n", pl->curfile);
+    gui->files_select(pl->curfile);
+    return true;
+}
+
+
+bool files_dir_next()
+{
+    pl->find_file(gui->files_sel);
+    pl->find_dir(pl->curdir+1);
+    //DEBUG("goto %d\n", pl->curfile);
+    gui->files_select(pl->curfile);
     return true;
 }
 
@@ -312,9 +275,11 @@ bool files_goto_curfile()
 }
 
 
-bool dirs_goto_curdir()
+bool files_play_sel()
 {
-    gui->dirs_select(fc->curdir);
+    ui_page = PAGE_INFO;
+    gui->page(ui_page);
+    play_file_num(gui->files_sel, FAIL_NEXT);
     return true;
 }
 
@@ -334,6 +299,69 @@ bool files_set_fav()
     ui_page = PAGE_FAV;
     gui->page(ui_page);
 
+    return true;
+}
+
+
+//###############################################################
+bool fav_seek(int by)
+{
+    if (!by)
+        return false;
+    gui->fav_seek(by);
+    return true;
+}
+
+
+bool fav_pgupdn(int by)
+{
+    if (!by)
+        return false;
+    gui->fav_seek(by * LISTBOX_LINES);
+    return true;
+}
+
+
+bool fav_reset()
+{
+    int fav_num = gui->fav_sel;
+    fav_set_path(fav_num, "/");
+    return true;
+}
+
+
+bool fav_set_num()
+{
+    int fav_num = gui->fav_sel;
+    fav_switch(fav_num, false);
+    ui_page = PAGE_INFO;
+    gui->page(ui_page);
+    return true;
+}
+
+
+//###############################################################
+bool dirs_pgupdn(int by)
+{
+    if (!by)
+        return false;
+    gui->dirs_seek(by * LISTBOX_LINES);
+    return true;
+}
+
+
+bool dirs_seek(int by)
+{
+    if (!by)
+        return false;
+    gui->dirs_seek(by);
+    return true;
+}
+
+
+bool dirs_goto_curdir()
+{
+    gui->dirs_select(fc->curdir);
     return true;
 }
 
@@ -370,20 +398,46 @@ bool dirs_play_sel()
 }
 
 
-bool fav_reset()
+//###############################################################
+uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
+
+bool change_page()
 {
-    int fav_num = gui->fav_sel;
-    fav_set_path(fav_num, "/");
+    int i;
+    for (i = 0; i < sizeof(page_order); i++)
+    {
+        if (page_order[i] == ui_page)
+        {
+            i++;
+            break;
+        }
+    }
+    if (i >= sizeof(page_order)) i = 0;
+    ui_page = page_order[i];
+
+    sound_pause();
+
+    gui->page(ui_page);
     return true;
 }
 
 
-bool fav_set_num()
+//###############################################################
+bool sys_page()
 {
-    int fav_num = gui->fav_sel;
-    fav_switch(fav_num, false);
-    ui_page = PAGE_INFO;
+    sound_pause();
+    gui_sys_update();
+    ui_page = PAGE_SYS;
     gui->page(ui_page);
+    return true;
+}
+
+
+bool sys_seek(int by)
+{
+    if (!by)
+        return false;
+    gui->sys_seek(by);
     return true;
 }
 
@@ -419,22 +473,22 @@ Controls info_ctrl = {{
     change_volume,     file_seek   },{      // volume,      seek
     play_file_prev,    play_file_next,      // vol_long,    vol_short
     play_root_next,    change_pause,        // seek_long,   seek_short
-    play_dir_prev,     change_page,         // b1_long,     b1_short
-    play_dir_next,     play_file_down,      // b2_long,     b2_short
-    toggle_repeat,     toggle_shuffle,      // b3_long,     b3_short
+    play_file_down,    change_page,         // b1_long,     b1_short
+    toggle_shuffle,    play_dir_prev,       // b2_long,     b2_short
+    toggle_repeat,     play_dir_next,       // b3_long,     b3_short
 }};
 
 Controls files_ctrl = {{
-    change_volume,      files_seek   },{     // volume,      seek
-    nothing,            files_goto_curfile,  // vol_long,    vol_short
-    files_set_fav,      files_play_sel,       // seek_long,   seek_short
+    files_pgupdn,       files_seek   },{    // volume,      seek
+    nothing,            files_goto_curfile, // vol_long,    vol_short
+    files_set_fav,      files_play_sel,     // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short
-    nothing,            nothing,            // b2_long,     b2_short
-    nothing,            nothing,            // b3_long,     b3_short
+    nothing,            files_dir_prev,     // b2_long,     b2_short
+    nothing,            files_dir_next,     // b3_long,     b3_short
 }};
 
 Controls dirs_ctrl = {{
-    change_volume,      dirs_seek   },{     // volume,      seek      
+    dirs_pgupdn,        dirs_seek   },{     // volume,      seek      
     nothing,            dirs_goto_curdir,   // vol_long,    vol_short 
     dirs_set_fav,       dirs_play_sel,        // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short  
@@ -443,7 +497,7 @@ Controls dirs_ctrl = {{
 }};
 
 Controls fav_ctrl = {{
-    change_volume,      fav_seek   },{      // volume,      seek      
+    fav_pgupdn,         fav_seek   },{      // volume,      seek      
     nothing,            nothing,            // vol_long,    vol_short 
     fav_reset,          fav_set_num,        // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short  

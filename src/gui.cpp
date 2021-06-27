@@ -490,29 +490,46 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 }
 
 
-static void slider_update(int nItemCnt, int sel, gslc_tsElemRef * slider_ref)
+// static void slider_update(gslc_tsElemRef * slider_ref, int sel, int nItemCnt)
+// {
+//     int max = nItemCnt - 1;
+//     if (max < 1) 
+//         max = 1;
+    
+//     int pos = SLIDER_POS_MAX * sel / max;
+//     gslc_ElemXSliderSetPos(&gslc, slider_ref, pos);
+// }
+
+
+static int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center)
 {
-    int max = nItemCnt - 1;
+    gslc_tsElem * elem = gslc_GetElemFromRef(&gslc, box_ref);
+    gslc_tsXListbox * box = (gslc_tsXListbox *)elem->pXData;
+    int16_t cnt = box->nItemCnt;
+
+    if (index >= cnt)
+        index = cnt-1;
+    if (index < 0)
+        index = 0;
+    gslc_ElemXListboxSetSel(&gslc, box_ref, index);
+    
+    if (center)
+    {
+        int top = index - BOX_LINES/2 + 1;
+        if (top + BOX_LINES > cnt)
+            top = cnt - BOX_LINES;
+        if (top < 0)
+            top = 0;
+        gslc_ElemXListboxSetScrollPos(&gslc, box_ref, top);
+    }
+    
+    int max = cnt - 1;
     if (max < 1) 
         max = 1;
-    
-    int pos = SLIDER_POS_MAX * sel / max;
+    int pos = SLIDER_POS_MAX * index / max;
     gslc_ElemXSliderSetPos(&gslc, slider_ref, pos);
-}
 
-
-static int box_seek(gslc_tsXListbox * box, gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int by)
-{
-    //todo: calc box from ref
-    int sel = gslc_ElemXListboxGetSel(&gslc, box_ref);
-    sel -= by;
-    gslc_ElemXListboxSetSel(&gslc, box_ref, sel);
-
-    sel = gslc_ElemXListboxGetSel(&gslc, box_ref);
-
-    slider_update(box->nItemCnt, sel, slider_ref);
-
-    return sel;
+    return index;
 }
 
 
@@ -533,19 +550,6 @@ void page_files_init()
     gslc_PageAdd(&gslc, PAGE_FILES, files_elem, FILES_ELEM_MAX, files_ref, FILES_ELEM_MAX);
     files_box_ref   = create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &files_box_elem,    FILES_BACK_COL);
     files_slider_ref = create_slider(PAGE_FILES, FILES_SLIDER_ELEM, &files_slider_elem, FILES_BACK_COL);
-}
-
-
-void Gui::files_select(int curfile)
-{
-    int index = curfile-1;
-    gslc_ElemXListboxSetSel(&gslc, files_box_ref, index);
-    gslc_ElemXListboxSetScrollPos(&gslc, files_box_ref, index - BOX_LINES/2 + 1);
-    int sel = gslc_ElemXListboxGetSel(&gslc, files_box_ref);
-    files_sel = sel + 1;
-    //slider_update(files_box_elem.nItemCnt, sel, files_box_ref);
-    //files_seek(0);
-    //files_box_elem.bNeedRecalc = true;
 }
 
 
@@ -570,9 +574,15 @@ void Gui::files_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
 }
 
 
+void Gui::files_select(int curfile)
+{
+    files_sel = box_goto(files_box_ref, files_slider_ref, curfile-1, true) + 1;
+}
+
+
 void Gui::files_seek(int by)
 {
-    files_sel = box_seek(&files_box_elem, files_box_ref, files_slider_ref, by) + 1;
+    files_sel = box_goto(files_box_ref, files_slider_ref, files_sel-1-by, false) + 1;
 }
 
 
@@ -606,19 +616,6 @@ void Gui::dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
 }
 
 
-void Gui::dirs_select(int curdir)
-{
-    int index = curdir-1;
-    gslc_ElemXListboxSetSel(&gslc, dirs_box_ref, index);
-    gslc_ElemXListboxSetScrollPos(&gslc, dirs_box_ref, index - BOX_LINES/2 + 1);
-    int sel = gslc_ElemXListboxGetSel(&gslc, dirs_box_ref);
-    dirs_sel = sel + 1;
-    //slider_update(dirs_box_elem.nItemCnt, sel, dirs_box_ref);
-    //dirs_seek(0);
-    //dirs_box_elem.bNeedRecalc = true;
-}
-
-
 void Gui::dirs_highlight(void *gslc, void *pElemRef, int type)
 {
     static gslc_tsColor colors_b[] = {DIRS_COL_NORMAL_B, DIRS_COL_PLAY_B};
@@ -630,9 +627,15 @@ void Gui::dirs_highlight(void *gslc, void *pElemRef, int type)
 }
 
 
+void Gui::dirs_select(int dir_num)
+{
+    dirs_sel = box_goto(dirs_box_ref, dirs_slider_ref, dir_num-1, true) + 1;
+}
+
+
 void Gui::dirs_seek(int by)
 {
-    dirs_sel = box_seek(&dirs_box_elem, dirs_box_ref, dirs_slider_ref, by) + 1;
+    dirs_sel = box_goto(dirs_box_ref, dirs_slider_ref, dirs_sel-1-by, false) + 1;
 }
 
 
@@ -664,18 +667,6 @@ void Gui::fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
 }
 
 
-void Gui::fav_select(int num)
-{
-    gslc_ElemXListboxSetSel(&gslc, fav_box_ref, num-1);
-}
-
-
-void Gui::fav_seek(int by)
-{
-    fav_sel = box_seek(&fav_box_elem, fav_box_ref, fav_slider_ref, by) + 1;
-}
-
-
 void Gui::fav_highlight(void *gslc, void *pElemRef, int type)
 {
     static gslc_tsColor colors_b[] = {FAV_COL_NORMAL_B, FAV_COL_PLAY_B};
@@ -684,6 +675,18 @@ void Gui::fav_highlight(void *gslc, void *pElemRef, int type)
     elem->colElemText       = colors_f[type];
     elem->colElemTextGlow   = colors_f[type];
     elem->colElemFill       = colors_b[type];
+}
+
+
+void Gui::fav_select(int fav_num)
+{
+    fav_sel = box_goto(fav_box_ref, fav_slider_ref, fav_num-1, true) + 1;
+}
+
+
+void Gui::fav_seek(int by)
+{
+    fav_sel = box_goto(fav_box_ref, fav_slider_ref, fav_sel-1-by, false) + 1;
 }
 
 
@@ -723,7 +726,7 @@ void Gui::sys_update()
 
 void Gui::sys_seek(int by)
 {
-    sys_sel = box_seek(&sys_box_elem, sys_box_ref, sys_slider_ref, by) + 1;
+    sys_sel = box_goto(sys_box_ref, sys_slider_ref, sys_sel-1-by, false) + 1;
 }
 
 
