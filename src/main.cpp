@@ -12,9 +12,7 @@
 #include "controls.h"
 #include "strcache.h"
 #include "network.h"
-
-#include "build_defs.h"
-#include "version.h"
+#include "firmware.h"
 
 //###############################################################
 // gui input and output
@@ -280,13 +278,12 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
     switch (nItem)
     {
         case 0:
-            strlcpy(pStrItem, "Version: " VERSION, nStrItemLen);
+            snprintf(pStrItem, nStrItemLen, "Version: %s", firmware_version());
             break;
         
         case 1:
-            snprintf(pStrItem, nStrItemLen, "Date: %d.%02d.%d, %02d:%02d:%02d", 
-                COMPUTE_BUILD_DAY, COMPUTE_BUILD_MONTH, COMPUTE_BUILD_YEAR,
-                COMPUTE_BUILD_HOUR, COMPUTE_BUILD_MIN, COMPUTE_BUILD_SEC);
+            pos = strlcpy(pStrItem, "Date: ", nStrItemLen);
+            firmware_datetime(&pStrItem[pos], nStrItemLen-pos);
             break;
         
         case 2:
