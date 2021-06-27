@@ -43,8 +43,8 @@ extern bool need_save_repeat;
 extern bool need_save_shuffle;
 extern bool need_save_file_pos;
 
-extern playlist * fc;   //playing
-extern playlist * pl;   //list
+extern Playlist * fc;   //playing
+extern Playlist * pl;   //list
 
 #define QUEUE_MSG_SIZE 250
 extern QueueHandle_t tag_queue;

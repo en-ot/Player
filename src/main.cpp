@@ -1,6 +1,8 @@
 // builtin libs
 #include <Arduino.h>
 
+#include "SD_Libs.h"
+
 #include "debug.h"
 
 // project
@@ -20,8 +22,8 @@
 
 Gui * gui;
 
-playlist * fc;   //playing file
-playlist * pl;   //files and dirs playlist
+Playlist * fc;   //playing file
+Playlist * pl;   //files and dirs Playlist
 
 
 //###############################################################
@@ -398,11 +400,11 @@ void setup()
     end(6);
 
     begin("filectrl");
-    fc = new playlist();
+    fc = new Playlist();
     end(7);
  
-    begin("playlist");
-    pl = new playlist();
+    begin("Playlist");
+    pl = new Playlist();
     end(8);
 
     begin("gui_sys");

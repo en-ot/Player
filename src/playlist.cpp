@@ -3,9 +3,27 @@
 
 #include "playlist.h"
 
+//###############################################################
+#include "SD_Libs.h"
 
-//int curroot = 0;
-//int rootcnt = 0;
+class PlaylistPrivate
+{
+    public:
+        size_t entry_name(File & file, char * buf, int len);
+        File dirs[DIR_DEPTH];
+        File entry;
+};
+
+
+size_t PlaylistPrivate::entry_name(File & file, char * buf, int len)
+{
+    buf[0] = 0;
+
+    if (file)
+        return file.getName(buf, len);
+
+    return 0;
+}
 
 
 //###############################################################
@@ -18,13 +36,14 @@ int clamp1(int num, int cnt)
 //###############################################################
 // FileControl Class
 //###############################################################
-playlist::playlist()
+Playlist::Playlist()
 {
     root_path = "/";
+    p_ = new PlaylistPrivate();
 }
 
 
-void playlist::set_root(String path)
+void Playlist::set_root(String path)
 {
     root_path = path;
     unsigned long t0 = millis();
@@ -79,19 +98,10 @@ void playlist::set_root(String path)
 
 
 //###############################################################
-size_t playlist::entry_name(File & file, char * buf, int len)
-{
-    buf[0] = 0;
-
-    if (file)
-        return file.getName(buf, len);
-
-    return 0;
-}
 
 
 //###############################################################
-size_t playlist::file_name(int file_num, char * dst, int len)
+size_t Playlist::file_name(int file_num, char * dst, int len)
 {
     if (!find_file(file_num))
     {
@@ -99,11 +109,11 @@ size_t playlist::file_name(int file_num, char * dst, int len)
         return 0;
     }
 
-    return entry_name(entry, dst, len);
+    return p_->entry_name(p_->entry, dst, len);
 }
 
 
-size_t playlist::file_dirname(int file_num, char * dst, int len)
+size_t Playlist::file_dirname(int file_num, char * dst, int len)
 {
     if (!find_file(file_num))
     {
@@ -122,7 +132,7 @@ size_t playlist::file_dirname(int file_num, char * dst, int len)
     {
         dst[x++] = '/';
         len--;
-        int len1 = entry_name(dirs[i], &dst[x], len);
+        int len1 = p_->entry_name(p_->dirs[i], &dst[x], len);
         x += len1;
         len -= len1;
         if (!len)
@@ -132,39 +142,39 @@ size_t playlist::file_dirname(int file_num, char * dst, int len)
 }
 
 
-size_t playlist::file_pathname(int file_num, char * dst, int len)
+size_t Playlist::file_pathname(int file_num, char * dst, int len)
 {
     int x;
     x = file_dirname(file_num, dst, len);
     if (!x)
         return 0;
     dst[x++] = '/';
-    x += entry_name(entry, &dst[x], len-x);
+    x += p_->entry_name(p_->entry, &dst[x], len-x);
     return x;
 }
 
 
-bool playlist::file_is_dir(int file_num)
+bool Playlist::file_is_dir(int file_num)
 {
     if (!find_file(file_num))
         return false;
 
-    return entry.isDirectory();
+    return p_->entry.isDirectory();
 }
 
 
 //###############################################################
-void playlist::rewind()
+void Playlist::rewind()
 {
-    entry = SD.open(root_path);
+    p_->entry = SD.open(root_path);
     level = 0;
     curfile = 1;
     curdir = 1;
-    dirs[level] = entry;
+    p_->dirs[level] = p_->entry;
 }
 
 
-bool playlist::find_file0(int file_num)
+bool Playlist::find_file0(int file_num)
 {
     while (true)
     {
@@ -173,10 +183,10 @@ bool playlist::find_file0(int file_num)
             return true;
         }
 
-        entry = dirs[level].openNextFile();
-        if (!entry) // no more files
+        p_->entry = p_->dirs[level].openNextFile();
+        if (!p_->entry) // no more files
         {
-            dirs[level].close();
+            p_->dirs[level].close();
             if (level == 0)
                 return false;
             level -= 1;
@@ -185,13 +195,13 @@ bool playlist::find_file0(int file_num)
 
         curfile += 1;
 
-        if (entry.isDirectory())
+        if (p_->entry.isDirectory())
         {
             curdir += 1;
             if (level+1 < DIR_DEPTH)   //skip deep dirs
             {
                 level += 1;
-                dirs[level] = entry;
+                p_->dirs[level] = p_->entry;
             }
         }
 
@@ -203,7 +213,7 @@ bool playlist::find_file0(int file_num)
 }
 
 
-bool playlist::find_file(int file_num)
+bool Playlist::find_file(int file_num)
 {
     if (curfile > file_num)
     {
@@ -221,7 +231,7 @@ bool playlist::find_file(int file_num)
 }
 
 
-void playlist::scan_files(int *fcnt, int *dcnt)
+void Playlist::scan_files(int *fcnt, int *dcnt)
 {
     rewind();
     find_file0(MAX_FILE_NUMBER);
@@ -230,7 +240,7 @@ void playlist::scan_files(int *fcnt, int *dcnt)
 }
 
 
-bool playlist::find_dir(int dir_num)
+bool Playlist::find_dir(int dir_num)
 {
     dir_num = clamp1(dir_num, dircnt);
 
