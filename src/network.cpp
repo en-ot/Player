@@ -1,7 +1,6 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 
 #include "debug.h"
 #include "sound.h"
@@ -14,6 +13,11 @@
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWD;
 
+
+//###############################################################
+#ifdef ARDUINO_OTA
+
+#include <ArduinoOTA.h>
 
 void ota_onEnd()
 {
@@ -64,16 +68,26 @@ void ota_onError(ota_error_t error)
     gui->loop();
 }
 
+void arduinoota_init()
+{
+    ArduinoOTA.onStart(ota_onStart);
+    ArduinoOTA.onProgress(ota_onProgress);
+    ArduinoOTA.onError(ota_onError);
+    ArduinoOTA.onEnd(ota_onEnd);
+}
 
+#endif
+
+
+//###############################################################
 void network_init()
 {
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
-    ArduinoOTA.onEnd(ota_onEnd);
-    ArduinoOTA.onStart(ota_onStart);
-    ArduinoOTA.onProgress(ota_onProgress);
-    ArduinoOTA.onError(ota_onError);
+#ifdef ARDUINO_OTA
+    arduinoota_init();
+#endif
 }
     
 
@@ -100,18 +114,15 @@ void network_loop()
         Serial.print(WiFi.localIP());
         DEBUG("\n");
 
+#ifdef ARDUINO_OTA
         ArduinoOTA.begin();
+#endif
     }
     else
     {
+#ifdef ARDUINO_OTA
         ArduinoOTA.handle();
+#endif
     }
-        // while (WiFi.waitForConnectResult() != WL_CONNECTED) 
-    // {
-    //     Serial.println("Connection Failed! Rebooting...");
-    //     delay(5000);
-    //     ESP.restart();
-    // }
-
 }
 
