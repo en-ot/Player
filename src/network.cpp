@@ -4,7 +4,7 @@
 #include "debug.h"
 #include "sound.h"
 #include "gui.h"
-//#include "globals.h"
+#include "globals.h"
 
 #include "network.h"
 #include "credentials.h"
@@ -43,17 +43,29 @@ void ftp_loop()
 }
 
 
+void ftp_callback(int event)
+{
+    if (event == FTP_CLIENT_CONNECTED)
+    {
+        main_pause();
+    }
+    if (event == FTP_CLIENT_DISCONNECTED)
+    {
+        main_resume();
+    }
+}
 //###############################################################
 void ota_onEnd()
 {
     gui->message("End");
     gui->loop();
+    main_resume();
 }
 
 
 void ota_onStart(bool sketch) 
 {
-    sound_pause();
+    main_pause();
     gui->step_begin("OTA Upload ");
     const char * type = sketch ? "sketch" : "filesystem";
     Serial.println(type);
@@ -79,6 +91,7 @@ void ota_onError(int error, const char * errtxt)
     gui->step_begin(buf);
     gui->error(errtxt);
     gui->loop();
+    main_resume();
 }
 
 

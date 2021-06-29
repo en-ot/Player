@@ -20,19 +20,13 @@ extern int cur_fav_num;
 extern int8_t volume_old;
 
 extern int next_file;
-
-#define FAIL_NEXT +1
-#define FAIL_PREV -1
-#define FAIL_RANDOM 0
 extern int next_updown;
-
 extern int next_dir;
 
 extern bool read_error;
 
 extern bool need_play_next_dir;
 extern bool need_play_next_file;
-
 extern bool need_set_file_pos;
 
 extern unsigned long save_time;
@@ -57,6 +51,10 @@ void fav_set_path(int fav_num, const char * path);
 int dirs_file_num(int dirs_sel);
 
 void gui_sys_update();
+
+void main_pause();
+void main_resume();
+
 
 //###############################################################
 

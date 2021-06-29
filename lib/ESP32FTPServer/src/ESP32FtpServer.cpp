@@ -154,6 +154,7 @@ int FtpServer::handleFTP() {
     }
     else if(!client.connected() || !client) {
         cmdStatus = 1;
+        if(ftp_callback) ftp_callback(FTP_CLIENT_DISCONNECTED);
         if(ftp_debug) ftp_debug("client disconnected");
     }
 
@@ -172,7 +173,7 @@ int FtpServer::handleFTP() {
 }
 //----------------------------------------------------------------------------------------------------------------------
 void FtpServer::clientConnected() {
-
+    if(ftp_callback) ftp_callback(FTP_CLIENT_CONNECTED);
     if(ftp_debug) ftp_debug("Client connected!");
     client.println("220--- Welcome to FTP for ESP32 ---");
     client.println("220---   By David Paiva   ---");
@@ -181,7 +182,7 @@ void FtpServer::clientConnected() {
 }
 //----------------------------------------------------------------------------------------------------------------------
 void FtpServer::disconnectClient() {
-
+    if(ftp_callback) ftp_callback(FTP_CLIENT_DISCONNECTING);
     if(ftp_debug) ftp_debug("Disconnecting client");
     abortTransfer();
     client.println("221 Goodbye");
@@ -228,8 +229,7 @@ uint8_t FtpServer::isConnected() {
 boolean FtpServer::processCommand() {
 
     // ACCESS CONTROL COMMANDS
-    if(ftp_debug) ftp_debug("command");
-    if(ftp_debug) ftp_debug(command);
+
     if(!strcmp(command, "CDUP")) {       //  CDUP - Change to Parent Directory
         int todo;
         client.println("250 Ok. Current directory is \"" + String(cwdName) + "\"");
@@ -407,22 +407,17 @@ boolean FtpServer::processCommand() {
     }
     else if(!strcmp(command, "MLSD")) { //  MLSD - Listing for Machine Processing (see RFC 3659)
         if(!dataConnect()) {
-            if(ftp_debug) ftp_debug("0");
             client.println("425 No data connection MLSD");
         }
         else {
-            if(ftp_debug) ftp_debug("1");
             client.println("150 Accepted data connection");
             uint16_t nm = 0;
             File dir = _fs->open(cwdName);
-            if(ftp_debug) ftp_debug("2");
             if((!dir) || (!dir.isDirectory()))
             {
-                if(ftp_debug) ftp_debug("3");
                 client.println("550 Can't open directory " + String(cwdName));
             }
             else {
-                if(ftp_debug) ftp_debug("4");
                 File file = dir.openNextFile();
                 while(file) {
 

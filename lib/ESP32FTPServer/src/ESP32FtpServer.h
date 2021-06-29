@@ -63,6 +63,11 @@
 
 extern __attribute__((weak)) void ftp_debug(const char*);
 
+#define FTP_CLIENT_CONNECTED 1
+#define FTP_CLIENT_DISCONNECTING 2
+#define FTP_CLIENT_DISCONNECTED 3
+extern __attribute__((weak)) void ftp_callback(int event);
+
 
 class FtpServer {
 

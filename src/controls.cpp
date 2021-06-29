@@ -46,6 +46,18 @@ bool controls_defaults()
 }
 
 
+void controls_pause()
+{
+    vTaskSuspend(enc_task_handle);
+}
+
+
+void controls_resume()
+{
+    vTaskResume(enc_task_handle);
+}
+
+
 //###############################################################
 bool play_file_num(int num, int updown)
 {

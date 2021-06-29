@@ -574,7 +574,20 @@ void loop()
     network_loop();
     check_loop();
     memory_loop();
-    vTaskDelay(1);      //avoid watchdog
+    yield();
+    //vTaskDelay(1);      //avoid watchdog
 }
 
+
+void main_pause()
+{
+    sound_pause();
+    controls_pause();
+}
+
+void main_resume()
+{
+    sound_resume();
+    controls_resume();
+}
 
