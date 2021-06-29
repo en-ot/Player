@@ -15,6 +15,35 @@ const char* password = WIFI_PASSWD;
 
 
 //###############################################################
+//#include "Sd_Libs.h"                  // https://github.com/greiman/SdFat
+#include "ESP32FtpServer.h"         // https://github.com/schreibfaul1/ESP32FTPServer
+
+FtpServer ftpSrv;
+
+void ftp_init()
+{
+}
+
+
+void ftp_begin()
+{
+    ftpSrv.begin(SD, "esp32", "esp32"); //username, password for ftp.
+}
+
+
+void ftp_debug(const char* debug) 
+{
+    Serial.printf("ftpdebug: %s  \n", debug);
+}
+
+
+void ftp_loop()
+{
+    ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!
+}
+
+
+//###############################################################
 void ota_onEnd()
 {
     gui->message("End");
@@ -333,6 +362,7 @@ void network_init()
     WiFi.begin(ssid, password);
 
     ota_init();
+    ftp_init();
 }
 
 
@@ -349,6 +379,7 @@ void network_loop()
     if (network_connected)
     {
         ota_loop();
+        ftp_loop();
         return;
     }
 
@@ -361,7 +392,7 @@ void network_loop()
     DEBUG("\n");
 
     MDNS.begin(host);
-
     ota_begin();
+    ftp_begin();
 }
 
