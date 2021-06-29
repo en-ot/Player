@@ -148,7 +148,7 @@ gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 
 
 const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
-    icon_pause, icon_disk0, icon_disk1, icon_disk2, icon_disk3, icon_fav, 
+    icon_pause, icon_disk0, icon_disk1, icon_disk2, icon_disk3, icon_fav, icon_index, 
     icon_shuffle_off, icon_shuffle_on, icon_repeat_off, icon_repeat_on, icon_volume_nogain, icon_volume_gain,
     icon_path, icon_file, icon_band, icon_artist, icon_album, icon_title,
 };
@@ -200,6 +200,7 @@ void page_info_init()
     info_fav_ref = create_text(INFO_FAV_ELEM, INFO_FAV_RECT, info_fav_str, sizeof(info_fav_str), INFO_MODE_COL, x, INFO_GAP);
 
     // index
+    info_mode_icons_ref[r++] = create_icon(INFO_INDEX_ICON, ICON_INDEX, ICON_INDEX, x, 0);
     info_index_ref = create_text(INFO_INDEX_ELEM, INFO_INDEX_RECT, info_index_str, sizeof(info_index_str), INFO_INDEX_COL, x, INFO_GAP);
 
     // progress

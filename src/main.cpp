@@ -102,6 +102,11 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, files_cache->lines[index].txt);
         dir_level = files_cache->lines[index].flags;
     }
+    if (nItem == 0)
+    {
+        int p = strlen(pStrItem);
+        snprintf(&pStrItem[p], nStrItemLen-p, " [%d]", pl->filecnt);
+    }
 
     int type = 0;
     if (filenum == fc->curfile) type = 2;
