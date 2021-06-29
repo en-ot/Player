@@ -141,7 +141,7 @@ void prefs_save_curfav(int fav_num)
 //###############################################################
 void prefs_loop()
 {
-    if ((signed long)(millis() - save_time) < 0)
+    if ((int32_t)(millis() - save_time) < 0)
         return;
 
     if (need_save_current_file)

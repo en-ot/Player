@@ -183,12 +183,12 @@ bool file_seek(int by)
 {
     const int seek_delay = 10;
     static int speed = 5;
-    static unsigned long t_seek1 = 0;
-    unsigned long t = millis();
+    static uint32_t t_seek1 = 0;
+    uint32_t t = millis();
 
     if (!by)
     {
-        if (t - t_seek1 > seek_delay)
+        if ((int32_t)(t - t_seek1) > seek_delay)
         {
             t_seek1 = t;
             if (speed > 5) 
@@ -454,6 +454,25 @@ bool sys_seek(int by)
 }
 
 
+bool sys_volupdn(int by)
+{
+    if (!by)
+        return false;
+    if (by > 0)
+        sys_control(gui->sys_sel, 1);
+    else
+        sys_control(gui->sys_sel, 2);
+    return true;
+}
+
+
+bool sys_volshort()
+{
+    sys_control(gui->sys_sel, 3);
+    return true;
+}
+
+
 bool nothing()
 {
     return true;
@@ -518,8 +537,8 @@ Controls fav_ctrl = {{
 }};
 
 Controls sys_ctrl = {{
-    change_volume,      sys_seek   },{      // volume,      seek      
-    nothing,            nothing,            // vol_long,    vol_short 
+    sys_volupdn,        sys_seek   },{      // volume,      seek      
+    nothing,            sys_volshort,       // vol_long,    vol_short 
     nothing,            nothing,            // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short  
     nothing,            nothing,            // b2_long,     b2_short

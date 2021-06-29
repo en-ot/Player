@@ -29,7 +29,7 @@ extern bool need_play_next_dir;
 extern bool need_play_next_file;
 extern bool need_set_file_pos;
 
-extern unsigned long save_time;
+extern uint32_t save_time;
 extern bool need_save_current_file;
 extern bool need_save_volume;
 extern bool need_save_repeat;
@@ -54,6 +54,8 @@ void gui_sys_update();
 
 void main_pause();
 void main_resume();
+
+void sys_control(int16_t line, int key);
 
 
 //###############################################################

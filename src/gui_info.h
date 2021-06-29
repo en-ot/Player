@@ -1,10 +1,10 @@
 #define INFO_BACK_COL       COL_BLACK
+#define INFO_COL            COL_GREEN_DARK
 
 #define INFO_ICON_W LINE_H
 #define INFO_ICON_H LINE_H
 #define INFO_GAP 2
 
-#define INFO_MODE_COL       COL_GREEN_DARK
 #define INFO_MODE_ICON_RECT (gslc_tsRect){x, 0, INFO_ICON_W, INFO_ICON_H}
 
 #define INFO_VOLUME_W 27
@@ -13,8 +13,8 @@
 #define INFO_FAV_W 27
 #define INFO_FAV_RECT       (gslc_tsRect){x, 0, INFO_FAV_W, LINE_H}
 
-#define INFO_INDEX_RECT     (gslc_tsRect){x, 0, (uint16_t)(LCD_W-x), LINE_H}
-#define INFO_INDEX_COL      COL_GREEN_DARK
+#define INFO_INDEX_W 58
+#define INFO_INDEX_RECT     (gslc_tsRect){x, 0, INFO_INDEX_W, LINE_H}
 
 #define INFO_ICON_W         LINE_H
 #define INFO_ICON_H         LINE_H
@@ -37,6 +37,7 @@
 #define INFO_PGS1_RECT      (gslc_tsRect){0, LCD_H-LINE_H, INFO_PGS1_W, LINE_H}
 #define INFO_PGS2_RECT      (gslc_tsRect){INFO_PGS1_W, LCD_H-LINE_H, INFO_PGS2_W, LINE_H}
 #define INFO_PGS3_RECT      (gslc_tsRect){LCD_W-INFO_PGS3_W, LCD_H-LINE_H, INFO_PGS3_W, LINE_H}
+
 #define INFO_PGS_FILL_COL   COL_GREEN_DARK
 #define INFO_PGS2_FILL_COL  COL_GRAY
 #define INFO_PGS2_LINE_COL  COL_GREEN

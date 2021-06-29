@@ -149,6 +149,7 @@ gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 
 const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
     icon_pause, icon_disk0, icon_disk1, icon_disk2, icon_disk3, icon_fav, icon_index, 
+    icon_wifi_off, icon_wifi_on, icon_tether, icon_ftp, icon_upgrade, icon_bluetooth_off, icon_bluetooth_on, 
     icon_shuffle_off, icon_shuffle_on, icon_repeat_off, icon_repeat_on, icon_volume_nogain, icon_volume_gain,
     icon_path, icon_file, icon_band, icon_artist, icon_album, icon_title,
 };
@@ -161,19 +162,19 @@ gslc_tsElemRef* create_icon(int elem_id, int icon1, int icon2, int16_t &x, int g
     gslc_tsElemRef* pElemRef = gslc_ElemCreateImg(&gslc, elem_id, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
     gslc_ElemSetGlowEn(&gslc, pElemRef, true);
     gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
-    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_MODE_COL, INFO_MODE_COL);
+    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
     x += INFO_ICON_W + gap;
     return pElemRef;
 }
 
 
-gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsize, gslc_tsColor col, int16_t &x, int gap)
+gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsize, int16_t &x, int gap)
 {
     gslc_tsElemRef* pElemRef = gslc_ElemCreateTxt(&gslc, elem_id, PAGE_INFO, rect, str, strsize, FONT_BUILTIN5X8);
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
-    gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, col, col);
+    gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
     gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
-    x += INFO_VOLUME_W + gap;
+    x += rect.w + gap;
     return pElemRef;
 }
 
@@ -193,15 +194,18 @@ void page_info_init()
     info_mode_icons_ref[r++] = create_icon(INFO_REPEAT_ICON, ICON_REPEAT_OFF, ICON_REPEAT_ON, x, INFO_GAP);
 
     info_mode_icons_ref[r++] = create_icon(INFO_VOLUME_ICON, ICON_VOLUME_NOGAIN, ICON_VOLUME_GAIN, x, 0);
-    info_mode_ref = create_text(INFO_VOLUME_ELEM, INFO_VOLUME_RECT, info_mode_str, sizeof(info_mode_str), INFO_MODE_COL, x, INFO_GAP);
+    info_mode_ref = create_text(INFO_VOLUME_ELEM, INFO_VOLUME_RECT, info_mode_str, sizeof(info_mode_str), x, INFO_GAP);
 
     // fav
     info_mode_icons_ref[r++] = create_icon(INFO_FAV_ICON, ICON_FAV, ICON_FAV, x, 0);
-    info_fav_ref = create_text(INFO_FAV_ELEM, INFO_FAV_RECT, info_fav_str, sizeof(info_fav_str), INFO_MODE_COL, x, INFO_GAP);
+    info_fav_ref = create_text(INFO_FAV_ELEM, INFO_FAV_RECT, info_fav_str, sizeof(info_fav_str), x, INFO_GAP);
 
     // index
     info_mode_icons_ref[r++] = create_icon(INFO_INDEX_ICON, ICON_INDEX, ICON_INDEX, x, 0);
-    info_index_ref = create_text(INFO_INDEX_ELEM, INFO_INDEX_RECT, info_index_str, sizeof(info_index_str), INFO_INDEX_COL, x, INFO_GAP);
+    info_index_ref = create_text(INFO_INDEX_ELEM, INFO_INDEX_RECT, info_index_str, sizeof(info_index_str), x, INFO_GAP);
+
+    // wifi
+    info_mode_icons_ref[r++] = create_icon(INFO_WIFI_ICON, ICON_WIFI_OFF, ICON_WIFI_OFF, x, 0);
 
     // progress
     pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_PGS1_ELEM, PAGE_INFO, INFO_PGS1_RECT, info_pgs1_str, sizeof(info_pgs1_str), FONT_BUILTIN5X8);
@@ -243,7 +247,7 @@ void page_info_init()
 
 //###############################################################
 int scroll_rounds[INFO_LINES] = {0};
-unsigned long scroll_t0[INFO_LINES];
+uint32_t scroll_t0[INFO_LINES];
 
 void Gui::scroll_reset()
 {
@@ -265,12 +269,12 @@ void Gui::scroll_reset()
 
 void Gui::scroll()
 {
-    unsigned long t = millis();
+    uint32_t t = millis();
 
     int i;
     for (i = 0; i < INFO_LINES; i++)
     {
-        if ((long)(t - scroll_t0[i]) < SCROLL_PERIOD)
+        if ((int32_t)(t - scroll_t0[i]) < SCROLL_PERIOD)
             continue;
         scroll_t0[i] = t;        
         
@@ -463,6 +467,23 @@ void Gui::alive(bool running)
     gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
     gslc_ElemSetImage(&gslc, info_mode_icons_ref[INFO_PLAY_ICON], imgref, imgref);
 }
+
+
+void Gui::net(int mode)
+{
+    int index = ICON_WIFI_OFF + mode;
+    gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
+    gslc_ElemSetImage(&gslc, info_mode_icons_ref[INFO_WIFI_ICON], imgref, imgref);
+}
+
+
+void Gui::bluetooth(bool enabled)
+{
+
+}
+
+
+
 
 
 //###############################################################

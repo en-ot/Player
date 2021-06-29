@@ -13,6 +13,10 @@ const char* host = "player";
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWD;
 
+const char* ap_ssid = "player";
+const char* ap_password = "player_admin";
+#define AP_IP 192,168,111,1
+
 
 //###############################################################
 //#include "Sd_Libs.h"                  // https://github.com/greiman/SdFat
@@ -42,24 +46,31 @@ void ftp_loop()
     ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!
 }
 
+#define NET_MODE_FTP 3
+#define NET_MODE_OTA 4
 
 void ftp_callback(int event)
 {
     if (event == FTP_CLIENT_CONNECTED)
     {
         main_pause();
+        gui->net(NET_MODE_FTP);
     }
-    if (event == FTP_CLIENT_DISCONNECTED)
+    if ((event == FTP_CLIENT_DISCONNECTED) || (event == FTP_CLIENT_DISCONNECTED))
     {
         main_resume();
+        gui->net(WiFi.getMode());
     }
 }
+
+
 //###############################################################
 void ota_onEnd()
 {
     gui->message("End");
     gui->loop();
     main_resume();
+    gui->net(WiFi.getMode());
 }
 
 
@@ -71,6 +82,7 @@ void ota_onStart(bool sketch)
     Serial.println(type);
     gui->message(type);
     gui->loop();
+    gui->net(NET_MODE_OTA);
 }
 
 
@@ -367,15 +379,46 @@ void ota_loop()
 
 
 //###############################################################
-bool network_connected = false;
+bool network_connected1 = false;
+
+bool network_connected()
+{
+    return WiFi.isConnected() && network_connected1;
+}
 
 void network_init()
 {
-    WiFi.mode(WIFI_STA);
+    WiFi.softAPConfig(IPAddress(AP_IP), IPAddress(AP_IP), IPAddress(255,255,255,0));
+    WiFi.mode(WIFI_AP_STA);
     WiFi.begin(ssid, password);
 
     ota_init();
     ftp_init();
+}
+
+uint32_t net_t0 = 0;
+
+void network_reconnect(bool ap)
+{
+    gui->net(WIFI_MODE_NULL);
+    WiFi.disconnect();
+    DEBUG("WiFi disconnected\n");
+    network_connected1 = false;
+
+    if (ap)
+    {
+        WiFi.softAPConfig(IPAddress(AP_IP), IPAddress(AP_IP), IPAddress(255,255,255,0));
+        WiFi.mode(WIFI_AP);
+        WiFi.begin(ap_ssid, ap_password);
+        DEBUG("Connecting as AP\n");
+    }
+    else
+    {
+        WiFi.mode(WIFI_STA);
+        WiFi.begin(ssid, password);
+        DEBUG("Connecting as STA\n");
+    }
+    net_t0 = millis();
 }
 
 
@@ -387,9 +430,12 @@ bool network_address(char * buf, int len)
 }
 
 
+#define NET_TIMEOUT 10000
+
 void network_loop()
 {
-    if (network_connected)
+
+    if (network_connected1)
     {
         ota_loop();
         ftp_loop();
@@ -397,15 +443,28 @@ void network_loop()
     }
 
     if (WiFi.waitForConnectResult() != WL_CONNECTED)
+    {
+        if ((int32_t)(millis() - net_t0) < NET_TIMEOUT)
+            return;
+        
+        DEBUG("Restarting WiFi as AP\n");
+        // WiFi.disconnect();
+        // WiFi.softAPConfig(IPAddress(AP_IP), IPAddress(AP_IP), IPAddress(255,255,255,0));
+        // WiFi.mode(WIFI_AP);
+        // WiFi.begin(ap_ssid, ap_password);
+        net_t0 = millis();
         return;
+    }
 
-    network_connected = true;
-    DEBUG("IP address: ");
+    network_connected1 = true;
+    DEBUG("WiFi Connected. IP address: ");
     Serial.print(WiFi.localIP());
     DEBUG("\n");
 
     MDNS.begin(host);
     ota_begin();
     ftp_begin();
+    
+    gui->net(WiFi.getMode());
 }
 

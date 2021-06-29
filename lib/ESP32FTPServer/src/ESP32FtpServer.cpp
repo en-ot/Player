@@ -658,10 +658,10 @@ boolean FtpServer::processCommand() {
 }
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::dataConnect() {
-    unsigned long startTime = millis();
+    uint32_t startTime = millis();
 
     if(!data.connected()) {  //wait 10 seconds for a data connection
-        while(!dataServer.hasClient() && millis() - startTime < 10000) {
+        while(!dataServer.hasClient() && (int32_t)(millis() - startTime) < 10000) {
             yield();
         }
         if(dataServer.hasClient()) {
@@ -687,7 +687,7 @@ boolean FtpServer::doRetrieve() {
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::doStore() {
     if(data.connected()) {
-        unsigned long ms0 = millis();
+        uint32_t ms0 = millis();
         int32_t nb;
         nb = data.readBytes((uint8_t*) buf, FTP_BUF_SIZE);
         if(nb > 0) {

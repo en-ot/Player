@@ -55,7 +55,7 @@ bool need_play_next_file = false;
 
 bool need_set_file_pos = false;
 
-unsigned long save_time;
+uint32_t save_time;
 bool need_save_current_file = false;
 bool need_save_volume = false;
 bool need_save_repeat = false;
@@ -303,7 +303,7 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 
         case 4:
             pos = strlcpy(pStrItem, "IP: ", nStrItemLen);
-            if (network_connected)
+            if ((network_connected()))
             {
                 network_address(&pStrItem[pos], nStrItemLen-pos);
             }
@@ -330,11 +330,21 @@ void gui_sys_update()
 }
 
 
+void sys_control(int16_t line, int key)
+{
+    int16_t nItem = line-1;
+    if (nItem == 4)
+    {
+        network_reconnect(key == 1);
+    }
+}
+
+
 //###############################################################
 // Init steps
 //###############################################################
 #define STEPS_TOTAL 11
-unsigned long step_t0 = 0;
+uint32_t step_t0 = 0;
 
 void begin(const char * step_name)
 {
@@ -349,7 +359,7 @@ void begin(const char * step_name)
 
 void end(int curstep)
 {
-    unsigned long t = millis();
+    int32_t t = millis();
     gui->step_progress(curstep, STEPS_TOTAL);
     gui->loop();
     DEBUG("Step %d end (%dms)\n", curstep, (int)(t - step_t0));
@@ -454,14 +464,14 @@ void print_hex(char * data, int len)
 
 void display_loop()
 {
-    unsigned long t = millis();
+    uint32_t t = millis();
 
-    static unsigned long t1 = 0;
+    static uint32_t t1 = 0;
     static uint32_t old_pos = 0;
 
     uint32_t pos = sound_is_playing() ? sound_current_time() : old_pos;
 
-    if ((t - t1 > 2000) || (pos != old_pos))
+    if (((int32_t)(t - t1) > 2000) || (pos != old_pos))
     {
         t1 = t;
         old_pos = pos;
@@ -489,22 +499,14 @@ void display_loop()
         return;
     }
 
-    static unsigned long t0 = 0;
-    if (t - t0 > 100)
+    static uint32_t t0 = 0;
+    if ((int32_t)(t - t0) > 100)
     {
         t0 = t;
         gui->alive(sound_is_playing());
         gui->gain(sound_is_gain());
         return;
     }
-
-    // static unsigned long t2 = 0;
-    // if (t - t2 > 1000)
-    // {
-    //     t2 = t;
-    //     gui->scroll();
-    //     return;
-    // }
 }
 
 
@@ -516,10 +518,10 @@ void display_loop()
 
 void check_loop()
 {
-    static unsigned long last_time = 0;
-    unsigned long  t = millis();
+    static uint32_t last_time = 0;
+    uint32_t t = millis();
     bool tick = false;
-    if (t - last_time > ERROR_CHECK_INTERVAL)
+    if ((int32_t)(t - last_time) > ERROR_CHECK_INTERVAL)
     {
         tick = true;
         last_time = t;
@@ -544,11 +546,11 @@ void check_loop()
 
 void memory_loop()
 {
-    static unsigned long t0 = 0;
+    static uint32_t t0 = 0;
     static bool need_print = true;
-    unsigned long t = millis();
+    uint32_t t = millis();
 
-    if (t - t0 < 1000)
+    if ((int32_t)(t - t0) < 1000)
         return;
 
     t0 = t;

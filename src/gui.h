@@ -50,6 +50,8 @@ class Gui
         void shuffle(bool val);
         void repeat(bool val);
         void alive(bool running);
+        void net(int mode);
+        void bluetooth(bool enabled);
 
         // page:files
         int files_sel = 1;

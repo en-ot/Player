@@ -103,8 +103,8 @@ bool sound_start(char * filepath)
 //###############################################################
 // Play Control : audio task
 //###############################################################
-unsigned long t_filepos = 0;
-unsigned long t_fileseek = 0;
+uint32_t t_filepos = 0;
+uint32_t t_fileseek = 0;
 #define T_FILEPOS_DELAY 500
 #define T_FILESEEK_DELAY 500
 uint32_t old_duration = 0; 
@@ -112,7 +112,7 @@ uint32_t old_duration = 0;
 void playctrl_loop()
 {
     int duration = audio.getAudioFileDuration();
-    unsigned long t = millis();
+    uint32_t t = millis();
 
     if ((duration != old_duration) || (duration == 0))
     {
@@ -122,7 +122,7 @@ void playctrl_loop()
 
     if (file_seek_by)
     {
-        if (t - t_fileseek > T_FILESEEK_DELAY)
+        if ((int32_t)(t - t_fileseek) > T_FILESEEK_DELAY)
         {
             t_fileseek = t;
 
@@ -142,7 +142,7 @@ void playctrl_loop()
         }
     }
 
-    if (need_set_file_pos && audio.isRunning() && (t - t_filepos > T_FILEPOS_DELAY))
+    if (need_set_file_pos && audio.isRunning() && ((int32_t)(t - t_filepos) > T_FILEPOS_DELAY))
     {
         //audio.pauseResume();
         //audio.loop();

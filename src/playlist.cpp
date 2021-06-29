@@ -46,7 +46,7 @@ Playlist::Playlist()
 void Playlist::set_root(String path)
 {
     root_path = path;
-    unsigned long t0 = millis();
+    uint32_t t0 = millis();
     scan_files(&filecnt, &dircnt);
     DEBUG("root: %s, dirs: %i, files: %i, time: %lu\n", root_path.c_str(), dircnt, filecnt, millis() - t0);
 }

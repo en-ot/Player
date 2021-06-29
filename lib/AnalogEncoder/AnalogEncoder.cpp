@@ -25,7 +25,7 @@ int aencv[] = {587, 1557, 2315, 2435, 2645, 2840, 2993};
 
 void AnalogEncoder::process_button(bool new_state)
 {
-    unsigned int t = millis();
+    uint32_t t = millis();
     if (button_raw != new_state)
     {
         button_raw = new_state;

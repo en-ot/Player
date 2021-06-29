@@ -1,8 +1,9 @@
 void network_init();
 void network_loop();
 
-extern bool network_connected;
+bool network_connected();
 bool network_address(char * buf, int len);
+void network_reconnect(bool ap);
 
 //#define ARDUINO_OTA 1
 //#define HTTP_UPDATER 1

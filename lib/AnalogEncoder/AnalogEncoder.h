@@ -9,8 +9,8 @@ class AnalogEncoder
     private:
         int pin;
 
-        unsigned long debounce_time;    // last raw change time
-        unsigned long long_time;        // last debounced change time;
+        uint32_t debounce_time;    // last raw change time
+        uint32_t long_time;        // last debounced change time;
         int button_raw;                 // raw value
         int button_debounced;           // debounced value
         bool short_flag;                // short pressed flag
