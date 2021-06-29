@@ -54,6 +54,7 @@ I didn't try to build the project for TTGO TM with original flash chip, not sure
     - InputButton - no info (anp59?)
 - https://github.com/adafruit/Adafruit_BusIO
 - https://github.com/schreibfaul1/ESP32-audioI2S
+- https://github.com/schreibfaul1/ESP32FTPServer
 - https://github.com/greiman/SdFat-beta
 - https://github.com/ImpulseAdventure/GUIslice
 - https://github.com/Bodmer/TFT_eSPI
