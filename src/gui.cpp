@@ -732,17 +732,19 @@ void page_sys_init()
 }
 
 
-void Gui::sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
+void Gui::sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb)
 {
     sys_box_elem.pfuncXGet = cb;
     sys_box_elem.nItemCnt = cnt;
     sys_box_elem.bNeedRecalc = true;
+    gslc_ElemSetTickFunc(&gslc, sys_box_ref, tick_cb);
 }
 
 
-void Gui::sys_update()
+void Gui::sys_set_update()
 {
-    gslc_ElemSetRedraw(&gslc, sys_box_ref, GSLC_REDRAW_INC);
+    // DEBUG("Sys set update\n");
+    gslc_ElemSetRedraw(&gslc, sys_box_ref, GSLC_REDRAW_FULL);
 }
 
 

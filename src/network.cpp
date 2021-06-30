@@ -15,23 +15,23 @@ const char* password = WIFI_PASSWD;
 
 const char* ap_ssid = "player";
 const char* ap_password = "player_admin";
-#define AP_IP 192,168,111,1
+#define AP_IP 192,168,1,1
 
 
 //###############################################################
-//#include "Sd_Libs.h"                  // https://github.com/greiman/SdFat
+#ifdef FTP_SERVER
 #include "ESP32FtpServer.h"         // https://github.com/schreibfaul1/ESP32FTPServer
 
 FtpServer ftpSrv;
 
 void ftp_init()
 {
+    FtpServer().begin(SD, "esp32", "esp32"); //username, password for ftp.
 }
 
 
 void ftp_begin()
 {
-    ftpSrv.begin(SD, "esp32", "esp32"); //username, password for ftp.
 }
 
 
@@ -62,6 +62,8 @@ void ftp_callback(int event)
         gui->net(WiFi.getMode());
     }
 }
+
+#endif // FTP_SERVER
 
 
 //###############################################################
@@ -122,10 +124,9 @@ void httpupdater_begin()
 {
     httpUpdater.setup(&httpServer);
     httpServer.begin();
-    MDNS.addService("http", "tcp", 80);
 }
 
-#endif
+#endif // HTTP_UPDATER
 
 
 //###############################################################
@@ -137,47 +138,47 @@ void httpupdater_begin()
 WebServer server(80);
 
 // Login page
-const char* loginIndex =
- "<form name='loginForm'>"
-    "<table width='20%' bgcolor='A09F9F' align='center'>"
-        "<tr>"
-            "<td colspan=2>"
-                "<center><font size=4><b>ESP32 Login Page</b></font></center>"
-                "<br>"
-            "</td>"
-            "<br>"
-            "<br>"
-        "</tr>"
-        "<tr>"
-             "<td>Username:</td>"
-             "<td><input type='text' size=25 name='userid'><br></td>"
-        "</tr>"
-        "<br>"
-        "<br>"
-        "<tr>"
-            "<td>Password:</td>"
-            "<td><input type='Password' size=25 name='pwd'><br></td>"
-            "<br>"
-            "<br>"
-        "</tr>"
-        "<tr>"
-            "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
-        "</tr>"
-    "</table>"
-"</form>"
-"<script>"
-    "function check(form)"
-    "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')"
-    "{"
-    "window.open('/serverIndex')"
-    "}"
-    "else"
-    "{"
-    " alert('Error Password or Username')/*displays error message*/"
-    "}"
-    "}"
-"</script>";
+const char* loginIndex = "\
+<form name='loginForm'>\
+    <table width='20%' bgcolor='A09F9F' align='center'>\
+        <tr>\
+            <td colspan=2>\
+                <center><font size=4><b>ESP32 Login Page</b></font></center>\
+                <br>\
+            </td>\
+            <br>\
+            <br>\
+        </tr>\
+        <tr>\
+            <td>Username:</td>\
+            <td><input type='text' size=25 name='userid'><br></td>\
+        </tr>\
+        <br>\
+        <br>\
+        <tr>\
+            <td>Password:</td>\
+            <td><input type='Password' size=25 name='pwd'><br></td>\
+            <br>\
+            <br>\
+        </tr>\
+        <tr>\
+            <td><input type='submit' onclick='check(this.form)' value='Login'></td>\
+        </tr>\
+    </table>\
+</form>\
+<script>\
+    function check(form)\
+    {\
+        if(form.userid.value=='admin' && form.pwd.value=='admin')\
+        {\
+            window.open('/serverIndex')\
+        }\
+        else\
+        {\
+            alert('Error Password or Username')/*displays error message*/\
+        }\
+    }\
+</script>";
 
 
 // Server Index Page
@@ -298,7 +299,7 @@ void otaweb_loop()
     server.handleClient();
 }
 
-#endif
+#endif // OTA_WEB_UPDATER
 
 
 //###############################################################
@@ -330,11 +331,68 @@ void arduinoota_init()
     ArduinoOTA.onEnd(ota_onEnd);
 }
 
-#endif
+#endif // ARDUINO_OTA
 
 
 //###############################################################
-void ota_init()
+bool network_connected1 = false;
+
+bool network_connected()
+{
+    if (WiFi.getMode() == WIFI_AP)
+        return true;
+    return WiFi.isConnected() && network_connected1;
+}
+
+
+IPAddress wifi_ip()
+{
+    IPAddress ip;
+    switch(WiFi.getMode())
+    {
+    case WIFI_MODE_STA:
+        ip = WiFi.localIP();
+        break;
+    
+    case WIFI_MODE_AP:
+        ip = WiFi.softAPIP();
+        break;
+    
+    default:
+        ip = INADDR_NONE;
+    }
+
+    return ip;
+}
+
+
+void wifi_ap()
+{
+    DEBUG("Connecting as AP\n");
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(IPAddress(AP_IP), IPAddress(AP_IP), IPAddress(255,255,255,0));
+    WiFi.softAP(ap_ssid, ap_password);
+}
+
+
+void wifi_sta()
+{
+    DEBUG("Connecting as STA\n");
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+}
+
+
+void wifi_off()
+{
+    gui->net(WIFI_MODE_NULL);
+    WiFi.disconnect();
+    DEBUG("WiFi disconnected\n");
+    network_connected1 = false;
+}
+
+
+void services_init()
 {
 #ifdef ARDUINO_OTA
     arduinoota_init();
@@ -343,10 +401,14 @@ void ota_init()
 #ifdef OTA_WEB_UPDATER
     otaweb_init();
 #endif
+
+#ifdef FTP_SERVER
+    ftp_init();
+#endif
 }
 
 
-void ota_begin()
+void services_begin()
 {
 #ifdef ARDUINO_OTA
     ArduinoOTA.begin();
@@ -359,10 +421,14 @@ void ota_begin()
 #ifdef OTA_WEB_UPDATER
     otaweb_begin();
 #endif
+
+#ifdef FTP_SERVER
+    ftp_begin();
+#endif
 }
 
 
-void ota_loop()
+void services_loop()
 {
 #ifdef ARDUINO_OTA
     ArduinoOTA.handle();
@@ -375,48 +441,38 @@ void ota_loop()
 #ifdef OTA_WEB_UPDATER
     otaweb_loop();
 #endif
+
+#ifdef FTP_SERVER
+    ftp_loop();
+#endif
 }
 
 
 //###############################################################
-bool network_connected1 = false;
 
-bool network_connected()
-{
-    return WiFi.isConnected() && network_connected1;
-}
 
 void network_init()
 {
-    WiFi.softAPConfig(IPAddress(AP_IP), IPAddress(AP_IP), IPAddress(255,255,255,0));
-    WiFi.mode(WIFI_AP_STA);
-    WiFi.begin(ssid, password);
+    wifi_ap();
+    //wifi_sta();
 
-    ota_init();
-    ftp_init();
+    services_init();
 }
+
 
 uint32_t net_t0 = 0;
 
 void network_reconnect(bool ap)
 {
-    gui->net(WIFI_MODE_NULL);
-    WiFi.disconnect();
-    DEBUG("WiFi disconnected\n");
-    network_connected1 = false;
+    wifi_off();
 
     if (ap)
     {
-        WiFi.softAPConfig(IPAddress(AP_IP), IPAddress(AP_IP), IPAddress(255,255,255,0));
-        WiFi.mode(WIFI_AP);
-        WiFi.begin(ap_ssid, ap_password);
-        DEBUG("Connecting as AP\n");
+        wifi_ap();
     }
     else
     {
-        WiFi.mode(WIFI_STA);
-        WiFi.begin(ssid, password);
-        DEBUG("Connecting as STA\n");
+        wifi_sta();
     }
     net_t0 = millis();
 }
@@ -424,7 +480,10 @@ void network_reconnect(bool ap)
 
 bool network_address(char * buf, int len)
 {
-    IPAddress ip = WiFi.localIP();
+    IPAddress ip = wifi_ip();
+    if (!ip)
+        return false;
+    
     snprintf(buf, len, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
     return true;
 }
@@ -434,37 +493,34 @@ bool network_address(char * buf, int len)
 
 void network_loop()
 {
-
     if (network_connected1)
     {
-        ota_loop();
-        ftp_loop();
+        services_loop();
         return;
     }
 
-    if (WiFi.waitForConnectResult() != WL_CONNECTED)
+    if (WiFi.getMode() == WIFI_MODE_STA)
     {
-        if ((int32_t)(millis() - net_t0) < NET_TIMEOUT)
+        if (WiFi.waitForConnectResult() != WL_CONNECTED)
+        {
+            if ((int32_t)(millis() - net_t0) < NET_TIMEOUT)
+                return;
+            
+            wifi_ap();
+            net_t0 = millis();
             return;
-        
-        DEBUG("Restarting WiFi as AP\n");
-        // WiFi.disconnect();
-        // WiFi.softAPConfig(IPAddress(AP_IP), IPAddress(AP_IP), IPAddress(255,255,255,0));
-        // WiFi.mode(WIFI_AP);
-        // WiFi.begin(ap_ssid, ap_password);
-        net_t0 = millis();
-        return;
+        }
     }
 
     network_connected1 = true;
     DEBUG("WiFi Connected. IP address: ");
-    Serial.print(WiFi.localIP());
+    Serial.print(wifi_ip());
     DEBUG("\n");
 
     MDNS.begin(host);
-    ota_begin();
-    ftp_begin();
-    
+    services_begin();
+
     gui->net(WiFi.getMode());
+    gui->sys_set_update();
 }
 

@@ -8,3 +8,5 @@ void network_reconnect(bool ap);
 //#define ARDUINO_OTA 1
 //#define HTTP_UPDATER 1
 #define OTA_WEB_UPDATER 1
+
+#define FTP_SERVER 1

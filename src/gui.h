@@ -76,9 +76,9 @@ class Gui
 
         // page:sys
         int sys_sel = 1;
-        void sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
+        void sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb);
         void sys_seek(int by);
-        void sys_update();
+        void sys_set_update();
         
 };
 

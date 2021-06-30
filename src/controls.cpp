@@ -438,7 +438,6 @@ bool change_page()
 bool sys_page()
 {
     sound_pause();
-    gui_sys_update();
     ui_page = PAGE_SYS;
     gui->page(ui_page);
     return true;

@@ -317,16 +317,24 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 }
 
 
-void gui_sys_init()
+bool sys_tick(void* pvGui, void* pvElemRef)
 {
-    gui->sys_box(5, sys_get_item);
+    static uint32_t t0 = 0;
+    uint32_t t = millis();
+    if ((int32_t)(t - t0) > 1000)
+    {
+        gui_sys_freeheap = ESP.getFreeHeap();
+        gui->sys_set_update();
+        // DEBUG("Free heap: %d\n", freeheap);
+        t0 = t;
+    }
+    return true;
 }
 
 
-void gui_sys_update()
+void gui_sys_init()
 {
-    gui_sys_freeheap = ESP.getFreeHeap();
-    gui->sys_update();
+    gui->sys_box(5, sys_get_item, sys_tick);
 }
 
 
@@ -338,6 +346,7 @@ void sys_control(int16_t line, int key)
         network_reconnect(key == 1);
     }
 }
+
 
 
 //###############################################################
