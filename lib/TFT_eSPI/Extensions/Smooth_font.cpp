@@ -232,8 +232,8 @@ void TFT_eSPI::loadMetrics(void)
 
   while (gNum < gFont.gCount)
   {
-  	CharMetrics1 * m = getCharMetrics(gNum);
-//    const CharMetrics * m = &cm[gNum];
+  	CharMetrics1 * cm = getCharMetrics(gNum);
+//    const CharMetrics * cm = &cm[gNum];
     
     //gUnicode[gNum] = reverse32(m->gUnicode);
     //gHeight[gNum] = m->gHeight;
@@ -274,23 +274,23 @@ void TFT_eSPI::loadMetrics(void)
     */
 
     // Different glyph sets have different descent values not always based on "p", so get maximum glyph descent
-    //uint16_t unicode = reverse16(m->gUnicode_r);
-    uint16_t unicode = m->gUnicode; 
-    if (((int16_t)m->gHeight - (int16_t)m->gdY) > gFont.maxDescent)
+    //uint16_t unicode = reverse16(cm->gUnicode_r);
+    uint16_t unicode = cm->gUnicode; 
+    if (((int16_t)cm->gHeight - (int16_t)cm->gdY) > gFont.maxDescent)
     {
       // Avoid UTF coding values and characters that tend to give duff values
       if (((unicode > 0x20) && (unicode < 0xA0) && (unicode != 0x7F)) || (unicode > 0xFF))
       {
-        gFont.maxDescent   = m->gHeight - m->gdY;
+        gFont.maxDescent   = cm->gHeight - cm->gdY;
 #ifdef SHOW_ASCENT_DESCENT
-        Serial.print("Unicode = 0x"); Serial.print(unicode, HEX); Serial.print(", maxDescent = "); Serial.println(m->gHeight - m->gdY);
+        Serial.print("Unicode = 0x"); Serial.print(unicode, HEX); Serial.print(", maxDescent = "); Serial.println(cm->gHeight - cm->gdY);
 #endif
       }
     }
 
     gBitmap[gNum] = bitmapPtr;
 
-    bitmapPtr += m->gWidth * m->gHeight;
+    bitmapPtr += cm->gWidth * cm->gHeight;
 
     gNum++;
     yield();
@@ -532,15 +532,15 @@ void TFT_eSPI::drawGlyph(uint16_t code)
   if (found)
   {
     //const CharMetrics * m = &cm[gNum];
-    CharMetrics1 * m = getCharMetrics(gNum);
+    CharMetrics1 * cm = getCharMetrics(gNum);
 
-    if (textwrapX && (cursor_x + m->gWidth + m->gdX > width()))
+    if (textwrapX && (cursor_x + cm->gWidth + cm->gdX > width()))
     {
       cursor_y += gFont.yAdvance;
       cursor_x = 0;
     }
     if (textwrapY && ((cursor_y + gFont.yAdvance) >= height())) cursor_y = 0;
-    if (cursor_x == 0) cursor_x -= m->gdX;
+    if (cursor_x == 0) cursor_x -= cm->gdX;
 
     uint8_t* pbuffer = nullptr;
     const uint8_t* gPtr = (const uint8_t*) gFont.gArray;
@@ -549,12 +549,12 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     if (fs_font)
     {
       fontFile.seek(gBitmap[gNum], fs::SeekSet); // This is taking >30ms for a significant position shift
-      pbuffer =  (uint8_t*)malloc(m->gWidth);
+      pbuffer =  (uint8_t*)malloc(cm->gWidth);
     }
 #endif
 
-    int16_t cy = cursor_y + gFont.maxAscent - m->gdY;
-    int16_t cx = cursor_x + m->gdX;
+    int16_t cy = cursor_y + gFont.maxAscent - cm->gdY;
+    int16_t cx = cursor_x + cm->gdX;
 
     int16_t  xs = cx;
     uint32_t dl = 0;
@@ -564,31 +564,31 @@ void TFT_eSPI::drawGlyph(uint16_t code)
 
     //if (fg!=bg) fillRect(cursor_x, cursor_y, gxAdvance[gNum], gFont.yAdvance, bg);
 
-    for (int y = 0; y < m->gHeight; y++)
+    for (int y = 0; y < cm->gHeight; y++)
     {
 #ifdef FONT_FS_AVAILABLE
       if (fs_font) {
         if (spiffs)
         {
-          fontFile.read(pbuffer, m->gWidth);
+          fontFile.read(pbuffer, cm->gWidth);
           //Serial.println("SPIFFS");
         }
         else
         {
           endWrite();    // Release SPI for SD card transaction
-          fontFile.read(pbuffer, m->gWidth);
+          fontFile.read(pbuffer, cm->gWidth);
           startWrite();  // Re-start SPI for TFT transaction
           //Serial.println("Not SPIFFS");
         }
       }
 #endif
-      for (int x = 0; x < m->gWidth; x++)
+      for (int x = 0; x < cm->gWidth; x++)
       {
 #ifdef FONT_FS_AVAILABLE
         if (fs_font) pixel = pbuffer[x];
         else
 #endif
-        pixel = pgm_read_byte(gPtr + gBitmap[gNum] + x + m->gWidth * y);
+        pixel = pgm_read_byte(gPtr + gBitmap[gNum] + x + cm->gWidth * y);
 
         if (pixel)
         {
@@ -617,7 +617,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     }
 
     if (pbuffer) free(pbuffer);
-    cursor_x += m->gxAdvance;
+    cursor_x += cm->gxAdvance;
     endWrite();
   }
   else
@@ -645,15 +645,15 @@ void TFT_eSPI::showFont(uint32_t td)
   for (uint16_t i = 0; i < gFont.gCount; i++)
   {
     // Check if this will need a new screen
-    //const CharMetrics * m = &cm[i];
-    CharMetrics1 * m = getCharMetrics(i);
+    //const CharMetrics * cm = &cm[i];
+    CharMetrics1 * cm = getCharMetrics(i);
 
-    if (cursorX + m->gdX + m->gWidth >= width())  {
-      cursorX = -m->gdX;
+    if (cursorX + cm->gdX + cm->gWidth >= width())  {
+      cursorX = -cm->gdX;
 
       cursorY += gFont.yAdvance;
       if (cursorY + gFont.maxAscent + gFont.descent >= height()) {
-        cursorX = -m->gdX;
+        cursorX = -cm->gdX;
         cursorY = 0;
         delay(timeDelay);
         timeDelay = td;
@@ -662,8 +662,8 @@ void TFT_eSPI::showFont(uint32_t td)
     }
 
     setCursor(cursorX, cursorY);
-    drawGlyph(m->gUnicode);
-    cursorX += m->gxAdvance;
+    drawGlyph(cm->gUnicode);
+    cursorX += cm->gxAdvance;
     //cursorX +=  printToSprite( cursorX, cursorY, i );
     yield();
   }
