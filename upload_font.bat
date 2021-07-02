@@ -1,0 +1,1 @@
+tools\esptool.exe --baud 2000000 write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect 0x8D0000 data/x324.vlw

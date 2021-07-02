@@ -17,6 +17,29 @@ void TFT_eSPI::loadFont(const uint8_t array[])
   loadFont("", false);
 }
 
+
+void TFT_eSPI::loadFont(String partitionName, esp_partition_subtype_t subtype)
+{
+  const esp_partition_t* fontpart = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, subtype, partitionName.c_str());
+  if (!fontpart)
+  {
+    Serial.print("Font partition not found: ");
+    Serial.println(partitionName);
+    return;
+  }
+  
+  esp_err_t err = spi_flash_mmap(fontpart->address, 3*1024*1024, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
+  if (err)
+  {
+    Serial.print("Partition mapping error ");
+    Serial.println(err);
+    return;
+  }
+
+  loadFont("", false);
+}
+
+
 #ifdef FONT_FS_AVAILABLE
 /***************************************************************************************
 ** Function name:           loadFont
@@ -28,6 +51,7 @@ void TFT_eSPI::loadFont(String fontName, fs::FS &ffs)
   loadFont(fontName, false);
 }
 #endif
+
 
 /***************************************************************************************
 ** Function name:           loadFont
@@ -144,6 +168,22 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
   loadMetrics();
 }
 
+
+TFT_eSPI::CharMetrics1 * TFT_eSPI::getCharMetrics(uint16_t gNum)
+{
+  static CharMetrics1 _cm;
+  CharMetrics1 * cm = &_cm;
+
+  fontPtr = (uint8_t *)&gFont.gArray[24 + gNum * 28];
+  cm->gUnicode  = (uint16_t)readInt32(); // Unicode code point value
+  cm->gHeight   =  (uint8_t)readInt32(); // Height of glyph
+  cm->gWidth    =  (uint8_t)readInt32(); // Width of glyph
+  cm->gxAdvance =  (uint8_t)readInt32(); // xAdvance - to move x cursor
+  cm->gdY       =  (int16_t)readInt32(); // y delta from baseline
+  cm->gdX       =   (int8_t)readInt32(); // x delta from cursor
+
+  return cm;
+}
 
 /***************************************************************************************
 ** Function name:           loadMetrics
