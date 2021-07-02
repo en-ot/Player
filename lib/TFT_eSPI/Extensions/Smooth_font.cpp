@@ -356,7 +356,19 @@ void TFT_eSPI::unloadFont( void )
   if (fs_font && fontFile) fontFile.close();
 #endif
 
+  if (font_handle)
+  {
+    spi_flash_munmap(font_handle);
+    font_handle = 0;
+  }
+
   fontLoaded = false;
+}
+
+
+uint32_t reverse32(uint32_t val)
+{
+  return (val<<24) | (val<<8&0xFF0000) | (val>>8&0xFF00) | (val>>24);
 }
 
 
