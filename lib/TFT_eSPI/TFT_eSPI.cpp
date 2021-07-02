@@ -2777,7 +2777,8 @@ int16_t TFT_eSPI::textWidth(const char *string, uint8_t font)
           uint16_t gNum = 0;
           bool found = getUnicodeIndex(uniCode, &gNum);
           if (found) {
-            const CharMetrics * m = &cm[gNum];
+//            const CharMetrics * m = &cm[gNum];
+            CharMetrics1 * m = getCharMetrics(gNum);
             if(str_width == 0 && m->gdX < 0) str_width -= m->gdX;
             if (*string || isDigits) str_width += m->gxAdvance;
             else str_width += (m->gdX + m->gWidth);

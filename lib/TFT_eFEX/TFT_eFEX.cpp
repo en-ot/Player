@@ -792,7 +792,8 @@ void TFT_eFEX::drawStringRTL(const char *string, int32_t *x, int32_t *y)
 
       if (found)
       {
-        const CharMetrics * m = &_tft->cm[gNum];
+        CharMetrics1 * m = _tft->getCharMetrics(gNum);
+//        const CharMetrics * m = &_tft->cm[gNum];
         poX -= ( m->gWidth + m->gdX );
 
         if (poX < 0)
@@ -1125,7 +1126,8 @@ void TFT_eFEX::drawStringRTLAr(const char *string, int32_t *x, int32_t *y)
         poX = _tft->width() - 1;
         poY += _tft->gFont.yAdvance;
       }else if (found){
-        const CharMetrics * m = &_tft->cm[gNum];
+        CharMetrics1 * m = _tft->getCharMetrics(gNum);
+//        const CharMetrics * m = &_tft->cm[gNum];
         poX -= (m->gWidth + m->gdX);
 
         if (poX < 0)
@@ -1207,7 +1209,8 @@ void TFT_eFEX::drawStringLTR(const char *string, int32_t *x, int32_t *y)
 
       if (found)
       {
-        const CharMetrics * m = &_tft->cm[gNum];
+        CharMetrics1 * m = _tft->getCharMetrics(gNum);
+//        const CharMetrics * m = &_tft->cm[gNum];
         poX -= ( m->gWidth + m->gdX );
 
         if (poX < 0)

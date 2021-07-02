@@ -2410,7 +2410,9 @@ void TFT_eSprite::drawGlyph(uint16_t code)
 
   if (found)
   {
-    const CharMetrics * m = &cm[gNum];
+//    const CharMetrics * m = &cm[gNum];
+    CharMetrics1 * m = getCharMetrics(gNum);
+
     bool newSprite = !_created;
 
     if (newSprite)
@@ -2445,7 +2447,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
     int16_t  xs = 0;
     uint16_t dl = 0;
     uint8_t pixel = 0;
-    int32_t cgy = cursor_y + gFont.maxAscent - reverse16(m->gdY_r);
+    int32_t cgy = cursor_y + gFont.maxAscent - m->gdY;
     int32_t cgx = cursor_x + m->gdX;
 
     for (int32_t y = 0; y < m->gHeight; y++)
@@ -2540,7 +2542,9 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
       uint16_t unicode = decodeUTF8((uint8_t*)cbuffer, &n, len - n);
       if (getUnicodeIndex(unicode, &index))
       {
-        const CharMetrics * m = &cm[index];
+//        const CharMetrics * m = &cm[index];
+        CharMetrics1 * m = getCharMetrics(index);
+
         if (n == 0) sWidth -= m->gdX;
         if (n == len-1) sWidth += ( m->gWidth + m->gdX);
         else sWidth += m->gxAdvance;
@@ -2578,9 +2582,11 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
 int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 {
   bool newSprite = !_created;
-  int16_t sWidth = cm[index].gWidth;
+  CharMetrics1 * m = getCharMetrics(index);
+  //const CharMetrics * m = &cm[index];
 
-  const CharMetrics * m = &cm[index];
+  int16_t sWidth = m->gWidth;
+
   if (newSprite)
   {
     createSprite(sWidth, gFont.yAdvance);
@@ -2588,13 +2594,13 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
     if (textcolor != textbgcolor) fillSprite(textbgcolor);
 
     //todo:drawGlyphIndex
-    drawGlyph(reverse16(m->gUnicode_r));
+    drawGlyph(m->gUnicode);
 
     pushSprite(x + m->gdX, y, textbgcolor);
     deleteSprite();
   }
 
-  else drawGlyph(reverse16(m->gUnicode_r));
+  else drawGlyph(m->gUnicode);
 
   return m->gxAdvance;
 }

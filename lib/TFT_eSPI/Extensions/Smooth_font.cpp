@@ -228,11 +228,11 @@ void TFT_eSPI::loadMetrics(void)
 #endif
 
   uint16_t gNum = 0;
-  cm = (CharMetrics *)(&gFont.gArray[headerPtr]);
+  //cm = (CharMetrics *)(&gFont.gArray[headerPtr]);
 
   while (gNum < gFont.gCount)
   {
-  	CharMetrics1 * m1 = getCharMetrics(gNum);
+  	CharMetrics1 * m = getCharMetrics(gNum);
 //    const CharMetrics * m = &cm[gNum];
     
     //gUnicode[gNum] = reverse32(m->gUnicode);
@@ -275,13 +275,13 @@ void TFT_eSPI::loadMetrics(void)
 
     // Different glyph sets have different descent values not always based on "p", so get maximum glyph descent
     //uint16_t unicode = reverse16(m->gUnicode_r);
-    uint16_t unicode = m1->gUnicode; 
-    if (((int16_t)m1->gHeight - (int16_t)m1->gdY) > gFont.maxDescent)
+    uint16_t unicode = m->gUnicode; 
+    if (((int16_t)m->gHeight - (int16_t)m->gdY) > gFont.maxDescent)
     {
       // Avoid UTF coding values and characters that tend to give duff values
       if (((unicode > 0x20) && (unicode < 0xA0) && (unicode != 0x7F)) || (unicode > 0xFF))
       {
-        gFont.maxDescent   = m1->gHeight - m1->gdY;
+        gFont.maxDescent   = m->gHeight - m->gdY;
 #ifdef SHOW_ASCENT_DESCENT
         Serial.print("Unicode = 0x"); Serial.print(unicode, HEX); Serial.print(", maxDescent = "); Serial.println(m->gHeight - m->gdY);
 #endif
@@ -290,7 +290,7 @@ void TFT_eSPI::loadMetrics(void)
 
     gBitmap[gNum] = bitmapPtr;
 
-    bitmapPtr += m1->gWidth * m1->gHeight;
+    bitmapPtr += m->gWidth * m->gHeight;
 
     gNum++;
     yield();
@@ -633,7 +633,9 @@ void TFT_eSPI::showFont(uint32_t td)
   for (uint16_t i = 0; i < gFont.gCount; i++)
   {
     // Check if this will need a new screen
-    const CharMetrics * m = &cm[i];
+    //const CharMetrics * m = &cm[i];
+    CharMetrics1 * m = getCharMetrics(i);
+
     if (cursorX + m->gdX + m->gWidth >= width())  {
       cursorX = -m->gdX;
 
@@ -648,7 +650,7 @@ void TFT_eSPI::showFont(uint32_t td)
     }
 
     setCursor(cursorX, cursorY);
-    drawGlyph(reverse16(m->gUnicode_r));
+    drawGlyph(m->gUnicode);
     cursorX += m->gxAdvance;
     //cursorX +=  printToSprite( cursorX, cursorY, i );
     yield();
