@@ -168,10 +168,10 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
   loadMetrics();
 }
 
+static TFT_eSPI::CharMetrics1 _cm;
 
 TFT_eSPI::CharMetrics1 * TFT_eSPI::getCharMetrics(uint16_t gNum)
 {
-  static CharMetrics1 _cm;
   CharMetrics1 * cm = &_cm;
 
   fontPtr = (uint8_t *)&gFont.gArray[24 + gNum * 28];
@@ -194,7 +194,6 @@ void TFT_eSPI::loadMetrics(void)
 {
   uint32_t headerPtr = 24;
   uint32_t bitmapPtr = headerPtr + gFont.gCount * 28;
-  cm = (CharMetrics *)(&gFont.gArray[headerPtr]);
 
 #if defined (ESP32) && defined (CONFIG_SPIRAM_SUPPORT)
   if ( psramFound() )
@@ -229,9 +228,11 @@ void TFT_eSPI::loadMetrics(void)
 #endif
 
   uint16_t gNum = 0;
+  cm = (CharMetrics *)(&gFont.gArray[headerPtr]);
 
   while (gNum < gFont.gCount)
   {
+  	CharMetrics1 * m1 = getCharMetrics(gNum);
     const CharMetrics * m = &cm[gNum];
     
     //gUnicode[gNum] = reverse32(m->gUnicode);
@@ -273,22 +274,23 @@ void TFT_eSPI::loadMetrics(void)
     */
 
     // Different glyph sets have different descent values not always based on "p", so get maximum glyph descent
-    uint16_t unicode = reverse16(m->gUnicode_r); 
-    if (((int16_t)m->gHeight - (int16_t)reverse16(m->gdY_r)) > gFont.maxDescent)
+    //uint16_t unicode = reverse16(m->gUnicode_r);
+    uint16_t unicode = m1->gUnicode; 
+    if (((int16_t)m1->gHeight - (int16_t)m1->gdY) > gFont.maxDescent)
     {
       // Avoid UTF coding values and characters that tend to give duff values
       if (((unicode > 0x20) && (unicode < 0xA0) && (unicode != 0x7F)) || (unicode > 0xFF))
       {
-        gFont.maxDescent   = m->gHeight - reverse16(m->gdY_r);
+        gFont.maxDescent   = m1->gHeight - m1->gdY;
 #ifdef SHOW_ASCENT_DESCENT
-        Serial.print("Unicode = 0x"); Serial.print(gUnicode[gNum], HEX); Serial.print(", maxDescent = "); Serial.println(m->gHeight - reverse16(m->gdY_r));
+        Serial.print("Unicode = 0x"); Serial.print(unicode, HEX); Serial.print(", maxDescent = "); Serial.println(m->gHeight - m->gdY);
 #endif
       }
     }
 
     gBitmap[gNum] = bitmapPtr;
 
-    bitmapPtr += m->gWidth * m->gHeight;
+    bitmapPtr += m1->gWidth * m1->gHeight;
 
     gNum++;
     yield();
