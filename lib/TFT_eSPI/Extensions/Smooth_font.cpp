@@ -233,7 +233,7 @@ void TFT_eSPI::loadMetrics(void)
   while (gNum < gFont.gCount)
   {
   	CharMetrics1 * m1 = getCharMetrics(gNum);
-    const CharMetrics * m = &cm[gNum];
+//    const CharMetrics * m = &cm[gNum];
     
     //gUnicode[gNum] = reverse32(m->gUnicode);
     //gHeight[gNum] = m->gHeight;
@@ -519,7 +519,9 @@ void TFT_eSPI::drawGlyph(uint16_t code)
   
   if (found)
   {
-    const CharMetrics * m = &cm[gNum];
+    //const CharMetrics * m = &cm[gNum];
+    CharMetrics1 * m = getCharMetrics(gNum);
+
     if (textwrapX && (cursor_x + m->gWidth + m->gdX > width()))
     {
       cursor_y += gFont.yAdvance;
@@ -539,7 +541,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     }
 #endif
 
-    int16_t cy = cursor_y + gFont.maxAscent - reverse16(m->gdY_r);
+    int16_t cy = cursor_y + gFont.maxAscent - m->gdY;
     int16_t cx = cursor_x + m->gdX;
 
     int16_t  xs = cx;
