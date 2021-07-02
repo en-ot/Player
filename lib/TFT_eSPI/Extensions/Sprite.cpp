@@ -2411,7 +2411,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
   if (found)
   {
 //    const CharMetrics * m = &cm[gNum];
-    CharMetrics1 * cm = getCharMetrics(gNum);
+    CharMetrics * cm = getCharMetrics(gNum);
 
     bool newSprite = !_created;
 
@@ -2543,7 +2543,7 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
       if (getUnicodeIndex(unicode, &index))
       {
 //        const CharMetrics * m = &cm[index];
-        CharMetrics1 * cm = getCharMetrics(index);
+        CharMetrics * cm = getCharMetrics(index);
 
         if (n == 0) sWidth -= cm->gdX;
         if (n == len-1) sWidth += ( cm->gWidth + cm->gdX);
@@ -2582,7 +2582,7 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
 int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 {
   bool newSprite = !_created;
-  CharMetrics1 * cm = getCharMetrics(index);
+  CharMetrics * cm = getCharMetrics(index);
   //const CharMetrics * m = &cm[index];
 
   int16_t sWidth = cm->gWidth;

@@ -168,11 +168,11 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
   loadMetrics();
 }
 
-static TFT_eSPI::CharMetrics1 _cm;
+static TFT_eSPI::CharMetrics _cm;
 
-TFT_eSPI::CharMetrics1 * TFT_eSPI::getCharMetrics(uint16_t gNum)
+TFT_eSPI::CharMetrics * TFT_eSPI::getCharMetrics(uint16_t gNum)
 {
-  CharMetrics1 * cm = &_cm;
+  CharMetrics * cm = &_cm;
 
   fontPtr = (uint8_t *)&gFont.gArray[24 + gNum * 28];
   cm->gUnicode  = (uint16_t)readInt32(); // Unicode code point value
@@ -232,7 +232,7 @@ void TFT_eSPI::loadMetrics(void)
 
   while (gNum < gFont.gCount)
   {
-  	CharMetrics1 * cm = getCharMetrics(gNum);
+  	CharMetrics * cm = getCharMetrics(gNum);
 //    const CharMetrics * cm = &cm[gNum];
     
     //gUnicode[gNum] = reverse32(m->gUnicode);
@@ -532,7 +532,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
   if (found)
   {
     //const CharMetrics * m = &cm[gNum];
-    CharMetrics1 * cm = getCharMetrics(gNum);
+    CharMetrics * cm = getCharMetrics(gNum);
 
     if (textwrapX && (cursor_x + cm->gWidth + cm->gdX > width()))
     {
@@ -646,7 +646,7 @@ void TFT_eSPI::showFont(uint32_t td)
   {
     // Check if this will need a new screen
     //const CharMetrics * cm = &cm[i];
-    CharMetrics1 * cm = getCharMetrics(i);
+    CharMetrics * cm = getCharMetrics(i);
 
     if (cursorX + cm->gdX + cm->gWidth >= width())  {
       cursorX = -cm->gdX;

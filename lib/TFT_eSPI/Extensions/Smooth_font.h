@@ -43,9 +43,9 @@
     uint8_t  gxAdvance; //setWidth
     int16_t  gdY;       //topExtent
     int8_t   gdX;       //leftExtent
-  } CharMetrics1;
+  } CharMetrics;
   
-  TFT_eSPI::CharMetrics1 * getCharMetrics(uint16_t gNum);
+  TFT_eSPI::CharMetrics * getCharMetrics(uint16_t gNum);
  
   uint32_t* gBitmap = NULL;   //file pointer to greyscale bitmap
 
