@@ -2380,6 +2380,8 @@ int16_t TFT_eSprite::drawChar(uint16_t uniCode, int32_t x, int32_t y, uint8_t fo
 
 
 #ifdef SMOOTH_FONT
+int memcpy_I(void * dst, const void * src, int len);
+
 /***************************************************************************************
 ** Function name:           drawGlyph
 ** Description:             Write a character to the sprite cursor position
@@ -2410,7 +2412,6 @@ void TFT_eSprite::drawGlyph(uint16_t code)
 
   if (found)
   {
-//    const CharMetrics * m = &cm[gNum];
     CharMetrics * cm = getCharMetrics(gNum);
 
     bool newSprite = !_created;
@@ -2542,9 +2543,7 @@ void TFT_eSprite::printToSprite(char *cbuffer, uint16_t len) //String string)
       uint16_t unicode = decodeUTF8((uint8_t*)cbuffer, &n, len - n);
       if (getUnicodeIndex(unicode, &index))
       {
-//        const CharMetrics * m = &cm[index];
         CharMetrics * cm = getCharMetrics(index);
-
         if (n == 0) sWidth -= cm->gdX;
         if (n == len-1) sWidth += ( cm->gWidth + cm->gdX);
         else sWidth += cm->gxAdvance;
@@ -2583,8 +2582,6 @@ int16_t TFT_eSprite::printToSprite(int16_t x, int16_t y, uint16_t index)
 {
   bool newSprite = !_created;
   CharMetrics * cm = getCharMetrics(index);
-  //const CharMetrics * m = &cm[index];
-
   int16_t sWidth = cm->gWidth;
 
   if (newSprite)

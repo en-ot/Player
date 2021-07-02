@@ -378,42 +378,6 @@ swap_coord(T& a, T& b) { T t = a; a = b; b = t; }
 // Callback prototype for smooth font pixel colour read
 typedef uint16_t (*getColorCallback)(uint16_t x, uint16_t y);
 
-// inline uint32_t reverse32(uint32_t val)
-// {
-//   return (val<<24) | (val<<8&0xFF0000) | (val>>8&0xFF00) | (val>>24);
-// }
-
-// inline uint16_t reverse16(uint16_t val)
-// {
-//   return (val<<8) | (val>>8);
-// }
-
-// #pragma pack(push, 1)
-// typedef struct
-// {
-//   uint16_t gUnicode_dummy;
-//   uint16_t gUnicode_r;
-
-//   uint8_t gHeight_dummy[3];
-//   uint8_t gHeight;
-
-//   uint8_t gWidth_dummy[3];
-//   uint8_t gWidth;
-
-//   uint8_t gxAdvance_dummy[3];
-//   uint8_t gxAdvance;
- 
-//   int16_t gdY_dummy;
-//   int16_t gdY_r;
-
-//   int8_t gdX_dummy[3];
-//   int8_t gdX;
-
-//   uint32_t dummy;
-// } CharMetrics;
-// #pragma pack(pop)
-
-
 // Class functions and variables
 class TFT_eSPI : public Print { friend class TFT_eSprite; // Sprite class has access to protected members
 
@@ -848,9 +812,6 @@ class TFT_eSPI : public Print { friend class TFT_eSprite; // Sprite class has ac
 #endif
 
 }; // End of class TFT_eSPI
-
-
-
 
 /***************************************************************************************
 **                         Section 10: Additional extension classes

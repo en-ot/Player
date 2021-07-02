@@ -198,7 +198,7 @@ void TFT_eSPI::loadMetrics(void)
 #if defined (ESP32) && defined (CONFIG_SPIRAM_SUPPORT)
   if ( psramFound() )
   {
-    //gUnicode  = (uint16_t*)ps_malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
+    // gUnicode  = (uint16_t*)ps_malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
     // gHeight   =  (uint8_t*)ps_malloc( gFont.gCount );    // Height of glyph
     // gWidth    =  (uint8_t*)ps_malloc( gFont.gCount );    // Width of glyph
     // gxAdvance =  (uint8_t*)ps_malloc( gFont.gCount );    // xAdvance - to move x cursor
@@ -209,7 +209,7 @@ void TFT_eSPI::loadMetrics(void)
   else
 #endif
   {
-    //gUnicode  = (uint16_t*)malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
+    // gUnicode  = (uint16_t*)malloc( gFont.gCount * 2); // Unicode 16 bit Basic Multilingual Plane (0-FFFF)
     // gHeight   =  (uint8_t*)malloc( gFont.gCount );    // Height of glyph
     // gWidth    =  (uint8_t*)malloc( gFont.gCount );    // Width of glyph
     // gxAdvance =  (uint8_t*)malloc( gFont.gCount );    // xAdvance - to move x cursor
@@ -228,21 +228,10 @@ void TFT_eSPI::loadMetrics(void)
 #endif
 
   uint16_t gNum = 0;
-  //cm = (CharMetrics *)(&gFont.gArray[headerPtr]);
-
   while (gNum < gFont.gCount)
   {
-  	CharMetrics * cm = getCharMetrics(gNum);
-//    const CharMetrics * cm = &cm[gNum];
+    CharMetrics * cm = getCharMetrics(gNum);
     
-    //gUnicode[gNum] = reverse32(m->gUnicode);
-    //gHeight[gNum] = m->gHeight;
-    // gWidth[gNum] = m->gWidth;
-    // gxAdvance[gNum] = m->gxAdvance;
-    // gdY[gNum] = reverse16(m->gdY_r);
-    // gdX[gNum] = m->gdX;
-    //fontPtr += sizeof(CharMetrics);
-
     // gUnicode[gNum]  = (uint16_t)readInt32(); // Unicode code point value
     // gHeight[gNum]   =  (uint8_t)readInt32(); // Height of glyph
     // gWidth[gNum]    =  (uint8_t)readInt32(); // Width of glyph
@@ -274,7 +263,6 @@ void TFT_eSPI::loadMetrics(void)
     */
 
     // Different glyph sets have different descent values not always based on "p", so get maximum glyph descent
-    //uint16_t unicode = reverse16(cm->gUnicode_r);
     uint16_t unicode = cm->gUnicode; 
     if (((int16_t)cm->gHeight - (int16_t)cm->gdY) > gFont.maxDescent)
     {
@@ -382,10 +370,12 @@ uint32_t TFT_eSPI::readInt32(void)
 
 #ifdef FONT_FS_AVAILABLE
   if (fs_font) {
+    fontFile.seek((uint32_t)fontPtr, fs::SeekSet);
     val |= fontFile.read() << 24;
     val |= fontFile.read() << 16;
     val |= fontFile.read() << 8;
     val |= fontFile.read();
+    fontPtr += 4;
   }
   else
 #endif
@@ -531,9 +521,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
   
   if (found)
   {
-    //const CharMetrics * m = &cm[gNum];
     CharMetrics * cm = getCharMetrics(gNum);
-
     if (textwrapX && (cursor_x + cm->gWidth + cm->gdX > width()))
     {
       cursor_y += gFont.yAdvance;
@@ -645,9 +633,7 @@ void TFT_eSPI::showFont(uint32_t td)
   for (uint16_t i = 0; i < gFont.gCount; i++)
   {
     // Check if this will need a new screen
-    //const CharMetrics * cm = &cm[i];
     CharMetrics * cm = getCharMetrics(i);
-
     if (cursorX + cm->gdX + cm->gWidth >= width())  {
       cursorX = -cm->gdX;
 

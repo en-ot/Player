@@ -32,7 +32,6 @@
   } fontMetrics;
 
   fontMetrics gFont = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
-  //const CharMetrics * cm;
 
   // These are for the metrics for each individual glyph (so we don't need to seek this in file and waste time)
   typedef struct
