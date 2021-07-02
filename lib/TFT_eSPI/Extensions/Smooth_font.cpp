@@ -168,6 +168,7 @@ void TFT_eSPI::loadFont(String fontName, bool flash)
   loadMetrics();
 }
 
+
 static TFT_eSPI::CharMetrics _cm;
 
 TFT_eSPI::CharMetrics * TFT_eSPI::getCharMetrics(uint16_t gNum)
@@ -224,7 +225,7 @@ void TFT_eSPI::loadMetrics(void)
 #endif
 
 #ifdef FONT_FS_AVAILABLE
-  if (fs_font) fontFile.seek(headerPtr, fs::SeekSet);
+  //if (fs_font) fontFile.seek(headerPtr, fs::SeekSet);
 #endif
 
   uint16_t gNum = 0;
@@ -443,11 +444,13 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 
 #endif
 
-
 //--------------------------------------------------------------------------------------
 void * memcpy_I(void * dst, const void * src, int len)
 {
 //  return memcpy(dst, src, len);
+
+  if (!len) return dst;
+
   uint32_t d;
   uint32_t dst1 = (uint32_t)dst;
   uint32_t src1 = (uint32_t)src;
@@ -456,27 +459,27 @@ void * memcpy_I(void * dst, const void * src, int len)
   {
     d = *(uint32_t*)(src1 & ~3);
     d >>= 8 * (src1 & 3);
-    while ((src1 & 3) && (len))
+    while (src1 & 3)
     {
       *(uint8_t *)dst1 = d & 0xFF;
       d >>= 8;
       src1++;
       dst1++;
       len--;
+      if (!len) return dst;
     }
   }
 
   while (len > 3)
   {
     d = *(uint32_t *)src1;
-    *(uint32_t*)dst1 = d;
+    *(uint32_t *)dst1 = d;
     src1 += 4;
     dst1 += 4;
     len -= 4;
   }
 
-  if (!len)
-    return dst;
+  if (!len) return dst;
 
   d = *(uint32_t *)src1;
   while (len)

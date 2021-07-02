@@ -3111,7 +3111,7 @@ bool gslc_ElemDrawByRef(gslc_tsGui* pGui,gslc_tsElemRef* pElemRef,gslc_teRedrawT
       colBg = pElem->colElemFill;
     }
     if (pElem->nFeatures & GSLC_ELEM_FEA_ROUND_EN) {
-      gslc_DrawFillRoundRect(pGui, rElemInner, pGui->nRoundRadius, colBg);
+      //gslc_DrawFillRoundRect(pGui, rElemInner, pGui->nRoundRadius, colBg);
     } else {
       gslc_DrawFillRect(pGui, rElemInner, colBg);
     }
@@ -3132,7 +3132,7 @@ bool gslc_ElemDrawByRef(gslc_tsGui* pGui,gslc_tsElemRef* pElemRef,gslc_teRedrawT
   #else
   if (pElem->nFeatures & GSLC_ELEM_FEA_FRAME_EN) {
     if (pElem->nFeatures & GSLC_ELEM_FEA_ROUND_EN) {
-      gslc_DrawFrameRoundRect(pGui, pElem->rElem, pGui->nRoundRadius, pElem->colElemFrame);
+      //gslc_DrawFrameRoundRect(pGui, pElem->rElem, pGui->nRoundRadius, pElem->colElemFrame);
     } else {
       gslc_DrawFrameRect(pGui, pElem->rElem, pElem->colElemFrame);
     }

@@ -64,6 +64,8 @@ void gslc_init()
 }
 
 
+TFT_eSprite gui_spr = TFT_eSprite(&tft);
+
 //###############################################################
 Gui::Gui()
 {
@@ -81,9 +83,11 @@ Gui::Gui()
     DEBUG("gslc initialized\n");
 
     tft.fillScreen(TFT_BLACK);
-    tft.setTextWrap(false, false);
+    gui_spr.setTextWrap(false, false);
 
-    tft.loadFont(FONT_NAME1);
+    //tft.loadFont(FONT_NAME1);
+    gui_spr.loadFont(FONT_NAME1);
+    //tft.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
 
     initialized = true;
     DEBUG("LCD init OK\n");
@@ -174,6 +178,7 @@ gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsi
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
     gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
+    gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
     x += rect.w + gap;
     return pElemRef;
 }
@@ -212,6 +217,7 @@ void page_info_init()
     gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_PGS_FILL_COL, INFO_PGS_FILL_COL);
+    gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
     info_pgs1_ref = pElemRef;
 
     pElemRef = gslc_ElemXProgressCreate(&gslc, INFO_PGS2_ELEM, PAGE_INFO, &info_pgs2_elem, INFO_PGS2_RECT, 0, INFO_PGS2_MAX, 0, INFO_PGS2_LINE_COL, false);
@@ -222,6 +228,7 @@ void page_info_init()
     gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_PGS_FILL_COL, INFO_PGS_FILL_COL);
+    gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
     info_pgs3_ref = pElemRef;
 
     // lines
@@ -233,6 +240,7 @@ void page_info_init()
         gslc_ElemSetTxtCol          (&gslc, pElemRef, COL_TEXT_NORMAL);
         gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, info_colors[i], info_colors[i]);
         //gslc_ElemSetTxtMarginXY     (&gslc, pElemRef, 2, 2);
+        gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
         info_lines_ref[i] = pElemRef;
 
         pElemRef = gslc_ElemCreateImg(&gslc, INFO_PATH_ICON+i, PAGE_INFO, INFO_ICON_RECT,

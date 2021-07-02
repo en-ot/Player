@@ -403,6 +403,9 @@ bool gslc_DrvGetTxtSize(gslc_tsGui* pGui,gslc_tsFont* pFont,const char* pStr,gsl
   return true;
 }
 
+
+extern TFT_eSprite gui_spr;
+
 bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,int16_t nY1,int8_t eTxtAlign,
         gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt, gslc_tsColor colBg=GSLC_COL_BLACK, int16_t scr_pos=0)
 {
@@ -411,26 +414,26 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   uint16_t nTxtScale = pFont->nSize;
 
   #ifdef SMOOTH_FONT
-    m_disp.setTextColor(nColRaw,nColBgRaw);
+    gui_spr.setTextColor(nColRaw,nColBgRaw);
   #else
-    m_disp.setTextColor(nColRaw);
+    gui_spr.setTextColor(nColRaw);
   #endif
 
   // TFT_eSPI font API differs from Adafruit-GFX's setFont() API
   if (pFont->pvFont == NULL) {
-    m_disp.setTextFont(1);
+    gui_spr.setTextFont(1);
   } else {
     #ifdef SMOOTH_FONT
       if (pFont->eFontRefType  == GSLC_FONTREF_FNAME){
-//en-ot        m_disp.loadFont((const char*)pFont->pvFont);
+//en-ot        gui_spr.loadFont((const char*)pFont->pvFont);
       } else {
-        m_disp.setFreeFont((const GFXfont *)pFont->pvFont);
+        gui_spr.setFreeFont((const GFXfont *)pFont->pvFont);
       }
     #else
-      m_disp.setFreeFont((const GFXfont *)pFont->pvFont);
+      gui_spr.setFreeFont((const GFXfont *)pFont->pvFont);
     #endif
   }
-  m_disp.setTextSize(nTxtScale);
+  gui_spr.setTextSize(nTxtScale);
 
   // Default to mid-mid datum
   int8_t  nDatum = MC_DATUM;
@@ -450,15 +453,23 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
     case GSLC_ALIGN_BOT_RIGHT:  nDatum = BR_DATUM; nTxtX = nX1; nTxtY = nY1; break;
     default:                    nDatum = MC_DATUM; break;
   }
-  m_disp.setTextDatum(nDatum);
+  gui_spr.setTextDatum(nDatum);
 
-  m_disp.setViewport(nX0, nY0, nX1-nX0, nY1-nY0, false); //en-ot
-  int16_t txt_width = m_disp.drawString(pStr,nTxtX-scr_pos,nTxtY); //en-ot
-  m_disp.resetViewport(); //en-ot
+  gui_spr.createSprite(nX1-nX0, nY1-nY0);
+  gui_spr.fillSprite(nColBgRaw);
+  gui_spr.setTextWrap(false);
+  gui_spr.drawString(pStr, nTxtX-scr_pos-nX0, nTxtY-nY0); //en-ot
+  gui_spr.pushSprite(nX0, nY0);
+  int16_t txt_width = gui_spr.textWidth(pStr);
+  gui_spr.deleteSprite();
+
+  // m_disp.setViewport(nX0, nY0, nX1-nX0, nY1-nY0, false); //en-ot
+  // int16_t txt_width = m_disp.drawString(pStr,nTxtX-scr_pos,nTxtY); //en-ot
+  // m_disp.resetViewport(); //en-ot
 
   #ifdef SMOOTH_FONT
     if (pFont->eFontRefType  == GSLC_FONTREF_FNAME){
-//en-ot      m_disp.unloadFont();
+//en-ot      gui_spr.unloadFont();
     }
   #endif
 
