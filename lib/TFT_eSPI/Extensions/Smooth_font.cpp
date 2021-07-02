@@ -443,9 +443,11 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 
 #endif
 
+
 //--------------------------------------------------------------------------------------
-int memcpy_I(void * dst, const void * src, int len)
+void * memcpy_I(void * dst, const void * src, int len)
 {
+//  return memcpy(dst, src, len);
   uint32_t d;
   uint32_t dst1 = (uint32_t)dst;
   uint32_t src1 = (uint32_t)src;
@@ -454,7 +456,7 @@ int memcpy_I(void * dst, const void * src, int len)
   {
     d = *(uint32_t*)(src1 & ~3);
     d >>= 8 * (src1 & 3);
-    while (src1 & 3)
+    while ((src1 & 3) && (len))
     {
       *(uint8_t *)dst1 = d & 0xFF;
       d >>= 8;
@@ -464,7 +466,7 @@ int memcpy_I(void * dst, const void * src, int len)
     }
   }
 
-  while (len & ~3)
+  while (len > 3)
   {
     d = *(uint32_t *)src1;
     *(uint32_t*)dst1 = d;
@@ -473,20 +475,20 @@ int memcpy_I(void * dst, const void * src, int len)
     len -= 4;
   }
 
-  if (len)
-  {
-    d = *(uint32_t *)src1;
-    while (len)
-    {
-      *(uint8_t *)dst1 = d & 0xFF;
-      d >>= 8;
-      src1++;
-      dst1++;
-      len--;
-    }
+  if (!len)
+    return dst;
 
+  d = *(uint32_t *)src1;
+  while (len)
+  {
+    *(uint8_t *)dst1 = d & 0xFF;
+    d >>= 8;
+    src1++;
+    dst1++;
+    len--;
   }
-  return 0;
+
+  return dst;
 }
 
 
@@ -530,14 +532,13 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     if (textwrapY && ((cursor_y + gFont.yAdvance) >= height())) cursor_y = 0;
     if (cursor_x == 0) cursor_x -= cm->gdX;
 
-    uint8_t* pbuffer = nullptr;
-    const uint8_t* gPtr = (const uint8_t*) gFont.gArray;
+    uint8_t* pbuffer = (uint8_t*)malloc(cm->gWidth);
+    const uint8_t* gPtr = (const uint8_t*) gFont.gArray + gBitmap[gNum];
 
 #ifdef FONT_FS_AVAILABLE
     if (fs_font)
     {
       fontFile.seek(gBitmap[gNum], fs::SeekSet); // This is taking >30ms for a significant position shift
-      pbuffer =  (uint8_t*)malloc(cm->gWidth);
     }
 #endif
 
@@ -569,14 +570,16 @@ void TFT_eSPI::drawGlyph(uint16_t code)
           //Serial.println("Not SPIFFS");
         }
       }
+      else
 #endif
+      {
+        memcpy_I(pbuffer, gPtr, cm->gWidth);
+        gPtr += cm->gWidth;
+      }
+
       for (int x = 0; x < cm->gWidth; x++)
       {
-#ifdef FONT_FS_AVAILABLE
-        if (fs_font) pixel = pbuffer[x];
-        else
-#endif
-        pixel = pgm_read_byte(gPtr + gBitmap[gNum] + x + cm->gWidth * y);
+        pixel = pbuffer[x];
 
         if (pixel)
         {

@@ -2380,7 +2380,7 @@ int16_t TFT_eSprite::drawChar(uint16_t uniCode, int32_t x, int32_t y, uint8_t fo
 
 
 #ifdef SMOOTH_FONT
-int memcpy_I(void * dst, const void * src, int len);
+void * memcpy_I(void * dst, const void * src, int len);
 
 /***************************************************************************************
 ** Function name:           drawGlyph
