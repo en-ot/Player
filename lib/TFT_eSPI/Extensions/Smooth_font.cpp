@@ -233,6 +233,7 @@ void TFT_eSPI::loadMetrics(void)
   while (gNum < gFont.gCount)
   {
     const CharMetrics * m = &cm[gNum];
+    
     //gUnicode[gNum] = reverse32(m->gUnicode);
     //gHeight[gNum] = m->gHeight;
     // gWidth[gNum] = m->gWidth;
@@ -391,14 +392,17 @@ uint32_t TFT_eSPI::readInt32(void)
 ** Function name:           getUnicodeIndex
 ** Description:             Get the font file index of a Unicode character
 *************************************************************************************x*/
+
+#ifdef FAST_UNICODE_INDEX
 bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 {
   int above = gFont.gCount;
   int bottom = 0;
-  int i = 0;
+  int i = above / 2;
   do
   {
-    uint16_t code = reverse16(cm[i].gUnicode_r);
+    fontPtr = (uint8_t *)&gFont.gArray[24 + i * 28];
+    uint16_t code = (uint16_t)readInt32(); // Unicode code point value
     if (code == unicode)
     {
       *index = i;
@@ -416,6 +420,69 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
   } while (above > bottom);
 
   return false;
+}
+
+#else
+
+bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
+{
+  for (uint16_t i = 0; i < gFont.gCount; i++)
+  {
+    if (gUnicode[i] == unicode)
+    {
+      *index = i;
+      return true;
+    }
+  }
+  return false;
+}
+
+#endif
+
+//--------------------------------------------------------------------------------------
+int memcpy_I(void * dst, const void * src, int len)
+{
+  uint32_t d;
+  uint32_t dst1 = (uint32_t)dst;
+  uint32_t src1 = (uint32_t)src;
+
+  if (src1 & 3)
+  {
+    d = *(uint32_t*)(src1 & ~3);
+    d >>= 8 * (src1 & 3);
+    while (src1 & 3)
+    {
+      *(uint8_t *)dst1 = d & 0xFF;
+      d >>= 8;
+      src1++;
+      dst1++;
+      len--;
+    }
+  }
+
+  while (len & ~3)
+  {
+    d = *(uint32_t *)src1;
+    *(uint32_t*)dst1 = d;
+    src1 += 4;
+    dst1 += 4;
+    len -= 4;
+  }
+
+  if (len)
+  {
+    d = *(uint32_t *)src1;
+    while (len)
+    {
+      *(uint8_t *)dst1 = d & 0xFF;
+      d >>= 8;
+      src1++;
+      dst1++;
+      len--;
+    }
+
+  }
+  return 0;
 }
 
 
