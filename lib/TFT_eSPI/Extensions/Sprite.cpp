@@ -45,7 +45,7 @@ TFT_eSprite::TFT_eSprite(TFT_eSPI *tft)
 ** Description:             Create a sprite (bitmap) of defined width and height
 ***************************************************************************************/
 // cast returned value to (uint8_t*) for 8 bit or (uint16_t*) for 16 bit colours
-void* TFT_eSprite::createSprite(int16_t w, int16_t h, uint8_t frames)
+void* TFT_eSprite::createSprite(int16_t w, int16_t h, uint8_t frames, uint8_t * mem)
 {
 
   if ( _created ) return _img8_1;
@@ -65,7 +65,15 @@ void* TFT_eSprite::createSprite(int16_t w, int16_t h, uint8_t frames)
   _sh = h;
   _scolor = TFT_BLACK;
 
-  _img8   = (uint8_t*) callocSprite(w, h, frames);
+    if (!mem)
+    {
+        _img8   = (uint8_t*) callocSprite(w, h, frames);
+    }
+    else
+    {
+        //memset(mem, 0, w*h*sizeof(uint8_t)/_bpp*8);
+        _img8 = mem;
+    }
   _img8_1 = _img8;
   _img8_2 = _img8;
   _img    = (uint16_t*) _img8;
@@ -372,7 +380,7 @@ uint16_t TFT_eSprite::getPaletteColor(uint8_t index)
 ** Function name:           deleteSprite
 ** Description:             Delete the sprite to free up memory (RAM)
 ***************************************************************************************/
-void TFT_eSprite::deleteSprite(void)
+void TFT_eSprite::deleteSprite(bool keep)
 {
   if (_colorMap != nullptr)
   {
@@ -382,7 +390,8 @@ void TFT_eSprite::deleteSprite(void)
 
   if (_created)
   {
-    free(_img8_1);
+      if (!keep)
+        free(_img8_1);
     _img8 = nullptr;
     _created = false;
     _vpOoB   = true;  // TFT_eSPI class write() uses this to check for valid sprite
@@ -2435,7 +2444,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
       if ( cursor_x == 0) cursor_x -= cm->gdX;
     }
 
-    uint8_t* pbuffer = (uint8_t*)malloc(cm->gWidth);
+    uint8_t* pbuffer = linebuffer;//(uint8_t*)malloc(cm->gWidth);
     const uint8_t* gPtr = (const uint8_t*) gFont.gArray + gBitmap[gNum];
 
 #ifdef FONT_FS_AVAILABLE
@@ -2492,7 +2501,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
       if (dl) { drawFastHLine( xs, y + cgy, dl, fg); dl = 0; }
     }
 
-    if (pbuffer) free(pbuffer);
+    //if (pbuffer) free(pbuffer);
 
     if (newSprite)
     {

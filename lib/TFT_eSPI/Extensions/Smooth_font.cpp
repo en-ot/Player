@@ -228,6 +228,7 @@ void TFT_eSPI::loadMetrics(void)
   //if (fs_font) fontFile.seek(headerPtr, fs::SeekSet);
 #endif
 
+  uint8_t max_width = 0;
   uint16_t gNum = 0;
   while (gNum < gFont.gCount)
   {
@@ -277,6 +278,11 @@ void TFT_eSPI::loadMetrics(void)
       }
     }
 
+    if (cm->gWidth > max_width)
+    {
+      max_width = cm->gWidth;
+    }
+
     gBitmap[gNum] = bitmapPtr;
 
     bitmapPtr += cm->gWidth * cm->gHeight;
@@ -284,6 +290,8 @@ void TFT_eSPI::loadMetrics(void)
     gNum++;
     yield();
   }
+
+  linebuffer = (uint8_t *)malloc(max_width);  
 
   gFont.yAdvance = gFont.maxAscent + gFont.maxDescent;
 
@@ -332,6 +340,12 @@ void TFT_eSPI::unloadFont( void )
   //   free(gdX);
   //   gdX = NULL;
   // }
+
+  if (linebuffer)
+  {
+    free(linebuffer);
+    linebuffer = nullptr;
+  }
 
   if (gBitmap)
   {
@@ -535,7 +549,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     if (textwrapY && ((cursor_y + gFont.yAdvance) >= height())) cursor_y = 0;
     if (cursor_x == 0) cursor_x -= cm->gdX;
 
-    uint8_t* pbuffer = (uint8_t*)malloc(cm->gWidth);
+    uint8_t* pbuffer = linebuffer;//(uint8_t*)malloc(cm->gWidth);
     const uint8_t* gPtr = (const uint8_t*) gFont.gArray + gBitmap[gNum];
 
 #ifdef FONT_FS_AVAILABLE
@@ -610,7 +624,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
       if (dl) { drawFastHLine( xs, y + cy, dl, fg); dl = 0; }
     }
 
-    if (pbuffer) free(pbuffer);
+    //if (pbuffer) free(pbuffer);
     cursor_x += cm->gxAdvance;
     endWrite();
   }

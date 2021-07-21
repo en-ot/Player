@@ -26,7 +26,7 @@ FtpServer ftpSrv;
 
 void ftp_init()
 {
-    FtpServer().begin(SD, "esp32", "esp32"); //username, password for ftp.
+    ftpSrv.begin(SD, "esp32", "esp32"); //username, password for ftp.
 }
 
 
@@ -35,10 +35,10 @@ void ftp_begin()
 }
 
 
-void ftp_debug(const char* debug) 
-{
-    Serial.printf("ftpdebug: %s  \n", debug);
-}
+// void ftp_debug(const char* debug) 
+// {
+//     Serial.printf("ftpdebug: %s\n", debug);
+// }
 
 
 void ftp_loop()
@@ -46,8 +46,6 @@ void ftp_loop()
     ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!
 }
 
-#define NET_MODE_FTP 3
-#define NET_MODE_OTA 4
 
 void ftp_callback(int event)
 {
@@ -56,7 +54,7 @@ void ftp_callback(int event)
         main_pause();
         gui->net(NET_MODE_FTP);
     }
-    if ((event == FTP_CLIENT_DISCONNECTED) || (event == FTP_CLIENT_DISCONNECTED))
+    if ((event == FTP_CLIENT_DISCONNECTED) || (event == FTP_CLIENT_DISCONNECTING))
     {
         main_resume();
         gui->net(WiFi.getMode());
@@ -136,6 +134,7 @@ void httpupdater_begin()
 #include <Update.h>
 
 WebServer server(80);
+
 
 // Login page
 const char* loginIndex = "\

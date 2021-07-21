@@ -33,6 +33,8 @@
 
   fontMetrics gFont = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
 
+  uint8_t * linebuffer = nullptr;
+
   // These are for the metrics for each individual glyph (so we don't need to seek this in file and waste time)
   typedef struct
   {

@@ -88,6 +88,7 @@ Gui::Gui()
     //tft.loadFont(FONT_NAME1);
     gui_spr.loadFont(FONT_NAME1);
     //tft.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
+    //gui_spr.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
 
     initialized = true;
     DEBUG("LCD init OK\n");
@@ -177,7 +178,7 @@ gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsi
     gslc_tsElemRef* pElemRef = gslc_ElemCreateTxt(&gslc, elem_id, PAGE_INFO, rect, str, strsize, FONT_BUILTIN5X8);
     gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
     gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
-    gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
+    gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_LEFT);
     gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
     x += rect.w + gap;
     return pElemRef;
@@ -508,6 +509,7 @@ gslc_tsElemRef* create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pele
     gslc_ElemSetGlowCol                 (&gslc, pElemRef, COL_ERROR, COL_SEL, COL_TEXT_NORMAL);
     gslc_ElemXListboxItemsSetGap        (&gslc, pElemRef, 0, COL_ERROR);
     gslc_ElemXListboxItemsSetSize       (&gslc, pElemRef, BOX_W, XLISTBOX_SIZE_AUTO);
+    gslc_ElemSetRoundEn                 (&gslc, pElemRef, true);
     return pElemRef;
 }
 

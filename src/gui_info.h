@@ -49,7 +49,7 @@ enum {
 };
 
 #define SCROLL_DELAY 2000
-#define SCROLL_PERIOD 200
-#define SCROLL_STEP 15
+#define SCROLL_PERIOD 100
+#define SCROLL_STEP 10
 
 void page_info_init();

@@ -454,7 +454,6 @@ bool cmp(char * info, const char * tst, char ** p)
     if (strncmp(info, tst, len))
         return false;
 
-    len += 2;
     *p = &info[len];
 //    DEBUG("%s: %s", tst, p); 
     return true;
@@ -498,13 +497,13 @@ void display_loop()
 //        DEBUG("\n");
 
         char * p;
-             if (cmp(msg, "Artist", &p))    gui->artist(p);
-        else if (cmp(msg, "Band", &p))      gui->band(p);
-        else if (cmp(msg, "Album", &p))     gui->album(p);
-        else if (cmp(msg, "Title", &p))     gui->title(p);
-        else if (cmp(msg, "File", &p))      gui->file(p);
-        else if (cmp(msg, "Path", &p))      gui->path(p, fc->root_path.c_str());
-        else if (cmp(msg, "Index", &p))     gui->index(p);
+             if (cmp(msg, "Artist: ", &p))    gui->artist(p);
+        else if (cmp(msg, "Band: ", &p))      gui->band(p);
+        else if (cmp(msg, "Album: ", &p))     gui->album(p);
+        else if (cmp(msg, "Title: ", &p))     gui->title(p);
+        else if (cmp(msg, "File: ", &p))      gui->file(p);
+        else if (cmp(msg, "Path: ", &p))      gui->path(p, fc->root_path.c_str());
+        else if (cmp(msg, "Index: ", &p))     gui->index(p);
         return;
     }
 

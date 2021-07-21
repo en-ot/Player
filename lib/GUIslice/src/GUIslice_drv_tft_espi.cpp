@@ -404,6 +404,8 @@ bool gslc_DrvGetTxtSize(gslc_tsGui* pGui,gslc_tsFont* pFont,const char* pStr,gsl
 }
 
 
+static uint8_t spr_buf[320*40*2];
+
 extern TFT_eSprite gui_spr;
 
 bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,int16_t nY1,int8_t eTxtAlign,
@@ -455,13 +457,13 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   }
   gui_spr.setTextDatum(nDatum);
 
-  gui_spr.createSprite(nX1-nX0, nY1-nY0);
+  gui_spr.createSprite(nX1-nX0, nY1-nY0, 1, spr_buf);
   gui_spr.fillSprite(nColBgRaw);
   gui_spr.setTextWrap(false);
   gui_spr.drawString(pStr, nTxtX-scr_pos-nX0, nTxtY-nY0); //en-ot
   gui_spr.pushSprite(nX0, nY0);
   int16_t txt_width = gui_spr.textWidth(pStr);
-  gui_spr.deleteSprite();
+  gui_spr.deleteSprite(true);
 
   // m_disp.setViewport(nX0, nY0, nX1-nX0, nY1-nY0, false); //en-ot
   // int16_t txt_width = m_disp.drawString(pStr,nTxtX-scr_pos,nTxtY); //en-ot

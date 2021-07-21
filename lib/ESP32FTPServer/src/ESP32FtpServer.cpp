@@ -191,6 +191,14 @@ void FtpServer::disconnectClient() {
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::userIdentity() {
     if(strcmp(command, "USER")) client.println("500 Syntax error");
+
+    // if(ftp_debug) 
+    // {
+    //     ftp_debug(_FTP_USER.c_str());
+    //     ftp_debug(":");
+    //     ftp_debug(parameters);
+    // }
+
     if(strcmp(parameters, _FTP_USER.c_str()))
         client.println("530 user not found");
     else {
@@ -201,6 +209,8 @@ boolean FtpServer::userIdentity() {
     millisDelay = millis() + 100;  // delay of 100 ms
     return false;
 }
+
+
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::userPassword() {
 
@@ -221,14 +231,20 @@ boolean FtpServer::userPassword() {
     return true;
 
 }
+
+
 //----------------------------------------------------------------------------------------------------------------------
 uint8_t FtpServer::isConnected() {
     return client.connected();
 }
+
+
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::processCommand() {
 
     // ACCESS CONTROL COMMANDS
+    // if(ftp_debug) ftp_debug(command);
+    // if(ftp_debug) ftp_debug(parameters);
 
     if(!strcmp(command, "CDUP")) {       //  CDUP - Change to Parent Directory
         int todo;
@@ -321,7 +337,7 @@ boolean FtpServer::processCommand() {
         else                         client.println("504 Only F(ile) is suported");
     }
     else if(!strcmp(command, "TYPE")) {  //  TYPE - Data Type
-        if(!strcmp(parameters, "A"))       client.println("200 TYPE is now ASII");
+        if(!strcmp(parameters, "A"))       client.println("200 TYPE is now ASCII");
         else if(!strcmp(parameters, "I"))  client.println("200 TYPE is now 8-bit binary");
         else                               client.println("504 Unknow TYPE");
     }
@@ -351,20 +367,34 @@ boolean FtpServer::processCommand() {
         }
     }
     else if(!strcmp(command, "LIST")) {  //  LIST - List
+        //if(ftp_debug) ftp_debug("LIST");
         log_i("in LIST");
         if(!dataConnect())
+        {
             client.println("425 No data connection");
-        else {
+            log_i("1");
+        }
+        else 
+        {
             client.println("150 Accepted data connection");
+            log_i("2");
             uint16_t nm = 0;
             File dir = _fs->open(cwdName);
             if((!dir) || (!dir.isDirectory()))
+            {
                 client.println("550 Can't open directory " + String(cwdName));
-            else {
+                log_i("3");
+            }
+            else 
+            {
+                log_i("4");
                 File file = dir.openNextFile();
-                while(file) {
+                while(file) 
+                {
 #ifdef SDFATFS_USED
                     file.getName(chbuf, 256);
+                    log_i("%s", chbuf);
+                    //Serial.printf("%s\n", chbuf);
                     uint16_t pdate;
                     uint16_t ptime;
                     char tstr[20];
@@ -381,7 +411,6 @@ boolean FtpServer::processCommand() {
                     }
                     nm++;
                     file = dir.openNextFile();
-
 #else
                     String fn, fs;
                     fn = file.name();
