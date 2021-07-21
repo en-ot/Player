@@ -215,8 +215,10 @@ bool fav_switch(int fav_num, bool init)
     gui->redraw();
 
     playstack_init();
-    files_cache = new StrCache(FILES_CACHE_LINES);
-    dirs_cache = new StrCache(DIRS_CACHE_LINES);
+    if (!files_cache)
+        files_cache = new StrCache(FILES_CACHE_LINES);
+    if (!dirs_cache)
+        dirs_cache = new StrCache(DIRS_CACHE_LINES);
 
     start_file(next_file, FAIL_NEXT);
 

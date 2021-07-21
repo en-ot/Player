@@ -404,7 +404,7 @@ bool gslc_DrvGetTxtSize(gslc_tsGui* pGui,gslc_tsFont* pFont,const char* pStr,gsl
 }
 
 
-static uint8_t spr_buf[320*40*2];
+static uint8_t spr_buf[320*30*(16/8)+1];
 
 extern TFT_eSprite gui_spr;
 
