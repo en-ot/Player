@@ -29,6 +29,9 @@ extern TFT_eSPI m_disp;
 TFT_eSPI &tft = m_disp;
 static int16_t DebugOut(char ch) { Serial.write(ch); return 0; }
 
+TFT_eSprite gui_spr = TFT_eSprite(&tft);
+uint8_t * spr_buf;
+
 gslc_tsGui                  gslc;
 gslc_tsDriver               m_drv;
 gslc_tsFont                 fonts[FONT_MAX];
@@ -56,20 +59,20 @@ void gslc_init()
         return;
     }
 
-    if (!gslc_FontSet(&gslc, FONT_SMOOTH, GSLC_FONTREF_PTR, FONT_NAME1, 1))
-    {
-        DEBUG("gslc fontset2 error\n");
-        return;
-    }
+    // if (!gslc_FontSet(&gslc, FONT_SMOOTH, GSLC_FONTREF_PTR, FONT_NAME1, 1))
+    // {
+    //     DEBUG("gslc fontset2 error\n");
+    //     return;
+    // }
 }
 
-
-TFT_eSprite gui_spr = TFT_eSprite(&tft);
 
 //###############################################################
 Gui::Gui()
 {
     DEBUG("LCD init ...\n");
+    spr_buf = (uint8_t *)malloc(LCD_W*LINE_H*(16/8)+1);
+
     gslc_init();
     page_info_init();
     page_files_init();
@@ -86,9 +89,10 @@ Gui::Gui()
     gui_spr.setTextWrap(false, false);
 
     //tft.loadFont(FONT_NAME1);
-    gui_spr.loadFont(FONT_NAME1);
     //tft.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
-    //gui_spr.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
+
+    //gui_spr.loadFont(FONT_NAME1);
+    gui_spr.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
 
     initialized = true;
     DEBUG("LCD init OK\n");
@@ -490,9 +494,6 @@ void Gui::bluetooth(bool enabled)
 {
 
 }
-
-
-
 
 
 //###############################################################

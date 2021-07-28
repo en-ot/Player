@@ -382,7 +382,8 @@ typedef enum {
 ///   font structure (or NULL for default).
 typedef enum {
   GSLC_FONTREF_FNAME,      ///< Font reference is a filename (full path)
-  GSLC_FONTREF_PTR         ///< Font reference is a pointer to a font structure
+  GSLC_FONTREF_PTR,         ///< Font reference is a pointer to a font structure
+  GSLC_FONTREF_PART,        ///< Font partition
 } gslc_teFontRefType;
 
 

@@ -6,6 +6,11 @@
 // New anti-aliased (smoothed) font functions added below
 ////////////////////////////////////////////////////////////////////////////////////////
 
+//syntax highlight enable
+#ifndef TFT_ESPI_VERSION
+#include "TFT_eSPI.h"
+#endif
+
 /***************************************************************************************
 ** Function name:           loadFont
 ** Description:             loads parameters from a font vlw array in memory
@@ -18,9 +23,9 @@ void TFT_eSPI::loadFont(const uint8_t array[])
 }
 
 
-void TFT_eSPI::loadFont(String partitionName, esp_partition_subtype_t subtype)
+void TFT_eSPI::loadFont(const char * partitionName, esp_partition_subtype_t subtype)
 {
-  const esp_partition_t* fontpart = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, subtype, partitionName.c_str());
+  const esp_partition_t* fontpart = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, subtype, partitionName);
   if (!fontpart)
   {
     Serial.print("Font partition not found: ");
@@ -28,7 +33,8 @@ void TFT_eSPI::loadFont(String partitionName, esp_partition_subtype_t subtype)
     return;
   }
   
-  esp_err_t err = spi_flash_mmap(fontpart->address, 3*1024*1024, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
+  esp_err_t err = spi_flash_mmap(fontpart->address, fontpart->size, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
+//  esp_err_t err = spi_flash_mmap(fontpart->address, 4*1024*1024, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
   if (err)
   {
     Serial.print("Partition mapping error ");
@@ -195,6 +201,7 @@ void TFT_eSPI::loadMetrics(void)
 {
   uint32_t headerPtr = 24;
   uint32_t bitmapPtr = headerPtr + gFont.gCount * 28;
+//    Serial.printf("load %08X Heap: %d\n", gFont.gArray, ESP.getFreeHeap());
 
 #if defined (ESP32) && defined (CONFIG_SPIRAM_SUPPORT)
   if ( psramFound() )
@@ -291,7 +298,7 @@ void TFT_eSPI::loadMetrics(void)
     yield();
   }
 
-  linebuffer = (uint8_t *)malloc(max_width);  
+  glyph_line_buffer = (uint8_t *)malloc(max_width);  
 
   gFont.yAdvance = gFont.maxAscent + gFont.maxDescent;
 
@@ -341,10 +348,10 @@ void TFT_eSPI::unloadFont( void )
   //   gdX = NULL;
   // }
 
-  if (linebuffer)
+  if (glyph_line_buffer)
   {
-    free(linebuffer);
-    linebuffer = nullptr;
+    free(glyph_line_buffer);
+    glyph_line_buffer = nullptr;
   }
 
   if (gBitmap)
@@ -366,6 +373,8 @@ void TFT_eSPI::unloadFont( void )
   }
 
   fontLoaded = false;
+
+//    Serial.printf("unload Heap: %d\n", ESP.getFreeHeap());
 }
 
 
@@ -549,7 +558,7 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     if (textwrapY && ((cursor_y + gFont.yAdvance) >= height())) cursor_y = 0;
     if (cursor_x == 0) cursor_x -= cm->gdX;
 
-    uint8_t* pbuffer = linebuffer;//(uint8_t*)malloc(cm->gWidth);
+    uint8_t* pbuffer = glyph_line_buffer;//(uint8_t*)malloc(cm->gWidth);
     const uint8_t* gPtr = (const uint8_t*) gFont.gArray + gBitmap[gNum];
 
 #ifdef FONT_FS_AVAILABLE

@@ -622,6 +622,14 @@ void serial_loop()
         // }
     }
 
+    if (r == 'm')
+    {
+        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        heap_caps_print_heap_info(MALLOC_CAP_EXEC);
+        heap_caps_print_heap_info(MALLOC_CAP_32BIT);
+    }
+
+
     if (r == 'f')
     {
         sound_stop();

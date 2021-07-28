@@ -359,7 +359,7 @@ bool gslc_DrvSetClipRect(gslc_tsGui* pGui,gslc_tsRect* pRect)
 
 const void* gslc_DrvFontAdd(gslc_teFontRefType eFontRefType,const void* pvFontRef,uint16_t nFontSz)
 {
-  if (eFontRefType == GSLC_FONTREF_PTR  || eFontRefType  == GSLC_FONTREF_FNAME) {
+  if (eFontRefType == GSLC_FONTREF_PTR  || eFontRefType  == GSLC_FONTREF_FNAME || eFontRefType  == GSLC_FONTREF_PART) {
     // Return pointer to Adafruit-GFX GFXfont structure
     return pvFontRef;
   }
@@ -404,9 +404,9 @@ bool gslc_DrvGetTxtSize(gslc_tsGui* pGui,gslc_tsFont* pFont,const char* pStr,gsl
 }
 
 
-static uint8_t spr_buf[320*30*(16/8)+1];
-
+extern uint8_t *spr_buf;
 extern TFT_eSprite gui_spr;
+const void* cur_font = nullptr;
 
 bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,int16_t nY1,int8_t eTxtAlign,
         gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt, gslc_tsColor colBg=GSLC_COL_BLACK, int16_t scr_pos=0)
@@ -422,20 +422,33 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   #endif
 
   // TFT_eSPI font API differs from Adafruit-GFX's setFont() API
-  if (pFont->pvFont == NULL) {
-    gui_spr.setTextFont(1);
-  } else {
+    if (pFont->pvFont == NULL) {
+        gui_spr.setTextFont(1);
+    } else {
     #ifdef SMOOTH_FONT
-      if (pFont->eFontRefType  == GSLC_FONTREF_FNAME){
-//en-ot        gui_spr.loadFont((const char*)pFont->pvFont);
-      } else {
-        gui_spr.setFreeFont((const GFXfont *)pFont->pvFont);
-      }
+        if (pFont->pvFont != cur_font)
+        {
+            if (cur_font)
+            {
+                Serial.printf("Unload %08X\n", cur_font);
+                gui_spr.unloadFont();
+            }
+            if (pFont->eFontRefType  == GSLC_FONTREF_FNAME) {
+                gui_spr.loadFont((const char*)pFont->pvFont);
+            } else if (pFont->eFontRefType  == GSLC_FONTREF_PTR) {
+                gui_spr.loadFont((const uint8_t*)pFont->pvFont);
+            } else if (pFont->eFontRefType  == GSLC_FONTREF_PART) {
+                gui_spr.loadFont((const char *)pFont->pvFont, ESP_PARTITION_SUBTYPE_DATA_FAT);
+            } else {
+                gui_spr.setFreeFont((const GFXfont *)pFont->pvFont);
+            }
+        }
     #else
-      gui_spr.setFreeFont((const GFXfont *)pFont->pvFont);
+        gui_spr.setFreeFont((const GFXfont *)pFont->pvFont);
     #endif
-  }
-  gui_spr.setTextSize(nTxtScale);
+    }
+    cur_font = pFont->pvFont;
+    gui_spr.setTextSize(nTxtScale);
 
   // Default to mid-mid datum
   int8_t  nDatum = MC_DATUM;
@@ -457,6 +470,7 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
   }
   gui_spr.setTextDatum(nDatum);
 
+//    Serial.printf("spr_buf %08X\n", spr_buf);
   gui_spr.createSprite(nX1-nX0, nY1-nY0, 1, spr_buf);
   gui_spr.fillSprite(nColBgRaw);
   gui_spr.setTextWrap(false);

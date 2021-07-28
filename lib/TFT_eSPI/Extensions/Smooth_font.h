@@ -9,7 +9,7 @@
   void     loadFont(String fontName, fs::FS &ffs);
 #endif
   void     loadFont(String fontName, bool flash = true);
-  void     loadFont(String partitionName, esp_partition_subtype_t subtype);
+  void     loadFont(const char * partitionName, esp_partition_subtype_t subtype);
 
   void     unloadFont( void );
   bool     getUnicodeIndex(uint16_t unicode, uint16_t *index);
@@ -33,7 +33,7 @@
 
   fontMetrics gFont = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
 
-  uint8_t * linebuffer = nullptr;
+  uint8_t * glyph_line_buffer = nullptr;
 
   // These are for the metrics for each individual glyph (so we don't need to seek this in file and waste time)
   typedef struct

@@ -1,12 +1,10 @@
+#include "network.h"
+
+#ifdef NETWORK_ENABLED
+
 #include <WiFi.h>
 #include <ESPmDNS.h>
 
-#include "debug.h"
-#include "sound.h"
-#include "gui.h"
-#include "globals.h"
-
-#include "network.h"
 #include "credentials.h"
 
 const char* host = "player";
@@ -16,6 +14,15 @@ const char* password = WIFI_PASSWD;
 const char* ap_ssid = "player";
 const char* ap_password = "player_admin";
 #define AP_IP 192,168,1,1
+
+#endif
+
+#include "debug.h"
+#include "sound.h"
+#include "gui.h"
+#include "globals.h"
+
+
 
 
 //###############################################################
@@ -65,6 +72,7 @@ void ftp_callback(int event)
 
 
 //###############################################################
+#ifdef NETWORK_ENABLED
 void ota_onEnd()
 {
     gui->message("End");
@@ -105,7 +113,7 @@ void ota_onError(int error, const char * errtxt)
     gui->loop();
     main_resume();
 }
-
+#endif
 
 //###############################################################
 #ifdef HTTP_UPDATER
@@ -336,14 +344,20 @@ void arduinoota_init()
 //###############################################################
 bool network_connected1 = false;
 
+
 bool network_connected()
 {
+#ifdef NETWORK_ENABLED
     if (WiFi.getMode() == WIFI_AP)
         return true;
     return WiFi.isConnected() && network_connected1;
+#else
+    return false;
+#endif
 }
 
 
+#ifdef NETWORK_ENABLED
 IPAddress wifi_ip()
 {
     IPAddress ip;
@@ -447,15 +461,18 @@ void services_loop()
 }
 
 
+#endif
 //###############################################################
 
 
 void network_init()
 {
+#ifdef NETWORK_ENABLED
     wifi_ap();
     //wifi_sta();
 
     services_init();
+#endif
 }
 
 
@@ -463,6 +480,7 @@ uint32_t net_t0 = 0;
 
 void network_reconnect(bool ap)
 {
+#ifdef NETWORK_ENABLED
     wifi_off();
 
     if (ap)
@@ -474,24 +492,30 @@ void network_reconnect(bool ap)
         wifi_sta();
     }
     net_t0 = millis();
+#endif
 }
 
 
 bool network_address(char * buf, int len)
 {
+#ifdef NETWORK_ENABLED
     IPAddress ip = wifi_ip();
     if (!ip)
         return false;
     
     snprintf(buf, len, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+#endif
     return true;
 }
 
+
+//static uint8_t xxx[50000];
 
 #define NET_TIMEOUT 10000
 
 void network_loop()
 {
+#ifdef NETWORK_ENABLED
     if (network_connected1)
     {
         services_loop();
@@ -521,5 +545,10 @@ void network_loop()
 
     gui->net(WiFi.getMode());
     gui->sys_set_update();
+#else
+    // xxx = (uint8_t*)malloc(100000);
+    //xxx[0]++;
+#endif
+
 }
 

@@ -7,7 +7,7 @@ void DEBUG_DUMP8(const void * addr, int len, int wdt)
     int i;
     while (len)
     {
-        DEBUG("%08X: ", (uint32_t)addr);
+        DEBUG("%08X: ", (uint32_t)ptr);
         for (i = 0; i < wdt; i++)
         {
             DEBUG("%02X ", *ptr);
@@ -24,7 +24,7 @@ void DEBUG_DUMP32(const void * addr, int len, int wdt)
     int i;
     while (len)
     {
-        DEBUG("%08X: ", (uint32_t)addr);
+        DEBUG("%08X: ", (uint32_t)ptr);
         for (i = 0; i < wdt; i++)
         {
             DEBUG("%08X ", *ptr);

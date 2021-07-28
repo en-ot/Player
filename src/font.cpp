@@ -6,6 +6,6 @@
 #include "Fonts/x318.h"
 
 #elif (FONTSIZE==24)
-#include "Fonts/x324.h"
+//#include "Fonts/x324.h"
 
 #endif

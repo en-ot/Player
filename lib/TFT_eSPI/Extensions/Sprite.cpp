@@ -10,6 +10,11 @@
 // there is a nett performance gain by using swapped bytes.
 ***************************************************************************************/
 
+//syntax highlight enable
+#ifndef TFT_ESPI_VERSION
+#include "TFT_eSPI.h"
+#endif
+
 /***************************************************************************************
 ** Function name:           TFT_eSprite
 ** Description:             Class constructor
@@ -68,6 +73,7 @@ void* TFT_eSprite::createSprite(int16_t w, int16_t h, uint8_t frames, uint8_t * 
     if (!mem)
     {
         _img8   = (uint8_t*) callocSprite(w, h, frames);
+Serial.println("error: alloc!!!!");
     }
     else
     {
@@ -385,7 +391,7 @@ void TFT_eSprite::deleteSprite(bool keep)
   if (_colorMap != nullptr)
   {
     free(_colorMap);
-	_colorMap = nullptr;
+    _colorMap = nullptr;
   }
 
   if (_created)
@@ -2418,10 +2424,20 @@ void TFT_eSprite::drawGlyph(uint16_t code)
 
   uint16_t gNum = 0;
   bool found = getUnicodeIndex(code, &gNum);
+  bool dp = false;
+
+  if (code == 0x8A08 || code == 0x044B || code == 0x9CE5) dp = true;
+  if (dp) Serial.printf("code: %04X\n", code);
 
   if (found)
   {
     CharMetrics * cm = getCharMetrics(gNum);
+    if (dp) 
+    {
+        Serial.printf("gnum: %d, metrics: %08X\n", gNum, cm);
+        Serial.printf("gdx%d gdy%d w%d h%d adv%d\n", cm->gdX, cm->gdY, cm->gWidth, cm->gHeight, cm->gxAdvance);
+        Serial.printf("gArray: %08X, disp:%08X\n", gFont.gArray, gBitmap[gNum]);
+    }
 
     bool newSprite = !_created;
 
@@ -2444,8 +2460,16 @@ void TFT_eSprite::drawGlyph(uint16_t code)
       if ( cursor_x == 0) cursor_x -= cm->gdX;
     }
 
-    uint8_t* pbuffer = linebuffer;//(uint8_t*)malloc(cm->gWidth);
+    uint8_t* pbuffer = glyph_line_buffer;//(uint8_t*)malloc(cm->gWidth);
     const uint8_t* gPtr = (const uint8_t*) gFont.gArray + gBitmap[gNum];
+    
+    if (dp)
+    {
+        Serial.printf("addr: %08X\n", gPtr);
+void DEBUG_DUMP32(const void * addr, int len, int wdt=4);        
+        uint32_t addr1 = (uint32_t)gPtr & ~3;
+        DEBUG_DUMP32((void *)addr1, 32);
+    }
 
 #ifdef FONT_FS_AVAILABLE
     if (fs_font) {

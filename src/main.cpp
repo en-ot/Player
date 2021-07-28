@@ -277,6 +277,18 @@ void fav_init()
 
 //###############################################################
 uint32_t gui_sys_freeheap;
+uint32_t gui_sys_minheap;
+//uint32_t gui_sys_largestheap;
+
+void sys_control(int16_t line, int key)
+{
+    int16_t nItem = line-1;
+    if (nItem == 2)
+    {
+        network_reconnect(key == 1);
+    }
+}
+
 
 bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
@@ -296,14 +308,6 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
             break;
         
         case 2:
-            snprintf(pStrItem, nStrItemLen, "Free Prefs: %d", prefs_free());
-            break;
-        
-        case 3:
-            snprintf(pStrItem, nStrItemLen, "Free Heap: %d", gui_sys_freeheap);
-            break;
-
-        case 4:
             pos = strlcpy(pStrItem, "IP: ", nStrItemLen);
             if ((network_connected()))
             {
@@ -314,41 +318,52 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
                 strlcat(pStrItem, "not connected", nStrItemLen);
             }
             break;
+
+        case 3:
+            snprintf(pStrItem, nStrItemLen, "Free Prefs: %d", prefs_free());
+            break;
+        
+        case 4:
+            snprintf(pStrItem, nStrItemLen, "Free Heap: %d", gui_sys_freeheap);
+            break;
+
+        case 5:
+            snprintf(pStrItem, nStrItemLen, "Min Free Heap: %d", gui_sys_minheap);
+            break;
+
+        // case 6:
+        //     snprintf(pStrItem, nStrItemLen, "Largest Free Heap: %d", gui_sys_largestheap);
+        //     break;
     }
     return true;
 }
 
 
-bool sys_tick(void* pvGui, void* pvElemRef)
-{
-    static uint32_t t0 = 0;
-    uint32_t t = millis();
-    if ((int32_t)(t - t0) > 1000)
-    {
-        gui_sys_freeheap = ESP.getFreeHeap();
-        gui->sys_set_update();
-        // DEBUG("Free heap: %d\n", freeheap);
-        t0 = t;
-    }
-    return true;
-}
+// bool sys_tick(void* pvGui, void* pvElemRef)
+// {
+//     static uint32_t t0 = 0;
+//     uint32_t t = millis();
+//     if ((int32_t)(t - t0) > 1000)
+//     {
+//         // portDISABLE_INTERRUPTS();
+//         // uint32_t caps = MALLOC_CAP_DEFAULT;
+//         // // gui_sys_freeheap = heap_caps_get_free_size(caps);
+//         // // gui_sys_minheap =  heap_caps_get_minimum_free_size(caps);
+//         // // gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
+//         // portENABLE_INTERRUPTS();
+        
+//         gui->sys_set_update();
+//         // DEBUG("Free heap: %d\n", freeheap);
+//         t0 = t;
+//     }
+//     return true;
+// }
 
 
 void gui_sys_init()
 {
-    gui->sys_box(5, sys_get_item, sys_tick);
+    gui->sys_box(6, sys_get_item, 0);//sys_tick);
 }
-
-
-void sys_control(int16_t line, int key)
-{
-    int16_t nItem = line-1;
-    if (nItem == 4)
-    {
-        network_reconnect(key == 1);
-    }
-}
-
 
 
 //###############################################################
@@ -389,9 +404,17 @@ void setup()
     }
     DEBUG("\n");
 
+    // uint8_t *p1 = (uint8_t*)malloc(50000);
+    // Serial.printf("%08X\n", (int)p1);
+    // uint8_t *p2 = (uint8_t*)malloc(30000);
+    // Serial.printf("%08X\n", (int)p2);
+
     begin("gui");
     gui = new Gui();
     end(0);
+
+    // free(p1);
+    // free(p2);
 
     begin("sound");
     sound_setup();
@@ -441,7 +464,7 @@ void setup()
     network_init();
     end(10);
 
-    begin("start");
+    begin("start 鳥");
     fav_switch(cur_fav_num, true);
     end(11);
 }
@@ -564,17 +587,26 @@ void memory_loop()
         return;
 
     t0 = t;
-    uint32_t freeheap = ESP.getFreeHeap();
-    if (freeheap < 50000)
-    {
-       need_print = true;
-    }
+
+    uint32_t caps = MALLOC_CAP_DEFAULT;
+    gui_sys_freeheap = heap_caps_get_free_size(caps);
+    gui_sys_minheap =  heap_caps_get_minimum_free_size(caps);
+    //gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
+    gui->sys_set_update();
+
+    Serial.printf("free %d, min %d\n", gui_sys_freeheap, gui_sys_minheap);
+
+    // uint32_t freeheap = ESP.getFreeHeap();
+    // if (freeheap < 50000)
+    // {
+    //    need_print = true;
+    // }
     
-    if (need_print)
-    {
-        need_print = false;
-        DEBUG("Memory free: %i\n", freeheap);
-    }
+    // if (need_print)
+    // {
+    //     need_print = false;
+    //     DEBUG("Memory free: %i\n", freeheap);
+    // }
 }
 
 

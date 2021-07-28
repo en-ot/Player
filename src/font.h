@@ -12,8 +12,8 @@
 extern const uint8_t x318[];
 
 #elif (FONTSIZE==24)
-#define FONT_NAME1 x324
-extern const uint8_t x324[];
+// #define FONT_NAME1 x324
+// extern const uint8_t x324[];
 
 #endif // FONTSIZE==
 
