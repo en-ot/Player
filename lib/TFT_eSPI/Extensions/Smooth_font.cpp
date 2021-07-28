@@ -188,9 +188,13 @@ TFT_eSPI::CharMetrics * TFT_eSPI::getCharMetrics(uint16_t gNum)
   cm->gxAdvance =  (uint8_t)readInt32(); // xAdvance - to move x cursor
   cm->gdY       =  (int16_t)readInt32(); // y delta from baseline
   cm->gdX       =   (int8_t)readInt32(); // x delta from cursor
+  cm->gBitmap   = 24 + gFont.gCount*28 + readInt32();
 
   return cm;
 }
+
+
+void * xmalloc(size_t __size);
 
 /***************************************************************************************
 ** Function name:           loadMetrics
@@ -212,7 +216,7 @@ void TFT_eSPI::loadMetrics(void)
     // gxAdvance =  (uint8_t*)ps_malloc( gFont.gCount );    // xAdvance - to move x cursor
     // gdY       =  (int16_t*)ps_malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
     // gdX       =   (int8_t*)ps_malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
-    gBitmap   = (uint32_t*)ps_malloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
+//    gBitmap   = (uint32_t*)ps_malloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
   }
   else
 #endif
@@ -223,7 +227,7 @@ void TFT_eSPI::loadMetrics(void)
     // gxAdvance =  (uint8_t*)malloc( gFont.gCount );    // xAdvance - to move x cursor
     // gdY       =  (int16_t*)malloc( gFont.gCount * 2); // offset from bitmap top edge from lowest point in any character
     // gdX       =   (int8_t*)malloc( gFont.gCount );    // offset for bitmap left edge relative to cursor X
-    gBitmap   = (uint32_t*)malloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
+//    gBitmap   = (uint32_t*)xmalloc( gFont.gCount * 4); // seek pointer to glyph bitmap in the file
   }
 
 #ifdef SHOW_ASCENT_DESCENT
@@ -290,7 +294,12 @@ void TFT_eSPI::loadMetrics(void)
       max_width = cm->gWidth;
     }
 
-    gBitmap[gNum] = bitmapPtr;
+//    gBitmap[gNum] = bitmapPtr;
+
+    if (cm->gBitmap != bitmapPtr && gNum < 100)
+    {
+        Serial.printf("%d %d!=%d\n", gNum, cm->gBitmap, bitmapPtr);
+    }
 
     bitmapPtr += cm->gWidth * cm->gHeight;
 
@@ -298,7 +307,8 @@ void TFT_eSPI::loadMetrics(void)
     yield();
   }
 
-  glyph_line_buffer = (uint8_t *)malloc(max_width);  
+//todo: static buffer
+  glyph_line_buffer = (uint8_t *)xmalloc(max_width);  
 
   gFont.yAdvance = gFont.maxAscent + gFont.maxDescent;
 
@@ -354,11 +364,11 @@ void TFT_eSPI::unloadFont( void )
     glyph_line_buffer = nullptr;
   }
 
-  if (gBitmap)
-  {
-    free(gBitmap);
-    gBitmap = NULL;
-  }
+//   if (gBitmap)
+//   {
+//     free(gBitmap);
+//     gBitmap = NULL;
+//   }
 
   gFont.gArray = nullptr;
 
@@ -559,12 +569,12 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     if (cursor_x == 0) cursor_x -= cm->gdX;
 
     uint8_t* pbuffer = glyph_line_buffer;//(uint8_t*)malloc(cm->gWidth);
-    const uint8_t* gPtr = (const uint8_t*) gFont.gArray + gBitmap[gNum];
+    const uint8_t* gPtr = (const uint8_t*) gFont.gArray + cm->gBitmap;
 
 #ifdef FONT_FS_AVAILABLE
     if (fs_font)
     {
-      fontFile.seek(gBitmap[gNum], fs::SeekSet); // This is taking >30ms for a significant position shift
+      fontFile.seek(cm->gBitmap, fs::SeekSet); // This is taking >30ms for a significant position shift
     }
 #endif
 

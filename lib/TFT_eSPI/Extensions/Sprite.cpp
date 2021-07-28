@@ -156,6 +156,7 @@ TFT_eSprite::~TFT_eSprite(void)
 #endif
 }
 
+void * xcalloc(size_t __nmemb, size_t __size);
 
 /***************************************************************************************
 ** Function name:           callocSprite
@@ -182,7 +183,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     else
 #endif
     {
-      ptr8 = ( uint8_t*) calloc(frames * w * h + frames, sizeof(uint16_t));
+      ptr8 = ( uint8_t*) xcalloc(frames * w * h + frames, sizeof(uint16_t));
       //Serial.println("Normal RAM");
     }
   }
@@ -193,7 +194,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     if ( psramFound() && _psram_enable ) ptr8 = ( uint8_t*) ps_calloc(frames * w * h + frames, sizeof(uint8_t));
     else
 #endif
-    ptr8 = ( uint8_t*) calloc(frames * w * h + frames, sizeof(uint8_t));
+    ptr8 = ( uint8_t*) xcalloc(frames * w * h + frames, sizeof(uint8_t));
   }
 
   else if (_bpp == 4)
@@ -204,7 +205,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     if ( psramFound() && _psram_enable ) ptr8 = ( uint8_t*) ps_calloc(((frames * w * h) >> 1) + frames, sizeof(uint8_t));
     else
 #endif
-    ptr8 = ( uint8_t*) calloc(((frames * w * h) >> 1) + frames, sizeof(uint8_t));
+    ptr8 = ( uint8_t*) xcalloc(((frames * w * h) >> 1) + frames, sizeof(uint8_t));
   }
 
   else // Must be 1 bpp
@@ -221,7 +222,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     if ( psramFound() && _psram_enable ) ptr8 = ( uint8_t*) ps_calloc(frames * (w>>3) * h + frames, sizeof(uint8_t));
     else
 #endif
-    ptr8 = ( uint8_t*) calloc(frames * (w>>3) * h + frames, sizeof(uint8_t));
+    ptr8 = ( uint8_t*) xcalloc(frames * (w>>3) * h + frames, sizeof(uint8_t));
   }
 
   return ptr8;
@@ -247,7 +248,7 @@ void TFT_eSprite::createPalette(uint16_t colorMap[], uint8_t colors)
   }
 
   // Allocate and clear memory for 16 color map
-  _colorMap = (uint16_t *)calloc(16, sizeof(uint16_t));
+  _colorMap = (uint16_t *)xcalloc(16, sizeof(uint16_t));
 
   if (colors > 16) colors = 16;
 
@@ -272,7 +273,7 @@ void TFT_eSprite::createPalette(const uint16_t colorMap[], uint8_t colors)
   }
 
   // Allocate and clear memory for 16 color map
-  _colorMap = (uint16_t *)calloc(16, sizeof(uint16_t));
+  _colorMap = (uint16_t *)xcalloc(16, sizeof(uint16_t));
 
   if (colors > 16) colors = 16;
 
@@ -2436,7 +2437,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
     {
         Serial.printf("gnum: %d, metrics: %08X\n", gNum, cm);
         Serial.printf("gdx%d gdy%d w%d h%d adv%d\n", cm->gdX, cm->gdY, cm->gWidth, cm->gHeight, cm->gxAdvance);
-        Serial.printf("gArray: %08X, disp:%08X\n", gFont.gArray, gBitmap[gNum]);
+        Serial.printf("gArray: %08X, disp:%08X\n", gFont.gArray, cm->gBitmap);
     }
 
     bool newSprite = !_created;
@@ -2461,7 +2462,7 @@ void TFT_eSprite::drawGlyph(uint16_t code)
     }
 
     uint8_t* pbuffer = glyph_line_buffer;//(uint8_t*)malloc(cm->gWidth);
-    const uint8_t* gPtr = (const uint8_t*) gFont.gArray + gBitmap[gNum];
+    const uint8_t* gPtr = (const uint8_t*) gFont.gArray + cm->gBitmap;
     
     if (dp)
     {
@@ -2473,7 +2474,7 @@ void DEBUG_DUMP32(const void * addr, int len, int wdt=4);
 
 #ifdef FONT_FS_AVAILABLE
     if (fs_font) {
-      fontFile.seek(gBitmap[gNum], fs::SeekSet); // This is slow for a significant position shift!
+      fontFile.seek(cm->gBitmap, fs::SeekSet); // This is slow for a significant position shift!
     }
 #endif
 

@@ -34,3 +34,20 @@ void DEBUG_DUMP32(const void * addr, int len, int wdt)
         DEBUG("\n");
     }
 }
+
+
+void * xmalloc(size_t __size)
+{
+    void * p = malloc(__size);
+    Serial.printf("malloc %08X[%d]\n", (unsigned int)p, __size);
+    return p;
+}
+
+
+void * xcalloc(size_t __nmemb, size_t __size)
+{
+    void * p = calloc(__nmemb, __size);
+    Serial.printf("calloc %08X[%dx%d]\n", (unsigned int)p, __nmemb, __size);
+    return p;
+}
+
