@@ -33,7 +33,8 @@
 
   fontMetrics gFont = { nullptr, 0, 0, 0, 0, 0, 0, 0 };
 
-  uint8_t * glyph_line_buffer = nullptr;
+#define MAX_GLYPH_WIDTH 30
+    uint8_t glyph_line_buffer[MAX_GLYPH_WIDTH];
 
   // These are for the metrics for each individual glyph (so we don't need to seek this in file and waste time)
   typedef struct
@@ -66,8 +67,6 @@
 #endif
 
   private:
-
-  void     loadMetrics(void);
 
   uint32_t readInt32(void);
 
