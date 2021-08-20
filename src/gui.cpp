@@ -67,6 +67,32 @@ void gslc_init()
 }
 
 
+void check_font()
+{
+    return;
+//     uint8_t *font_addr = (uint8_t *)gui_spr.gFont.gArray;
+//     Serial.printf("font addr: %08X, chars:%d\n", (uint32_t)font_addr, gui_spr.gFont.gCount);
+//     int i;
+//     for (i = 0; i < gui_spr.gFont.gCount; i++)
+//     {
+//         TFT_eSPI::CharMetrics * cm = gui_spr.getCharMetrics(i);
+//         const uint8_t* gPtr = (const uint8_t*) gui_spr.gFont.gArray + cm->gBitmap;
+//         uint32_t data = *(uint32_t *)((uint32_t)gPtr & ~3);
+//         if (data == 0xBAD00BAD)
+//         {
+//             Serial.printf("error char: %d, code: %d, addr: %08X\n", i, cm->gUnicode, (uint32_t)gPtr);
+//         }
+//         if (cm->gUnicode == 0x9CE5 || data == 0xBAD00BAD)
+//         {
+// //            DEBUG_DUMP32((void *)(((uint32_t)gPtr & ~0x7FF) - 16), 64);
+//         }
+//         if (data == 0xBAD00BAD)
+//             return;
+//     }
+//     Serial.printf("all chars are ok\n");
+}
+
+
 //###############################################################
 Gui::Gui()
 {
@@ -91,8 +117,20 @@ Gui::Gui()
     //tft.loadFont(FONT_NAME1);
     //tft.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
 
+    spi_flash_mmap_dump();
+    uint32_t free1 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_INST);
+    uint32_t free2 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);
+    Serial.printf("free inst:%d data:%d\n", free1, free2);
+
     //gui_spr.loadFont(FONT_NAME1);
     gui_spr.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
+
+    spi_flash_mmap_dump();
+    free1 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_INST);
+    free2 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);
+    Serial.printf("free inst:%d data:%d\n", free1, free2);
+
+    check_font();
 
     initialized = true;
     DEBUG("LCD init OK\n");

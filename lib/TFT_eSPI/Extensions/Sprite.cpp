@@ -156,7 +156,6 @@ TFT_eSprite::~TFT_eSprite(void)
 #endif
 }
 
-void * xcalloc(size_t __nmemb, size_t __size);
 
 /***************************************************************************************
 ** Function name:           callocSprite
@@ -183,7 +182,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     else
 #endif
     {
-      ptr8 = ( uint8_t*) xcalloc(frames * w * h + frames, sizeof(uint16_t));
+      ptr8 = ( uint8_t*) calloc(frames * w * h + frames, sizeof(uint16_t));
       //Serial.println("Normal RAM");
     }
   }
@@ -194,7 +193,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     if ( psramFound() && _psram_enable ) ptr8 = ( uint8_t*) ps_calloc(frames * w * h + frames, sizeof(uint8_t));
     else
 #endif
-    ptr8 = ( uint8_t*) xcalloc(frames * w * h + frames, sizeof(uint8_t));
+    ptr8 = ( uint8_t*) calloc(frames * w * h + frames, sizeof(uint8_t));
   }
 
   else if (_bpp == 4)
@@ -205,7 +204,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     if ( psramFound() && _psram_enable ) ptr8 = ( uint8_t*) ps_calloc(((frames * w * h) >> 1) + frames, sizeof(uint8_t));
     else
 #endif
-    ptr8 = ( uint8_t*) xcalloc(((frames * w * h) >> 1) + frames, sizeof(uint8_t));
+    ptr8 = ( uint8_t*) calloc(((frames * w * h) >> 1) + frames, sizeof(uint8_t));
   }
 
   else // Must be 1 bpp
@@ -222,7 +221,7 @@ void* TFT_eSprite::callocSprite(int16_t w, int16_t h, uint8_t frames)
     if ( psramFound() && _psram_enable ) ptr8 = ( uint8_t*) ps_calloc(frames * (w>>3) * h + frames, sizeof(uint8_t));
     else
 #endif
-    ptr8 = ( uint8_t*) xcalloc(frames * (w>>3) * h + frames, sizeof(uint8_t));
+    ptr8 = ( uint8_t*) calloc(frames * (w>>3) * h + frames, sizeof(uint8_t));
   }
 
   return ptr8;
@@ -248,7 +247,7 @@ void TFT_eSprite::createPalette(uint16_t colorMap[], uint8_t colors)
   }
 
   // Allocate and clear memory for 16 color map
-  _colorMap = (uint16_t *)xcalloc(16, sizeof(uint16_t));
+  _colorMap = (uint16_t *)calloc(16, sizeof(uint16_t));
 
   if (colors > 16) colors = 16;
 
@@ -273,7 +272,7 @@ void TFT_eSprite::createPalette(const uint16_t colorMap[], uint8_t colors)
   }
 
   // Allocate and clear memory for 16 color map
-  _colorMap = (uint16_t *)xcalloc(16, sizeof(uint16_t));
+  _colorMap = (uint16_t *)calloc(16, sizeof(uint16_t));
 
   if (colors > 16) colors = 16;
 
@@ -2425,20 +2424,10 @@ void TFT_eSprite::drawGlyph(uint16_t code)
 
   uint16_t gNum = 0;
   bool found = getUnicodeIndex(code, &gNum);
-  bool dp = false;
-
-  if (code == 0x8A08 || code == 0x044B || code == 0x9CE5) dp = true;
-  if (dp) Serial.printf("code: %04X\n", code);
 
   if (found)
   {
     CharMetrics * cm = getCharMetrics(gNum);
-    if (dp) 
-    {
-        Serial.printf("gnum: %d, metrics: %08X\n", gNum, cm);
-        Serial.printf("gdx%d gdy%d w%d h%d adv%d\n", cm->gdX, cm->gdY, cm->gWidth, cm->gHeight, cm->gxAdvance);
-        Serial.printf("gArray: %08X, disp:%08X\n", gFont.gArray, cm->gBitmap);
-    }
 
     bool newSprite = !_created;
 
@@ -2461,20 +2450,21 @@ void TFT_eSprite::drawGlyph(uint16_t code)
       if ( cursor_x == 0) cursor_x -= cm->gdX;
     }
 
-    uint8_t* pbuffer = glyph_line_buffer;//(uint8_t*)malloc(cm->gWidth);
-    const uint8_t* gPtr = (const uint8_t*) gFont.gArray + cm->gBitmap;
-    
-    if (dp)
-    {
-        Serial.printf("addr: %08X\n", gPtr);
-void DEBUG_DUMP32(const void * addr, int len, int wdt=4);        
-        uint32_t addr1 = (uint32_t)gPtr & ~3;
-        DEBUG_DUMP32((void *)addr1, 32);
-    }
+    uint8_t* pbuffer = glyph_buffer;
 
 #ifdef FONT_FS_AVAILABLE
     if (fs_font) {
       fontFile.seek(cm->gBitmap, fs::SeekSet); // This is slow for a significant position shift!
+      fontFile.read(pbuffer, cm->gWidth * cm->gHeight);
+    }
+#else
+    if (font_handle)
+    {
+        spi_flash_read(font_raw + cm->gBitmap, pbuffer, cm->gWidth * cm->gHeight);
+    }
+    else
+    {
+        pbuffer = (uint8_t*)gFont.gArray + cm->gBitmap;
     }
 #endif
 
@@ -2486,20 +2476,10 @@ void DEBUG_DUMP32(const void * addr, int len, int wdt=4);
 
     for (int32_t y = 0; y < cm->gHeight; y++)
     {
-#ifdef FONT_FS_AVAILABLE
-      if (fs_font) {
-        fontFile.read(pbuffer, cm->gWidth);
-      }
-      else
-#endif
-      {
-        memcpy_I(pbuffer, gPtr, cm->gWidth);
-        gPtr += cm->gWidth;
-      }
-
       for (int32_t x = 0; x < cm->gWidth; x++)
       {
-        pixel = pbuffer[x];
+        pixel = *pbuffer;
+        pbuffer++;
 
         if (pixel)
         {

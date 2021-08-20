@@ -85,4 +85,6 @@ class Gui
 extern Gui * gui;
 extern int ui_page;
 
+void check_font();
+
 #endif // _MY_DISPLAY_H_

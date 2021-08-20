@@ -19,6 +19,7 @@ void TFT_eSPI::loadFont(const uint8_t array[])
 {
   if (array == nullptr) return;
   fontPtr = (uint8_t*) array;
+  font_raw = 0;
   loadFont("", false);
 }
 
@@ -33,14 +34,20 @@ void TFT_eSPI::loadFont(const char * partitionName, esp_partition_subtype_t subt
     return;
   }
   
-  esp_err_t err = spi_flash_mmap(fontpart->address, fontpart->size, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
-//  esp_err_t err = spi_flash_mmap(fontpart->address, 4*1024*1024, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
-  if (err)
-  {
-    Serial.print("Partition mapping error ");
-    Serial.println(err);
-    return;
-  }
+    font_raw = fontpart->address;
+
+    uint32_t gCount;
+    spi_flash_read(font_raw, &gCount, sizeof(gCount));
+    uint metrics_size = 24 + gCount * 7 * sizeof(uint32_t);
+
+//  esp_err_t err = spi_flash_mmap(font_raw, metrics_size, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
+   esp_err_t err = spi_flash_mmap(font_raw, metrics_size, SPI_FLASH_MMAP_DATA, (const void **)&fontPtr, &font_handle);
+   if (err)
+   {
+     Serial.print("Partition mapping error ");
+     Serial.println(err);
+     return;
+   }
 
   loadFont("", false);
 }
@@ -54,6 +61,7 @@ void TFT_eSPI::loadFont(const char * partitionName, esp_partition_subtype_t subt
 void TFT_eSPI::loadFont(String fontName, fs::FS &ffs)
 {
   fontFS = ffs;
+  font_raw = 0;
   loadFont(fontName, false);
 }
 #endif
@@ -182,6 +190,7 @@ TFT_eSPI::CharMetrics * TFT_eSPI::getCharMetrics(uint16_t gNum)
   CharMetrics * cm = &_cm;
 
   fontPtr = (uint8_t *)&gFont.gArray[24 + gNum * 28];
+
   cm->gUnicode  = (uint16_t)readInt32(); // Unicode code point value
   cm->gHeight   =  (uint8_t)readInt32(); // Height of glyph
   cm->gWidth    =  (uint8_t)readInt32(); // Width of glyph
@@ -189,6 +198,16 @@ TFT_eSPI::CharMetrics * TFT_eSPI::getCharMetrics(uint16_t gNum)
   cm->gdY       =  (int16_t)readInt32(); // y delta from baseline
   cm->gdX       =   (int8_t)readInt32(); // x delta from cursor
   cm->gBitmap   = 24 + gFont.gCount*28 + readInt32();
+
+//   uint32_t buf[7];
+//   spi_flash_read((size_t)fontPtr, buf, sizeof(buf));
+//   cm->gUnicode  = (uint16_t)buf[0]; // Unicode code point value
+//   cm->gHeight   =  (uint8_t)buf[1]; // Height of glyph
+//   cm->gWidth    =  (uint8_t)buf[2]; // Width of glyph
+//   cm->gxAdvance =  (uint8_t)buf[3]; // xAdvance - to move x cursor
+//   cm->gdY       =  (int16_t)buf[4]; // y delta from baseline
+//   cm->gdX       =   (int8_t)buf[5]; // x delta from cursor
+//   cm->gBitmap   = 24 + gFont.gCount*28 + buf[6];
 
   return cm;
 }
@@ -210,6 +229,7 @@ void TFT_eSPI::unloadFont( void )
   {
     spi_flash_munmap(font_handle);
     font_handle = 0;
+    font_raw = 0;
   }
 
   fontLoaded = false;
@@ -236,6 +256,7 @@ uint32_t TFT_eSPI::readInt32(void)
   else
 #endif
   {
+    //  spi_flash_read((size_t)fontPtr, &val, 4);
     val = pgm_read_dword(fontPtr) & 0xFFFFFFFFul;
   }
 
@@ -298,52 +319,58 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 //--------------------------------------------------------------------------------------
 void * memcpy_I(void * dst, const void * src, int len)
 {
-//  return memcpy(dst, src, len);
-
-  if (!len) return dst;
-
-  uint32_t d;
-  uint32_t dst1 = (uint32_t)dst;
-  uint32_t src1 = (uint32_t)src;
-
-  if (src1 & 3)
-  {
-    d = *(uint32_t*)(src1 & ~3);
-    d >>= 8 * (src1 & 3);
-    while (src1 & 3)
-    {
-      *(uint8_t *)dst1 = d & 0xFF;
-      d >>= 8;
-      src1++;
-      dst1++;
-      len--;
-      if (!len) return dst;
-    }
-  }
-
-  while (len > 3)
-  {
-    d = *(uint32_t *)src1;
-    *(uint32_t *)dst1 = d;
-    src1 += 4;
-    dst1 += 4;
-    len -= 4;
-  }
-
-  if (!len) return dst;
-
-  d = *(uint32_t *)src1;
-  while (len)
-  {
-    *(uint8_t *)dst1 = d & 0xFF;
-    d >>= 8;
-    src1++;
-    dst1++;
-    len--;
-  }
-
-  return dst;
+    spi_flash_read((size_t)src, dst, len);
 }
+
+
+// void * memcpy_I(void * dst, const void * src, int len)
+// {
+// //  return memcpy(dst, src, len);
+
+//   if (!len) return dst;
+
+//   uint32_t d;
+//   uint32_t dst1 = (uint32_t)dst;
+//   uint32_t src1 = (uint32_t)src;
+
+//   if (src1 & 3)
+//   {
+//     d = *(uint32_t*)(src1 & ~3);
+//     d >>= 8 * (src1 & 3);
+//     while (src1 & 3)
+//     {
+//       *(uint8_t *)dst1 = d & 0xFF;
+//       d >>= 8;
+//       src1++;
+//       dst1++;
+//       len--;
+//       if (!len) return dst;
+//     }
+//   }
+
+//   while (len > 3)
+//   {
+//     d = *(uint32_t *)src1;
+//     *(uint32_t *)dst1 = d;
+//     src1 += 4;
+//     dst1 += 4;
+//     len -= 4;
+//   }
+
+//   if (!len) return dst;
+
+//   d = *(uint32_t *)src1;
+//   while (len)
+//   {
+//     *(uint8_t *)dst1 = d & 0xFF;
+//     d >>= 8;
+//     src1++;
+//     dst1++;
+//     len--;
+//   }
+
+//   return dst;
+// }
 
 
 /***************************************************************************************
@@ -386,13 +413,21 @@ void TFT_eSPI::drawGlyph(uint16_t code)
     if (textwrapY && ((cursor_y + gFont.yAdvance) >= height())) cursor_y = 0;
     if (cursor_x == 0) cursor_x -= cm->gdX;
 
-    uint8_t* pbuffer = glyph_line_buffer;//(uint8_t*)malloc(cm->gWidth);
-    const uint8_t* gPtr = (const uint8_t*) gFont.gArray + cm->gBitmap;
+    uint8_t* pbuffer = glyph_buffer;
 
 #ifdef FONT_FS_AVAILABLE
-    if (fs_font)
+    if (fs_font) {
+      fontFile.seek(cm->gBitmap, fs::SeekSet); // This is slow for a significant position shift!
+      fontFile.read(pbuffer, cm->gWidth * cm->gHeight);
+    }
+#else
+    if (font_handle)
     {
-      fontFile.seek(cm->gBitmap, fs::SeekSet); // This is taking >30ms for a significant position shift
+        spi_flash_read(font_raw + cm->gBitmap, pbuffer, cm->gWidth * cm->gHeight);
+    }
+    else
+    {
+        pbuffer = (uint8_t*)gFont.gArray + cm->gBitmap;
     }
 #endif
 
@@ -409,31 +444,10 @@ void TFT_eSPI::drawGlyph(uint16_t code)
 
     for (int y = 0; y < cm->gHeight; y++)
     {
-#ifdef FONT_FS_AVAILABLE
-      if (fs_font) {
-        if (spiffs)
-        {
-          fontFile.read(pbuffer, cm->gWidth);
-          //Serial.println("SPIFFS");
-        }
-        else
-        {
-          endWrite();    // Release SPI for SD card transaction
-          fontFile.read(pbuffer, cm->gWidth);
-          startWrite();  // Re-start SPI for TFT transaction
-          //Serial.println("Not SPIFFS");
-        }
-      }
-      else
-#endif
-      {
-        memcpy_I(pbuffer, gPtr, cm->gWidth);
-        gPtr += cm->gWidth;
-      }
-
       for (int x = 0; x < cm->gWidth; x++)
       {
-        pixel = pbuffer[x];
+        pixel = *pbuffer;
+        pbuffer++;
 
         if (pixel)
         {
