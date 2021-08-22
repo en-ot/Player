@@ -594,7 +594,7 @@ void memory_loop()
     //gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
     gui->sys_set_update();
 
-    Serial.printf("free %d, min %d\n", gui_sys_freeheap, gui_sys_minheap);
+//    Serial.printf("free %d, min %d\n", gui_sys_freeheap, gui_sys_minheap);
 
     // uint32_t freeheap = ESP.getFreeHeap();
     // if (freeheap < 50000)
