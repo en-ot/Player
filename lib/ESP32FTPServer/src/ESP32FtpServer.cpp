@@ -57,6 +57,19 @@ FtpServer::~FtpServer()
 
 
 //----------------------------------------------------------------------------------------------------------------------
+void FtpServer::log(int event, const char * text)
+{
+    if (ftp_callback)
+    {
+        ftp_callback(event, text);
+    }
+    else
+    {
+        log_e("ftpserv: %s", text);
+    }
+}
+
+
 void FtpServer::begin(fs::FS &fs, String uname, String pword) 
 {
     // Tells the ftp server to begin listening for incoming connection
@@ -73,16 +86,16 @@ void FtpServer::begin(fs::FS &fs, String uname, String pword)
     iniVariables();
 
     sprintf(chbuf, "Buffers allocated: %u bytes", (FTP_BUF_SIZE + FTP_CMD_SIZE + FTP_CWD_SIZE));
-    if(ftp_debug) ftp_debug(chbuf);
+    log(FTPSERV_INIT, chbuf);
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 void FtpServer::begin(String uname, String pword) 
 {
-    if (!SD.begin()) 
+    if (!SD.begin())
     {
-        log_e("Card Mount Failed"); 
+        log(FTPSERV_ERROR, "Card Mount Failed");
         return; 
     }
 
@@ -122,44 +135,45 @@ void FtpServer::iniVariables()
 //----------------------------------------------------------------------------------------------------------------------
 int FtpServer::handleFTP() 
 {
-    if((int32_t) (millisDelay - millis()) > 0) 
+    if ((int32_t) (millisDelay - millis()) > 0) 
         return 0;
 
-    if(ftpServer.hasClient()) 
+    if (ftpServer.hasClient()) 
     {
         client.stop();
         client = ftpServer.available();
     }
     
-    if(cmdStatus == 0) 
+    if (cmdStatus == 0) 
     {
-        if(client.connected()) disconnectClient();
+        if (client.connected()) disconnectClient();
         cmdStatus = 1;
     }
 
-    else if(cmdStatus == 1) 
+    else if (cmdStatus == 1) 
     {        // Ftp server waiting for connection
         abortTransfer();
         iniVariables();
         sprintf(chbuf, "Ftp server waiting for connection on port %i", FTP_CTRL_PORT);
-        if(ftp_debug) ftp_debug(chbuf);
+        log(FTPSERV_INIT, chbuf);
         cmdStatus = 2;
     }
 
     else if(cmdStatus == 2) 
     {         // Ftp server idle
-        if(client.connected()) {      // A client connected
+        if (client.connected()) 
+        {      // A client connected
             clientConnected();
             millisEndConnection = millis() + 10 * 1000; // wait client id during 10 s.
             cmdStatus = 3;
         }
     }
 
-    else if(readChar() > 0) 
+    else if (readChar() > 0) 
     {         // got response
-        if(cmdStatus == 3) 
+        if (cmdStatus == 3) 
         {            // Ftp server waiting for user identity
-            if(userIdentity())
+            if (userIdentity())
             {
                 cmdStatus = 4;
             }
@@ -168,47 +182,54 @@ int FtpServer::handleFTP()
                 cmdStatus = 0;
             }
         }
-        else if(cmdStatus == 4) 
+
+        else if (cmdStatus == 4) 
         {      // Ftp server waiting for user registration
-            if(userPassword()) {
+            if (userPassword()) 
+            {
                 cmdStatus = 5;
                 millisEndConnection = millis() + millisTimeOut;
             }
-            else {
+            else 
+            {
                 cmdStatus = 0;
             }
         }
-        else if(cmdStatus == 5) {     // Ftp server waiting for user command
-            if(!processCommand())
+
+        else if (cmdStatus == 5) 
+        {     // Ftp server waiting for user command
+            if (!processCommand())
                 cmdStatus = 0;
             else
                 millisEndConnection = millis() + millisTimeOut;
         }
-
     }
 
     else if(!client.connected() || !client) 
     {
         cmdStatus = 1;
-        if(ftp_callback) ftp_callback(FTP_CLIENT_DISCONNECTED);
-        if(ftp_debug) ftp_debug("client disconnected");
+        log(FTPSERV_CLIENT_DISCONNECTED, "Client disconnected");
     }
 
     if (transferStatus == 1) 
     {        // Retrieve data
-        if(!doRetrieve()) transferStatus = 0;
+        if (!doRetrieve()) 
+            transferStatus = 0;
     }
+
     else if (transferStatus == 2) 
     {   // Store data
         if (!doStore()) 
             transferStatus = 0;
     }
+
     else if (cmdStatus > 2 && !((int32_t) (millisEndConnection - millis()) > 0)) 
     {
         client.println("530 Timeout");
         millisDelay = millis() + 200;    // delay of 200 ms
         cmdStatus = 0;
     }
+
     return transferStatus != 0 || cmdStatus != 0;
 }
 
@@ -216,8 +237,7 @@ int FtpServer::handleFTP()
 //----------------------------------------------------------------------------------------------------------------------
 void FtpServer::clientConnected() 
 {
-    if(ftp_callback) ftp_callback(FTP_CLIENT_CONNECTED);
-    if(ftp_debug) ftp_debug("Client connected!");
+    log(FTPSERV_CLIENT_CONNECTED, "Client connected!");
     client.println("220--- Welcome to FTP for ESP32 ---");
     client.println("220---   By David Paiva   ---");
     client.println("220 --   Version " + String(FTP_SERVER_VERSION) + "   --");
@@ -228,8 +248,7 @@ void FtpServer::clientConnected()
 //----------------------------------------------------------------------------------------------------------------------
 void FtpServer::disconnectClient() 
 {
-    if(ftp_callback) ftp_callback(FTP_CLIENT_DISCONNECTING);
-    if(ftp_debug) ftp_debug("Disconnecting client");
+    log(FTPSERV_CLIENT_DISCONNECTING, "Disconnecting client");
     abortTransfer();
     client.println("221 Goodbye");
     client.stop();
@@ -280,7 +299,7 @@ boolean FtpServer::userPassword()
         return false;
     }
 
-    if (ftp_debug) ftp_debug("OK. Waiting for commands.");
+    log(FTPSERV_READY, "OK. Waiting for commands.");
     client.println("230 OK.");
     return true;
 }
@@ -298,7 +317,7 @@ boolean FtpServer::processCommand()
 {
 
     // ACCESS CONTROL COMMANDS
-    if (ftp_debug) ftp_debug(command);
+    log(FTPSERV_COMMAND, command);
 //    if(ftp_debug) ftp_debug(parameters);
 
     if (!strcmp(command, "CDUP")  || (!strcmp( command, "CWD") && !strcmp(parameters, ".." )))
@@ -330,7 +349,7 @@ boolean FtpServer::processCommand()
     
         client.println("250 Ok. Current directory is \"" + String(cwdName) + "\"");
         sprintf(chbuf, "\"%s\" is your current directory", cwdName);
-        if(ftp_debug) ftp_debug(chbuf);
+        log(FTPSERV_DIR, chbuf);
     }
 
     else if (!strcmp(command, "CWD")) 
@@ -340,12 +359,12 @@ boolean FtpServer::processCommand()
             client.println("257 \"" + String(cwdName) + "\" is your current directory");
 
             sprintf(chbuf, "\"%s\" is your current directory", cwdName);
-            if (ftp_debug) ftp_debug(chbuf);
+            log(FTPSERV_DIR, chbuf);
         }
         else 
         {
             sprintf(chbuf, "CWD P=%s, CWD=%s", parameters, cwdName);
-            if (ftp_debug) ftp_debug(chbuf);
+            log(FTPSERV_DIR, chbuf);
 
             String dir;
             if      (parameters[0] == '/')  dir = parameters;
@@ -357,13 +376,13 @@ boolean FtpServer::processCommand()
                 strcpy(cwdName, dir.c_str());
                 client.println("250 CWD Ok. Current directory is \"" + String(dir) + "\"");
                 sprintf(chbuf, "Current directory is \"%s\"", dir.c_str());
-                if (ftp_debug) ftp_debug(chbuf);
+                log(FTPSERV_DIR, chbuf);
             }
             else 
             {
                 client.println("550 directory or file does not exist \"" + String(parameters) + "\"");
                 sprintf(chbuf, "Directory or file does not exist \"%s\"", parameters);
-                if (ftp_debug) ftp_debug(chbuf);
+                log(FTPSERV_DIR, chbuf);
             }
         }
     }
@@ -397,7 +416,7 @@ boolean FtpServer::processCommand()
 
         //if(ftp_debug) ftp_debug("Connection management set to passive");
         sprintf(chbuf, "Data port set to  %i", dataPort);
-        if (ftp_debug) ftp_debug(chbuf);
+        log(FTPSERV_PASV, chbuf);
 
         client.println("227 Entering Passive Mode (" + 
             String(dataIp[0]) + "," + String(dataIp[1]) + "," + String(dataIp[2]) + "," + String(dataIp[3]) + 
@@ -476,13 +495,13 @@ boolean FtpServer::processCommand()
                 { 
                     client.println("250 Deleted " + String(parameters));
                     sprintf(chbuf, "Deleted %s", path);
-                    if (ftp_debug) ftp_debug(chbuf); 
+                    log(FTPSERV_DEL, chbuf); 
                 }
                 else                  
                 { 
                     client.println("450 Can't delete " + String(parameters));
                     sprintf(chbuf, "Can't delete  %s", path);
-                    if (ftp_debug) ftp_debug(chbuf);
+                    log(FTPSERV_DEL, chbuf); 
                 }
             }
         }
@@ -490,14 +509,13 @@ boolean FtpServer::processCommand()
 
     else if(!strcmp(command, "LIST")) 
     {  //  LIST - List
-//        if(ftp_debug) ftp_debug("LIST");
-        log_i("in LIST");
         if (!dataConnect())
         {
             client.println("425 No data connection");
         }
         else 
         {
+            log(FTPSERV_LIST, command);
             client.println("150 Accepted data connection");
             uint16_t nm = 0;
             File dir = _fs->open(cwdName);
@@ -540,6 +558,7 @@ boolean FtpServer::processCommand()
                 client.println("226 " + String(nm) + " matches total");
             }
             data.stop();
+            log(FTPSERV_READY, "OK");
         }
     }
 
@@ -551,6 +570,7 @@ boolean FtpServer::processCommand()
         }
         else 
         {
+            log(FTPSERV_LIST, command);
             client.println("150 Accepted data connection");
             uint16_t nm = 0;
             File dir = _fs->open(cwdName);
@@ -566,7 +586,7 @@ boolean FtpServer::processCommand()
 
 #ifdef SDFATFS_USED
                     file.getName(chbuf, 256);
-                    if (ftp_debug) ftp_debug(chbuf);
+//                    if (ftp_debug) ftp_debug(chbuf);
                     String fn = String(chbuf);
                     uint16_t pdate;
                     uint16_t ptime;
@@ -592,6 +612,7 @@ boolean FtpServer::processCommand()
                 client.println("226 " + String(nm) + " matches total");
             }
             data.stop();
+            log(FTPSERV_READY, "OK");
         }
     }
 
@@ -603,6 +624,7 @@ boolean FtpServer::processCommand()
         }
         else 
         {
+            log(FTPSERV_LIST, command);
             client.println("150 Accepted data connection");
             uint16_t nm = 0;
             File dir = _fs->open(cwdName);
@@ -627,6 +649,7 @@ boolean FtpServer::processCommand()
                 client.println("226 " + String(nm) + " matches total");
             }
             data.stop();
+            log(FTPSERV_READY, "OK");
         }
     }
 
@@ -659,7 +682,7 @@ boolean FtpServer::processCommand()
             else 
             {
                 sprintf(chbuf, "Sending %s", parameters);
-                if (ftp_debug) ftp_debug(chbuf);
+                log(FTPSERV_SEND, chbuf);
 
                 client.println("150-Connected to port " + String(dataPort));
                 client.println("150 " + String(file.size()) + " bytes to download");
@@ -694,7 +717,7 @@ boolean FtpServer::processCommand()
             else 
             {
                 sprintf(chbuf, "Receiving %s", parameters);
-                if (ftp_debug) ftp_debug(chbuf);
+                log(FTPSERV_RECV, chbuf);
 
                 client.println("150 Connected to port " + String(dataPort));
                 millisBeginTrans = millis();
@@ -707,14 +730,14 @@ boolean FtpServer::processCommand()
     else if(!strcmp(command, "MKD")) 
     {  //  MKD - Make Directory
         sprintf(chbuf, "MKD P=%s, CWD=%s", parameters, cwdName);
-        if (ftp_debug) ftp_debug(chbuf);
+        log(FTPSERV_MKDIR, chbuf);
 
         String dir;
         if (!strcmp(cwdName, "/")) dir = String("/") + parameters;  // avoid "\\newdir"
         else                       dir = String(cwdName) + "/" + parameters;
 
         sprintf(chbuf, "try to create  %s", dir.c_str());
-        if (ftp_debug) ftp_debug(chbuf);
+        log(FTPSERV_MKDIR, chbuf);
 
         if(_fs->mkdir(dir.c_str())) 
         {
@@ -729,7 +752,7 @@ boolean FtpServer::processCommand()
     else if(!strcmp(command, "RMD")) 
     {  //  RMD - Remove a Directory
         sprintf(chbuf, "RMD P=%s, CWD=%s", parameters, cwdName);
-        if(ftp_debug) ftp_debug(chbuf);
+        log(FTPSERV_RMDIR, chbuf);
 
         String dir;
 
@@ -756,7 +779,7 @@ boolean FtpServer::processCommand()
             else 
             {
                 sprintf(chbuf, "Renaming %s", buf);
-                if (ftp_debug) ftp_debug(chbuf);
+                log(FTPSERV_REN, chbuf);
 
                 client.println("350 RNFR accepted - file exists, ready for destination");
                 rnfrCmd = true;
@@ -780,7 +803,7 @@ boolean FtpServer::processCommand()
             else 
             {
                 sprintf(chbuf, "Renaming %s to %s", buf, path);
-                if (ftp_debug) ftp_debug(chbuf);
+                log(FTPSERV_REN, chbuf);
 
                 if (_fs->rename(buf, path))
                     client.println("250 File successfully renamed or moved");
@@ -874,10 +897,13 @@ boolean FtpServer::dataConnect()
 
 
 //----------------------------------------------------------------------------------------------------------------------
-boolean FtpServer::doRetrieve() {
+boolean FtpServer::doRetrieve() 
+{
     int32_t nb;
     nb = file.readBytes(buf, FTP_BUF_SIZE);
-    if(nb > 0) {
+    if (nb > 0) 
+    {
+        log(FTPSERV_SENDING, "sending");
         data.write((uint8_t*) buf, nb);
         bytesTransfered += nb;
         return true;
@@ -888,16 +914,21 @@ boolean FtpServer::doRetrieve() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-boolean FtpServer::doStore() {
-    if(data.connected()) {
+boolean FtpServer::doStore() 
+{
+    if (data.connected()) 
+    {
         uint32_t ms0 = millis();
         int32_t nb;
+        log(FTPSERV_RECEIVING, "receiving");
         nb = data.readBytes((uint8_t*) buf, FTP_BUF_SIZE);
-        if(nb > 0) {
+        if (nb > 0) 
+        {
             size_t written = file.write((uint8_t*) buf, nb);
             bytesTransfered += nb;
         }
-        else {
+        else 
+        {
             //log_v(".");
         }
         return true;
@@ -908,29 +939,35 @@ boolean FtpServer::doStore() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-void FtpServer::closeTransfer() {
+void FtpServer::closeTransfer() 
+{
     uint32_t deltaT = (int32_t) (millis() - millisBeginTrans);
-    if(deltaT > 0 && bytesTransfered > 0) {
+    if (deltaT > 0 && bytesTransfered > 0) 
+    {
         client.println("226-File successfully transferred");
         client.println("226 " + String(deltaT) + " ms, " + String(bytesTransfered / deltaT) + " kbytes/s");
     }
     else
+    {
         client.println("226 File successfully transferred");
+    }
 
     sprintf(chbuf, "Transfer in %u.%03ds with %uKBytes/s ", deltaT / 1000, deltaT % 1000, bytesTransfered / deltaT);
-    if(ftp_debug) ftp_debug(chbuf);
+    log(FTPSERV_READY, chbuf);
     file.close();
     data.stop();
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
-void FtpServer::abortTransfer() {
-    if(transferStatus > 0) {
+void FtpServer::abortTransfer() 
+{
+    if (transferStatus > 0) 
+    {
         file.close();
         data.stop();
         client.println("426 Transfer aborted");
-        if(ftp_debug) ftp_debug("Transfer aborted!");
+        log(FTPSERV_ERROR, "Transfer aborted!");
     }
     transferStatus = 0;
 }
@@ -947,7 +984,8 @@ void FtpServer::abortTransfer() {
 //     0 if empty line received
 //    length of cmdLine (positive) if no empty line received
 
-int8_t FtpServer::readChar() {
+int8_t FtpServer::readChar() 
+{
     int8_t rc = -1;
     if(client.available()) {
         char c = client.read();

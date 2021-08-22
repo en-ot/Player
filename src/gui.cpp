@@ -196,7 +196,8 @@ gslc_tsElemRef*             info_icons_ref[INFO_LINES] = {0};
 
 const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
     icon_pause, icon_disk0, icon_disk1, icon_disk2, icon_disk3, icon_fav, icon_index, 
-    icon_wifi_off, icon_wifi_on, icon_tether, icon_ftp, icon_upgrade, icon_bluetooth_off, icon_bluetooth_on, 
+    icon_wifi_off, icon_wifi_on, icon_tether, icon_ftp, icon_upgrade, icon_write, icon_read, icon_error, 
+    icon_bluetooth_off, icon_bluetooth_on, 
     icon_shuffle_off, icon_shuffle_on, icon_repeat_off, icon_repeat_on, icon_volume_nogain, icon_volume_gain,
     icon_path, icon_file, icon_band, icon_artist, icon_album, icon_title,
 };

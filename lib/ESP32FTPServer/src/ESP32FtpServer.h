@@ -61,15 +61,32 @@
 #define FTP_FIL_SIZE     255            // max size of a file name
 #define FTP_BUF_SIZE     4096           // size of file buffer for read/write
 
-extern __attribute__((weak)) void ftp_debug(const char*);
+typedef enum
+{
+    FTPSERV_INIT = 0,
+    FTPSERV_CLIENT_CONNECTED = 1,
+    FTPSERV_CLIENT_DISCONNECTING = 2,
+    FTPSERV_CLIENT_DISCONNECTED = 3,
+    FTPSERV_READY = 4,
+    FTPSERV_RECEIVING = 5,
+    FTPSERV_SENDING = 6,
+    FTPSERV_ERROR = 7,
+    FTPSERV_COMMAND = 8,
+    FTPSERV_DIR = 9,
+    FTPSERV_PASV = 10,
+    FTPSERV_DEL = 11, 
+    FTPSERV_LIST = 12,
+    FTPSERV_SEND = 13,
+    FTPSERV_RECV = 14,
+    FTPSERV_MKDIR = 15,
+    FTPSERV_RMDIR = 15,
+    FTPSERV_REN = 16,
+} FTPSERV_EVENT;
+extern __attribute__((weak)) void ftp_callback(int event, const char* text);
 
-#define FTP_CLIENT_CONNECTED 1
-#define FTP_CLIENT_DISCONNECTING 2
-#define FTP_CLIENT_DISCONNECTED 3
-extern __attribute__((weak)) void ftp_callback(int event);
 
-
-class FtpServer {
+class FtpServer 
+{
 
 private:
 
@@ -100,6 +117,8 @@ private:
     char* makeDateTimeStr(char *tstr, uint16_t date, uint16_t time);
     char* makeDateTimeStr2(char *tstr, uint16_t date, uint16_t time);
     int8_t readChar();
+
+    void log(int event, const char * text);
 
     IPAddress dataIp;              // IP address of client for data
     WiFiClient client;

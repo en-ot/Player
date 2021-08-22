@@ -42,29 +42,42 @@ void ftp_begin()
 }
 
 
-// void ftp_debug(const char* debug) 
-// {
-//     Serial.printf("ftpdebug: %s\n", debug);
-// }
-
-
 void ftp_loop()
 {
     ftpSrv.handleFTP();        //make sure in loop you call handleFTP()!!
 }
 
 
-void ftp_callback(int event)
+void ftp_callback(int event, const char* text)
 {
-    if (event == FTP_CLIENT_CONNECTED)
+    Serial.printf("ftpdebug: %s\n", text);
+
+    switch(event)
     {
-        main_pause();
-        gui->net(NET_MODE_FTP);
-    }
-    if ((event == FTP_CLIENT_DISCONNECTED) || (event == FTP_CLIENT_DISCONNECTING))
-    {
-        main_resume();
-        gui->net(WiFi.getMode());
+        case FTPSERV_CLIENT_CONNECTED:
+            main_pause();
+        case FTPSERV_READY:
+            gui->net(NET_MODE_FTP);
+            break;
+
+        case FTPSERV_RECEIVING:
+            gui->net(NET_MODE_WRITE);
+            break;
+
+        case FTPSERV_SENDING:
+        case FTPSERV_LIST:
+            gui->net(NET_MODE_READ);
+            break;
+
+        case FTPSERV_ERROR:
+            gui->net(NET_MODE_ERROR);
+            break;
+
+        case FTPSERV_CLIENT_DISCONNECTED:
+        case FTPSERV_CLIENT_DISCONNECTING:
+            main_resume();
+            gui->net(WiFi.getMode());
+            break;
     }
 }
 
