@@ -634,6 +634,12 @@ void main_pause()
 }
 
 
+void main_restart()
+{
+    fav_switch(cur_fav_num, false);
+}
+
+
 void main_resume()
 {
     sound_resume();

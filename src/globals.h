@@ -52,8 +52,9 @@ int dirs_file_num(int dirs_sel);
 
 void gui_sys_update();
 
-void main_pause();
+void main_restart();
 void main_resume();
+void main_pause();
 
 void sys_control(int16_t line, int key);
 

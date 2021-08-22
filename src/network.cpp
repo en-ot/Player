@@ -48,6 +48,8 @@ void ftp_loop()
 }
 
 
+bool writeflag = false;
+
 void ftp_callback(int event, const char* text)
 {
     Serial.printf("ftpdebug: %s\n", text);
@@ -56,12 +58,17 @@ void ftp_callback(int event, const char* text)
     {
         case FTPSERV_CLIENT_CONNECTED:
             main_pause();
+            writeflag = false;
         case FTPSERV_READY:
             gui->net(NET_MODE_FTP);
             break;
 
         case FTPSERV_RECEIVING:
             gui->net(NET_MODE_WRITE);
+        case FTPSERV_REN:
+        case FTPSERV_RMDIR:
+        case FTPSERV_MKDIR:
+            writeflag = true;
             break;
 
         case FTPSERV_SENDING:
@@ -75,7 +82,15 @@ void ftp_callback(int event, const char* text)
 
         case FTPSERV_CLIENT_DISCONNECTED:
         case FTPSERV_CLIENT_DISCONNECTING:
-            main_resume();
+            if (writeflag)
+            {
+                main_restart();
+                writeflag = false;
+            }
+            else
+            {
+                main_resume();
+            }
             gui->net(WiFi.getMode());
             break;
     }
@@ -90,7 +105,7 @@ void ota_onEnd()
 {
     gui->message("End");
     gui->loop();
-    main_resume();
+    main_restart();
     gui->net(WiFi.getMode());
 }
 
@@ -124,7 +139,7 @@ void ota_onError(int error, const char * errtxt)
     gui->step_begin(buf);
     gui->error(errtxt);
     gui->loop();
-    main_resume();
+    main_restart();
 }
 #endif
 
