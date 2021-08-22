@@ -430,7 +430,7 @@ bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,i
         {
             if (cur_font)
             {
-                Serial.printf("Unload %08X\n", cur_font);
+                //Serial.printf("Unload %08X\n", cur_font);
                 gui_spr.unloadFont();
             }
             if (pFont->eFontRefType  == GSLC_FONTREF_FNAME) {

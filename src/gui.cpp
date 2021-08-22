@@ -97,7 +97,7 @@ void check_font()
 Gui::Gui()
 {
     DEBUG("LCD init ...\n");
-    spr_buf = (uint8_t *)malloc(LCD_W*LINE_H*(16/8)+1);
+    spr_buf = (uint8_t *)malloc(LCD_W*LINE_H_MAX*(16/8)+1);
 
     gslc_init();
     page_info_init();

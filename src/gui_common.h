@@ -74,6 +74,8 @@ enum {
 //#define LINE_H 20 //font 18
 #define LINE_H 28 //font 24
 
+#define LINE_H_MAX 30   // Listbox line height (240/8=30)
+
 #define SLIDER_W       15
 #define BOX_Y          0
 #define BOX_X          0

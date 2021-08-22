@@ -190,7 +190,6 @@ void gslc_ElemXListboxSetSize(gslc_tsGui* pGui, gslc_tsElemRef* pElemRef, int8_t
 }
 
 
-
 void gslc_ElemXListboxSetMargin(gslc_tsGui* pGui, gslc_tsElemRef* pElemRef, int8_t nMarginW, int8_t nMarginH)
 {
   gslc_tsXListbox* pListbox = (gslc_tsXListbox*)gslc_GetXDataFromRef(pGui, pElemRef, GSLC_TYPEX_LISTBOX, __LINE__);
