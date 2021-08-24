@@ -45,9 +45,11 @@ class Playlist
     private:
         bool find_file0(int file_num);
         void rewind();
+        void rewind_to_file(int file_num);
+        void rewind_to_dir(int dir_num);
         void scan_files(int *fcnt, int *dcnt);
 
-        class PlaylistPrivate * p_;
+        class PlaylistPrivate * p;
 
         //File dirs[DIR_DEPTH];
         //File entry;
