@@ -203,12 +203,10 @@ bool fav_switch(int fav_num, bool init)
 
     DEBUG("dircnt: %d\n", pl->dircnt);
 
-    gui->fav_select(fav_num);
     gui->fav(fav_num);
     gui->shuffle(shuffle);
     gui->repeat(repeat);
     gui->volume(volume);
-
     gui->alive(false);
     gui->gain(false);
     gui->index("");
@@ -226,6 +224,10 @@ bool fav_switch(int fav_num, bool init)
         dirs_cache->clear();
 
     start_file(next_file, FAIL_NEXT);
+
+    fav_goto_curfav();
+    dirs_goto_curdir();
+    files_goto_curfile();
 
     if (filepos)
         need_set_file_pos = true;

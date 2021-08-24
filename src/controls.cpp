@@ -352,6 +352,13 @@ bool fav_set_num()
 }
 
 
+bool fav_goto_curfav()
+{
+    gui->fav_select(cur_fav_num);
+    return true;
+}
+
+
 //###############################################################
 bool dirs_pgupdn(int by)
 {
@@ -528,7 +535,7 @@ Controls dirs_ctrl = {{
 
 Controls fav_ctrl = {{
     fav_pgupdn,         fav_seek   },{      // volume,      seek      
-    nothing,            nothing,            // vol_long,    vol_short 
+    nothing,            fav_goto_curfav,    // vol_long,    vol_short 
     fav_reset,          fav_set_num,        // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short  
     nothing,            sys_page,           // b2_long,     b2_short
