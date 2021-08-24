@@ -1,5 +1,5 @@
-#ifndef _MY_DISPLAY_H_
-#define _MY_DISPLAY_H_
+#ifndef _GUI_H_
+#define _GUI_H_
 
 
 #include <Arduino.h>
@@ -87,4 +87,4 @@ extern int ui_page;
 
 void check_font();
 
-#endif // _MY_DISPLAY_H_
+#endif // _GUI_H_
