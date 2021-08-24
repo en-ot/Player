@@ -30,6 +30,7 @@ class StrCache
         
         int get(int key);
         void put(int key, char * buf, int flags);
+        void clear();
 };
 
 

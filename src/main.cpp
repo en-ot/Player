@@ -217,8 +217,13 @@ bool fav_switch(int fav_num, bool init)
     playstack_init();
     if (!files_cache)
         files_cache = new StrCache(FILES_CACHE_LINES);
+    else
+        files_cache->clear();
+
     if (!dirs_cache)
         dirs_cache = new StrCache(DIRS_CACHE_LINES);
+    else
+        dirs_cache->clear();
 
     start_file(next_file, FAIL_NEXT);
 
@@ -579,7 +584,7 @@ void check_loop()
 void memory_loop()
 {
     static uint32_t t0 = 0;
-    static bool need_print = true;
+//    static bool need_print = true;
     uint32_t t = millis();
 
     if ((int32_t)(t - t0) < 1000)

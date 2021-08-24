@@ -10,11 +10,17 @@
 StrCache::StrCache(int cnt)
 {
     this->cnt = cnt;
-    access = 0;
     lines = new CacheLine[cnt];
-    memset(lines, 0, sizeof(CacheLine) * cnt);
+    clear();
 
     DEBUG("StrCache %d\n", cnt);
+}
+
+
+void StrCache::clear()
+{
+    access = 0;
+    memset(lines, 0, sizeof(CacheLine) * cnt);
 }
 
 
