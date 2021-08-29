@@ -24,8 +24,8 @@ typedef uint32_t mask_t;
 
 #define TIMER_INTERVAL	(10)		// Timerintervall in ms
 
-#define REPEAT_START    (uint16_t)(800/TIMER_INTERVAL)		// Zeitschwelle für kurz/lang. after 800ms
-#define REPEAT_NEXT     (uint16_t)(300/TIMER_INTERVAL)      // every 300ms
+#define REPEAT_START    (uint16_t)(500/TIMER_INTERVAL)		// Zeitschwelle für kurz/lang. after 800ms
+#define REPEAT_NEXT     (uint16_t)(200/TIMER_INTERVAL)      // every 300ms
 
 
 class DebounceButtons

@@ -32,6 +32,7 @@ Playlist * pl;   //files and dirs Playlist
 
 //prefs
 int cur_fav_num;
+int prev_fav_num;
 
 int8_t volume;   
 bool shuffle;
@@ -185,13 +186,14 @@ bool fav_switch(int fav_num, bool init)
         sound_stop();
 
         prefs_save_now(need_save_current_file);
+
+        prev_fav_num = cur_fav_num;
+        prefs_save_curfav(fav_num, prev_fav_num);
     }
 
     fav_num = clamp1(fav_num, FAV_MAX);
     cur_fav_num = fav_num;
 
-    prefs_save_curfav(fav_num);
-    
     char fav_path[PATHNAME_MAX_LEN] = {0};
     prefs_load_data(fav_num, fav_path, sizeof(fav_path));
     DEBUG("fav path: %s\n", fav_path);
@@ -440,7 +442,8 @@ void setup()
     {
         prefs_erase_all();
     }
-    cur_fav_num = prefs_load_curfav();
+    prefs_load_curfav(&cur_fav_num, &prev_fav_num);
+    //Serial.printf("cur:%d prev:%d\n", cur_fav_num, prev_fav_num);
     end(4);
 
     begin("sdcard");
@@ -471,7 +474,7 @@ void setup()
     network_init();
     end(10);
 
-    begin("start 鳥");
+    begin("start");
     fav_switch(cur_fav_num, true);
     end(11);
 }

@@ -19,6 +19,7 @@ static int curfav = NO_FAV;
 
 static const char *prefs_file_main = "main";
 static const char *prefs_key_curfav = "curfav";
+static const char *prefs_key_prevfav = "prevfav";
 
 static const char *prefs_file_dir = "fav";
 static const char *prefs_key_path   = "path";
@@ -49,7 +50,7 @@ static bool prefs_open_fav(int fav_num)
 {
     if (curfav == fav_num)
         return true;
-    
+
     prefs_close_fav();
 
     String root_file(prefs_file_dir);
@@ -110,29 +111,29 @@ int prefs_load_data(int fav_num, char * path, int len)
 }
 
 
-int prefs_load_curfav()
+void prefs_load_curfav(int * curfav, int * prevfav)
 {
     prefs_close_fav();
 
     prefs.begin(prefs_file_main, false);
-    int fav_num = prefs.getInt(prefs_key_curfav, 1);
+    *curfav = prefs.getInt(prefs_key_curfav, 1);
+    *prevfav = prefs.getInt(prefs_key_prevfav, 1);
     prefs.end();
 
-    prefs_open_fav(fav_num);
-
-    return fav_num;
+    prefs_open_fav(*curfav);
 }
 
 
-void prefs_save_curfav(int fav_num)
+void prefs_save_curfav(int curfav, int prevfav)
 {
     prefs_close_fav();
 
     prefs.begin(prefs_file_main, false);
-    prefs.putInt(prefs_key_curfav, fav_num);
+    prefs.putInt(prefs_key_curfav, curfav);
+    prefs.putInt(prefs_key_prevfav, prevfav);
     prefs.end();
 
-    prefs_open_fav(fav_num);
+    prefs_open_fav(curfav);
 }
 
 

@@ -149,14 +149,14 @@ bool play_dir_prev()
 
 bool play_root_next()
 {
-    fav_switch(cur_fav_num + 1, false);
+    fav_switch(prev_fav_num, false);
     return true;
 }
 
 
 bool play_root_prev()
 {
-    fav_switch(cur_fav_num - 1, false);
+    fav_switch(prev_fav_num, false);
     return true;
 }
 

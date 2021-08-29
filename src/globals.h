@@ -16,6 +16,7 @@ extern bool repeat;
 extern int8_t volume;
 
 extern int cur_fav_num;
+extern int prev_fav_num;
 
 extern int8_t volume_old;
 

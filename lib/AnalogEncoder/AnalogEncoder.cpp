@@ -3,7 +3,7 @@
 #include "AnalogEncoder.h"
 
 #define DEBOUNCE_DELAY_MS 10
-#define PRESS_DELAY_LONG_MS 1000
+#define PRESS_DELAY_LONG_MS 500
 
 AnalogEncoder::AnalogEncoder(int pin)
 {
@@ -34,7 +34,7 @@ void AnalogEncoder::process_button(bool new_state)
         return;
     }
 
-    if (t - debounce_time < DEBOUNCE_DELAY_MS)
+    if ((int32_t)(t - debounce_time) < DEBOUNCE_DELAY_MS)
         return;
 
     if (button_debounced != button_raw)
@@ -50,9 +50,10 @@ void AnalogEncoder::process_button(bool new_state)
         }
     }
 
-    if ((t - long_time > PRESS_DELAY_LONG_MS) && button_debounced && (long_flag == 0))
+    if (((int32_t)(t - long_time) > PRESS_DELAY_LONG_MS) && button_debounced && (long_flag == 0))
     {
         long_flag = 1;
+        //Serial.print(".");
     }
 }
 
