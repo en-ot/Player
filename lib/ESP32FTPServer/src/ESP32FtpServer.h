@@ -59,7 +59,8 @@
 #define FTP_CMD_SIZE     255 + 8        // max size of a command
 #define FTP_CWD_SIZE     255 + 8        // max size of a directory name
 #define FTP_FIL_SIZE     255            // max size of a file name
-#define FTP_BUF_SIZE     4096           // size of file buffer for read/write
+//#define FTP_BUF_SIZE     4096           // size of file buffer for read/write
+#define FTP_BUF_SIZE     5744           // size of file buffer for read/write
 
 typedef enum
 {

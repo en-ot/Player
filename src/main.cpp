@@ -640,7 +640,7 @@ void loop()
 void main_pause()
 {
     sound_pause();
-    controls_pause();
+//    controls_pause();
 }
 
 
@@ -653,6 +653,6 @@ void main_restart()
 void main_resume()
 {
     sound_resume();
-    controls_resume();
+//    controls_resume();
 }
 

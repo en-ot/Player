@@ -703,7 +703,7 @@ boolean FtpServer::processCommand()
         else if (makePath(path)) 
         {
 #ifdef SDFATFS_USED
-            file = _fs->open(path, FILE_WRITE);
+            file = _fs->open(path, FILE_WRITE | _FTRUNC);
 #else
             file = _fs->open(path, "w");
 #endif
@@ -914,22 +914,36 @@ boolean FtpServer::doRetrieve()
 
 
 //----------------------------------------------------------------------------------------------------------------------
+#define STORE_WAIT_MS 10
+#define UNUSED(XXX) (void)XXX
+
 boolean FtpServer::doStore() 
 {
     if (data.connected()) 
     {
-        uint32_t ms0 = millis();
-        int32_t nb;
-        log(FTPSERV_RECEIVING, "receiving");
-        nb = data.readBytes((uint8_t*) buf, FTP_BUF_SIZE);
+        // uint32_t ms0 = millis();
+        int32_t nb = data.available();
+        // while (((int32_t)(millis() - ms0) < STORE_WAIT_MS) && nb < FTP_BUF_SIZE)
+        if (nb < FTP_BUF_SIZE)
+        {
+            yield();
+            nb = data.available();
+        }
+        if (FTP_BUF_SIZE < nb)
+            nb = FTP_BUF_SIZE;
         if (nb > 0) 
         {
+            nb = data.readBytes((uint8_t*) buf, nb);
+            // sprintf(chbuf, "received %d bytes", nb);
+            // log(FTPSERV_RECEIVING, chbuf);
             size_t written = file.write((uint8_t*) buf, nb);
+            UNUSED(written);
             bytesTransfered += nb;
         }
         else 
         {
-            //log_v(".");
+            // log(FTPSERV_RECEIVING, "stall");
+            yield();
         }
         return true;
     }
@@ -952,7 +966,7 @@ void FtpServer::closeTransfer()
         client.println("226 File successfully transferred");
     }
 
-    sprintf(chbuf, "Transfer in %u.%03ds with %uKBytes/s ", deltaT / 1000, deltaT % 1000, bytesTransfered / deltaT);
+    sprintf(chbuf, "Transfer %d bytes in %u.%03ds with %uKBytes/s ", bytesTransfered, deltaT / 1000, deltaT % 1000, bytesTransfered / deltaT);
     log(FTPSERV_READY, chbuf);
     file.close();
     data.stop();
