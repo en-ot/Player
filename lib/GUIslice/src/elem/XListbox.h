@@ -95,10 +95,11 @@ typedef struct {
   int16_t         nItemSavedSel;    ///< Persistent selected item (ie. saved selection)
   int16_t         nItemTop;         ///< Item to show at top of list after scrolling (0 is default)
   bool            bGlowLast;        ///< Last glow state
+  bool            bFocusLast;       ///< Last focus state // TODO: Merge with bGlowLast
 
   // Callbacks
   GSLC_CB_XLISTBOX_SEL pfuncXSel; ///< Callback func ptr for selection update
-  GSLC_CB_XLISTBOX_GETITEM pfuncXGet;   ///<en-ot
+  GSLC_CB_XLISTBOX_GETITEM pfuncXGet;   ///< Callback func ptr for getting item text(or other attrs) while drawing //en-ot
 
 } gslc_tsXListbox;
 

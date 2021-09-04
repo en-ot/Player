@@ -193,7 +193,7 @@ gslc_tsElemRef* gslc_ElemXTogglebtnFindSelected(gslc_tsGui* pGui,int16_t nGroupI
 #if (GSLC_USE_PROGMEM)
 
 #define gslc_ElemXTogglebtnCreate_P(pGui,nElemId,nPage,nX,nY,nW,nH,colThumb_,colOnState_,colOffState_,bCircular_,bChecked_,cbTouch) \
-  static const uint8_t nFeatures##nElemId = GSLC_ELEM_FEA_VALID | \
+  static const uint16_t nFeatures##nElemId = GSLC_ELEM_FEA_VALID | \
     GSLC_ELEM_FEA_GLOW_EN | GSLC_ELEM_FEA_CLICK_EN | GSLC_ELEM_FEA_FILL_EN; \
   static gslc_tsXTogglebtn sTogglebtn##nElemId;                   \
   sTogglebtn##nElemId.bOn = bChecked_;                            \
@@ -235,7 +235,7 @@ gslc_tsElemRef* gslc_ElemXTogglebtnFindSelected(gslc_tsGui* pGui,int16_t nGroupI
 #else
 
 #define gslc_ElemXTogglebtnCreate_P(pGui,nElemId,nPage,nX,nY,nW,nH,colThumb_,colOnState_,colOffState_,bCircular_,bChecked_,cbTouch) \
-  static const uint8_t nFeatures##nElemId = GSLC_ELEM_FEA_VALID | \
+  static const uint16_t nFeatures##nElemId = GSLC_ELEM_FEA_VALID | \
     GSLC_ELEM_FEA_GLOW_EN | GSLC_ELEM_FEA_CLICK_EN | GSLC_ELEM_FEA_FILL_EN; \
   static gslc_tsXTogglebtn sTogglebtn##nElemId;                   \
   sTogglebtn##nElemId.bOn = bChecked_;                            \

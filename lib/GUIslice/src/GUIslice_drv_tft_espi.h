@@ -126,8 +126,8 @@ extern "C" {
 #define DRV_HAS_DRAW_LINE              1 ///< Support gslc_DrvDrawLine()
 #define DRV_HAS_DRAW_RECT_FRAME        1 ///< Support gslc_DrvDrawFrameRect()
 #define DRV_HAS_DRAW_RECT_FILL         1 ///< Support gslc_DrvDrawFillRect()
-#define DRV_HAS_DRAW_RECT_ROUND_FRAME  1 ///< Support gslc_DrvDrawFrameRoundRect()
-#define DRV_HAS_DRAW_RECT_ROUND_FILL   1 ///< Support gslc_DrvDrawFillRoundRect()
+#define DRV_HAS_DRAW_RECT_ROUND_FRAME  0 ///< Support gslc_DrvDrawFrameRoundRect()
+#define DRV_HAS_DRAW_RECT_ROUND_FILL   0 ///< Support gslc_DrvDrawFillRoundRect()
 #define DRV_HAS_DRAW_CIRCLE_FRAME      1 ///< Support gslc_DrvDrawFrameCircle()
 #define DRV_HAS_DRAW_CIRCLE_FILL       1 ///< Support gslc_DrvDrawFillCircle()
 #define DRV_HAS_DRAW_TRI_FRAME         1 ///< Support gslc_DrvDrawFrameTriangle()
@@ -144,6 +144,8 @@ typedef struct {
   gslc_tsColor  nColBkgnd;      ///< Background color (if not image-based)
 
   gslc_tsRect   rClipRect;      ///< Clipping rectangle
+
+  const void*   pvFontLast;     ///< Last loadFont() reference
 
 } gslc_tsDriver;
 
@@ -413,7 +415,7 @@ bool gslc_DrvDrawTxt(gslc_tsGui* pGui,int16_t nTxtX,int16_t nTxtY,gslc_tsFont* p
 /// \return true if success, false if failure
 ///
 bool gslc_DrvDrawTxtAlign(gslc_tsGui* pGui,int16_t nX0,int16_t nY0,int16_t nX1,int16_t nY1,int8_t eTxtAlign,
-        gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt,gslc_tsColor colBg, int16_t scr_pos);
+        gslc_tsFont* pFont,const char* pStr,gslc_teTxtFlags eTxtFlags,gslc_tsColor colTxt,gslc_tsColor colBg, int16_t scr_pos); //en-ot
 
 // -----------------------------------------------------------------------
 // Screen Management Functions

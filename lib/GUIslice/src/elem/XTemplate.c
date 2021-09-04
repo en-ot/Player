@@ -223,7 +223,7 @@ bool gslc_ElemXTemplateDraw(void* pvGui,void* pvElemRef,gslc_teRedrawType eRedra
     int8_t        nMarginY  = pElem->nTxtMarginY;
 
     gslc_DrawTxtBase(pGui, pElem->pStrBuf, pElem->rElem, pElem->pTxtFont, pElem->eTxtFlags,
-      pElem->eTxtAlign, colTxt, colBg, nMarginX, nMarginY, pElem->scr_pos);
+      pElem->eTxtAlign, colTxt, colBg, nMarginX, nMarginY, pElem->scr_pos); //en-ot
   }
 
   // --------------------------------------------------------------------------

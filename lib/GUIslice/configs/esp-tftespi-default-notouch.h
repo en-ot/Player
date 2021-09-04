@@ -142,7 +142,7 @@ extern "C" {
   //   required.
   #define GSLC_FEATURE_COMPOUND       0   // Compound elements (eg. XSelNum)
   #define GSLC_FEATURE_XTEXTBOX_EMBED 0   // XTextbox control with embedded color
-  #define GSLC_FEATURE_INPUT          1   // Keyboard / GPIO input control
+  #define GSLC_FEATURE_INPUT          0   // Keyboard / GPIO input control
 
   // Enable support for SD card
   // - Set to 1 to enable, 0 to disable
