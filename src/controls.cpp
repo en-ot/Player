@@ -434,7 +434,7 @@ bool change_page()
     if (i >= sizeof(page_order)) i = 0;
     ui_page = page_order[i];
 
-    sound_pause();
+    //sound_pause();
 
     gui->page(ui_page);
     return true;
@@ -444,7 +444,7 @@ bool change_page()
 //###############################################################
 bool sys_page()
 {
-    sound_pause();
+    //sound_pause();
     ui_page = PAGE_SYS;
     gui->page(ui_page);
     return true;

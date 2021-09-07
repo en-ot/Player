@@ -8,6 +8,9 @@
 #define PATHNAME_MAX_LEN 256
 #define FILENAME_MAX_LEN 256
 
+#define SAFE_ACCESS 0    // thread-safe access only
+#define DIRECT_ACCESS 1  // direct access allowed
+
 
 int clamp1(int num, int cnt);
 
@@ -43,7 +46,6 @@ class Playlist
         String root_path;
 
     private:
-        int thread;
         bool find_file0(int file_num);
         void rewind();
         void rewind_to_file(int file_num);

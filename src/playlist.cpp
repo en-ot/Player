@@ -25,11 +25,47 @@ typedef struct
 class PlaylistPrivate
 {
 public:
+    void enter_safe();
+    void leave_safe();
+    File sd_open(String path);
     size_t entry_name(File & file, char * buf, int len);
+    void rewind_directory(File & dir);
+    File open_next_file(File & dir);
+    void close(File & file);
+    bool is_dir(File & file);
+
     Ent dirs[DIR_DEPTH];
     File entry;
-    
+    int thread;
 };
+
+
+//###############################################################
+// wrapper
+//###############################################################
+extern TaskHandle_t audio_task_handle;
+
+void PlaylistPrivate::enter_safe()
+{
+    if (thread != DIRECT_ACCESS) 
+        vTaskSuspend(audio_task_handle);
+}
+
+
+void PlaylistPrivate::leave_safe()
+{
+    if (thread != DIRECT_ACCESS) 
+        vTaskResume(audio_task_handle);
+}
+
+
+File PlaylistPrivate::sd_open(String path)
+{
+    enter_safe();
+    File result = SD.open(path);
+    leave_safe();
+    return result;
+}
 
 
 size_t PlaylistPrivate::entry_name(File & file, char * buf, int len)
@@ -37,16 +73,55 @@ size_t PlaylistPrivate::entry_name(File & file, char * buf, int len)
     buf[0] = 0;
 
     if (file)
-        return file.getName(buf, len);
+    {
+        enter_safe();
+        size_t result = file.getName(buf, len);
+        leave_safe();
+        return result;
+    }
 
     return 0;
+}
+
+
+void PlaylistPrivate::rewind_directory(File & dir)
+{
+    enter_safe();
+    dir.rewindDirectory();
+    leave_safe();
+}
+
+
+void PlaylistPrivate::close(File & dir)
+{
+    enter_safe();
+    dir.close();
+    leave_safe();
+}
+
+
+File PlaylistPrivate::open_next_file(File & dir)
+{
+    enter_safe();
+    File result = dir.openNextFile();
+    leave_safe();
+    return result;
+}
+
+
+bool PlaylistPrivate::is_dir(File & file)
+{
+    enter_safe();
+    bool result = file.isDirectory();
+    leave_safe();
+    return result;
 }
 
 
 //###############################################################
 void Playlist::rewind()
 {
-    p->entry = SD.open(root_path);
+    p->entry = p->sd_open(root_path);
     level = 0;
     curfile = 1;
     curdir = 1;
@@ -66,11 +141,11 @@ void Playlist::rewind_to_file(int file_num)
         {
             curfile = p->dirs[level].first_file;
             curdir = p->dirs[level].first_dir;
-            p->dirs[level].dir.rewindDirectory();
+            p->rewind_directory(p->dirs[level].dir);
             p->entry = p->dirs[level].dir;
             return;
         }
-        p->dirs[level].dir.close();
+        p->close(p->dirs[level].dir);
         level -= 1;
     }
 
@@ -86,11 +161,11 @@ void Playlist::rewind_to_dir(int dir_num)
         {
             curfile = p->dirs[level].first_file;
             curdir = p->dirs[level].first_dir;
-            p->dirs[level].dir.rewindDirectory();
+            p->rewind_directory(p->dirs[level].dir);
             p->entry = p->dirs[level].dir;
             return;
         }
-        p->dirs[level].dir.close();
+        p->close(p->dirs[level].dir);
         level -= 1;
     }
 
@@ -107,10 +182,10 @@ bool Playlist::find_file0(int file_num)
             return true;
         }
 
-        p->entry = p->dirs[level].dir.openNextFile();
+        p->entry = p->open_next_file(p->dirs[level].dir);
         if (!p->entry) // no more files
         {
-            p->dirs[level].dir.close();
+            p->close(p->dirs[level].dir);
             if (level == 0)
                 return false;
             level -= 1;
@@ -119,7 +194,7 @@ bool Playlist::find_file0(int file_num)
 
         curfile += 1;
 
-        if (p->entry.isDirectory())
+        if (p->is_dir(p->entry))
         {
             curdir += 1;
             if (level+1 < DIR_DEPTH)   //skip deep dirs
@@ -139,9 +214,9 @@ bool Playlist::find_file0(int file_num)
 //###############################################################
 Playlist::Playlist(int thread_id)
 {
-    this->thread = thread_id;
     root_path = "/";
     p = new PlaylistPrivate();
+    p->thread = thread_id;
 }
 
 
@@ -213,7 +288,7 @@ bool Playlist::file_is_dir(int file_num)
     if (!find_file(file_num))
         return false;
 
-    return p->entry.isDirectory();
+    return p->is_dir(p->entry);
 }
 
 

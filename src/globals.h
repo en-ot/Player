@@ -43,9 +43,6 @@ extern Playlist * pl;   //list
 #define QUEUE_MSG_SIZE 250
 extern QueueHandle_t tag_queue;
 
-#define MAIN_THREAD 0
-#define AUDIO_THREAD 1
-
 
 //###############################################################
 

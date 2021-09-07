@@ -11,6 +11,8 @@ int start_file(int num, int updown);
 
 void sound_setup();
 
+extern TaskHandle_t audio_task_handle;
+
 bool sound_is_playing();
 bool sound_is_gain();
 uint32_t sound_current_time();
