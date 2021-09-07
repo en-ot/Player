@@ -459,11 +459,11 @@ void setup()
     end(6);
 
     begin("filectrl");
-    fc = new Playlist();
+    fc = new Playlist(AUDIO_THREAD);
     end(7);
  
     begin("Playlist");
-    pl = new Playlist();
+    pl = new Playlist(MAIN_THREAD);
     end(8);
 
     begin("gui_sys");

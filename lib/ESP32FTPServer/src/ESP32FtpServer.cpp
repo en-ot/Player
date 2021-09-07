@@ -929,7 +929,7 @@ boolean FtpServer::doStore()
             yield();
             nb = data.available();
         }
-        if (FTP_BUF_SIZE < nb)
+        if (nb > FTP_BUF_SIZE)
             nb = FTP_BUF_SIZE;
         if (nb > 0) 
         {

@@ -17,7 +17,7 @@ class Playlist
     friend class PlaylistPrivate;
 
     public:
-        Playlist();
+        Playlist(int thread_id);
 
         void set_root(String path);
 
@@ -43,6 +43,7 @@ class Playlist
         String root_path;
 
     private:
+        int thread;
         bool find_file0(int file_num);
         void rewind();
         void rewind_to_file(int file_num);

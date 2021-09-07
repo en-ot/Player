@@ -137,8 +137,9 @@ bool Playlist::find_file0(int file_num)
 //###############################################################
 // Playlist Class
 //###############################################################
-Playlist::Playlist()
+Playlist::Playlist(int thread_id)
 {
+    this->thread = thread_id;
     root_path = "/";
     p = new PlaylistPrivate();
 }

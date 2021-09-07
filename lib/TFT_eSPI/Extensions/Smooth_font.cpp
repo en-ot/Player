@@ -248,7 +248,7 @@ uint32_t TFT_eSPI::readInt32(void)
   if (fs_font) 
   {
     fontFile.seek((uint32_t)fontPtr, fs::SeekSet);
-    val |= fontFile.read();
+    val  = fontFile.read();
     val |= fontFile.read() << 8;
     val |= fontFile.read() << 16;
     val |= fontFile.read() << 24;
