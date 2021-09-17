@@ -142,16 +142,19 @@ void playctrl_loop()
         }
     }
 
-    if (need_set_file_pos && audio.isRunning() && ((int32_t)(t - t_filepos) > T_FILEPOS_DELAY))
+    if (need_set_file_pos && ((int32_t)(t - t_filepos) > T_FILEPOS_DELAY))
     {
-        //audio.pauseResume();
+        bool running = audio.isRunning();
+        
+        if (running) audio.pauseResume();
         //audio.loop();
+
         if (audio.setAudioPlayPosition(filepos))
         {
             need_set_file_pos = false;
         }
         //audio.loop();
-        //audio.pauseResume();
+        if (running) audio.pauseResume();
         //audio.loop();
     }
 

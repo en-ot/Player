@@ -197,8 +197,8 @@ bool file_seek(int by)
         return false;
     }
 
-    if (!sound_is_playing())
-        return false;
+    // if (!sound_is_playing())
+    //     return false;
 
     file_seek_by += by * speed;
     speed += 5;
