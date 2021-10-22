@@ -289,12 +289,32 @@ uint32_t gui_sys_freeheap;
 uint32_t gui_sys_minheap;
 //uint32_t gui_sys_largestheap;
 
+uint32_t sd_free_mb = 0;
+
+uint32_t calc_sd_free_size()
+{
+#define SECTOR_SIZE 512
+#define MBYTES (1024*1024)
+    uint64_t lFree = SD.vol()->freeClusterCount();
+    lFree *= SD.vol()->sectorsPerCluster() * SECTOR_SIZE;
+    sd_free_mb = lFree / MBYTES;
+    DEBUG("microSD free size: %u MB\n", sd_free_mb);
+    return sd_free_mb;
+}
+
+
 void sys_control(int16_t line, int key)
 {
     int16_t nItem = line-1;
-    if (nItem == 2)
+    switch (nItem)
     {
+    case 2:
         network_reconnect(key == 1);
+        break;
+
+    case 6:
+        calc_sd_free_size();
+        break;
     }
 }
 
@@ -340,9 +360,9 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
             snprintf(pStrItem, nStrItemLen, "Min Free Heap: %d", gui_sys_minheap);
             break;
 
-        // case 6:
-        //     snprintf(pStrItem, nStrItemLen, "Largest Free Heap: %d", gui_sys_largestheap);
-        //     break;
+        case 6:
+            snprintf(pStrItem, nStrItemLen, "microSD free: %u MB", sd_free_mb);
+            break;
     }
     return true;
 }
@@ -371,7 +391,7 @@ bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 
 void gui_sys_init()
 {
-    gui->sys_box(6, sys_get_item, 0);//sys_tick);
+    gui->sys_box(7, sys_get_item, 0);//sys_tick);
 }
 
 
@@ -452,6 +472,7 @@ void setup()
         gui->error("SDcard init error");
         SD.initErrorHalt(); // SdFat-lib helper function
     }
+    calc_sd_free_size();
     end(5);
 
     begin("fav");

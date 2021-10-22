@@ -3469,8 +3469,11 @@ bool Audio::setChannels(int ch) {
     m_channels = ch;
     return true;
 }
-uint8_t Audio::getChannels(){
-    return m_channels;
+uint8_t Audio::getChannels()
+{
+    if (m_channels)
+        return m_channels;
+    return 2;
 }
 //---------------------------------------------------------------------------------------------------------------------
 bool Audio::setBitrate(int br){
