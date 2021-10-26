@@ -5,6 +5,7 @@
 
 #include "globals.h"
 #include "prefs.h"
+#include "controls.h"
 
 
 //todo: prefs.freeEntries();
@@ -20,6 +21,8 @@ static int curfav = NO_FAV;
 static const char *prefs_file_main = "main";
 static const char *prefs_key_curfav = "curfav";
 static const char *prefs_key_prevfav = "prevfav";
+static const char *prefs_key_controls = "controls";
+static const char *prefs_key_sd_free = "sd_free";
 
 static const char *prefs_file_dir = "fav";
 static const char *prefs_key_path   = "path";
@@ -111,28 +114,50 @@ int prefs_load_data(int fav_num, char * path, int len)
 }
 
 
-void prefs_load_curfav(int * curfav, int * prevfav)
+void prefs_load_main(int * curfav, int * prevfav, uint32_t * sd_free)
 {
     prefs_close_fav();
-
     prefs.begin(prefs_file_main, false);
+
     *curfav = prefs.getInt(prefs_key_curfav, 1);
     *prevfav = prefs.getInt(prefs_key_prevfav, 1);
-    prefs.end();
+    *sd_free = prefs.getUInt(prefs_key_sd_free, 0);
+    
+    uint8_t arr[CONTROLS_PREFS_SIZE];
+    if (prefs.getBytes(prefs_key_controls, arr, sizeof(arr)))
+        controls_set_prefs(arr);
 
+    prefs.end();
+}
+
+
+void prefs_save_main(int curfav, int prevfav, uint32_t sd_free)
+{
+    prefs_close_fav();
+    prefs.begin(prefs_file_main, false);
+
+    prefs.putInt(prefs_key_curfav, curfav);
+    prefs.putInt(prefs_key_prevfav, prevfav);
+    prefs.putUInt(prefs_key_sd_free, sd_free);
+
+    uint8_t arr[CONTROLS_PREFS_SIZE];
+    controls_get_prefs(arr);
+    prefs.putBytes(prefs_key_controls, arr, sizeof(arr));
+
+    prefs.end();
+}
+
+
+void prefs_load(int * curfav, int * prevfav, uint32_t * sd_free)
+{
+    prefs_load_main(curfav, prevfav, sd_free);
     prefs_open_fav(*curfav);
 }
 
 
-void prefs_save_curfav(int curfav, int prevfav)
+void prefs_save(int curfav, int prevfav, uint32_t sd_free)
 {
-    prefs_close_fav();
-
-    prefs.begin(prefs_file_main, false);
-    prefs.putInt(prefs_key_curfav, curfav);
-    prefs.putInt(prefs_key_prevfav, prevfav);
-    prefs.end();
-
+    prefs_save_main(curfav, prevfav, sd_free);
     prefs_open_fav(curfav);
 }
 

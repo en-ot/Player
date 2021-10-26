@@ -68,6 +68,12 @@ int ui_page = PAGE_INFO;
 #define QUEUE_DEPTH 20
 QueueHandle_t tag_queue;
 
+uint32_t gui_sys_freeheap;
+uint32_t gui_sys_minheap;
+//uint32_t gui_sys_largestheap;
+
+uint32_t sd_free_mb = 0;
+
 
 //###############################################################
 #define FILES_CACHE_LINES 20
@@ -188,7 +194,7 @@ bool fav_switch(int fav_num, bool init)
         prefs_save_now(need_save_current_file);
 
         prev_fav_num = cur_fav_num;
-        prefs_save_curfav(fav_num, prev_fav_num);
+        prefs_save(fav_num, prev_fav_num, sd_free_mb);
     }
 
     fav_num = clamp1(fav_num, FAV_MAX);
@@ -285,16 +291,11 @@ void fav_init()
 
 
 //###############################################################
-uint32_t gui_sys_freeheap;
-uint32_t gui_sys_minheap;
-//uint32_t gui_sys_largestheap;
-
-uint32_t sd_free_mb = 0;
+#define SECTOR_SIZE 512
+#define MBYTES (1024*1024)
 
 uint32_t calc_sd_free_size()
 {
-#define SECTOR_SIZE 512
-#define MBYTES (1024*1024)
     uint64_t lFree = SD.vol()->freeClusterCount();
     lFree *= SD.vol()->sectorsPerCluster() * SECTOR_SIZE;
     sd_free_mb = lFree / MBYTES;
@@ -308,12 +309,20 @@ void sys_control(int16_t line, int key)
     int16_t nItem = line-1;
     switch (nItem)
     {
+    case 0:
+        if (key == 4)
+            controls_calibrate(1);
+        if (key == 5)
+            controls_calibrate(2);
+        break;
+
     case 2:
         network_reconnect(key == 1);
         break;
 
     case 6:
-        calc_sd_free_size();
+        sd_free_mb = 0;
+        //calc_sd_free_size();
         break;
     }
 }
@@ -462,7 +471,7 @@ void setup()
     {
         prefs_erase_all();
     }
-    prefs_load_curfav(&cur_fav_num, &prev_fav_num);
+    prefs_load(&cur_fav_num, &prev_fav_num, &sd_free_mb);
     //Serial.printf("cur:%d prev:%d\n", cur_fav_num, prev_fav_num);
     end(4);
 
@@ -472,7 +481,9 @@ void setup()
         gui->error("SDcard init error");
         SD.initErrorHalt(); // SdFat-lib helper function
     }
-    calc_sd_free_size();
+    if (!sd_free_mb)
+        calc_sd_free_size();
+
     end(5);
 
     begin("fav");

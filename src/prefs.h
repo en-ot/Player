@@ -7,8 +7,8 @@
 //###############################################################
 void prefs_erase_all();
 
-void prefs_save_curfav(int curfav, int prevfav);
-void prefs_load_curfav(int * curfav, int * prevfav);
+void prefs_save(int curfav, int prevfav, uint32_t sd_free);
+void prefs_load(int * curfav, int * prevfav, uint32_t * sd_free);
 
 int prefs_load_data(int fav_num, char * path, int len);
 int prefs_get_path(int fav_num, char * path, int len);

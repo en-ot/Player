@@ -2,6 +2,8 @@
 
 #include "AnalogEncoder.h"
 
+#define SERIAL_DEBUG
+
 AnalogEncoder::AnalogEncoder(int pin)
 {
     this->pin = pin;
@@ -174,7 +176,10 @@ bool AnalogEncoder::press_and_repeat()
 void AnalogEncoder::calibrate()
 {
     calibrate_mode = true;
+
+#ifdef SERIAL_DEBUG
     Serial.printf("calibrate pin %d start...\n", pin);
+#endif
 
     uint16_t * calibrate_array = (uint16_t *)calloc(sizeof(uint16_t), AE_ADC_RANGE);
     for (int i = 0; i < 5000; i++)
@@ -182,9 +187,15 @@ void AnalogEncoder::calibrate()
         uint16_t x1 = analogRead(pin);
         calibrate_array[x1]++;
         delay(1);
+
+        if (!(i % 500) && ae_calibrate_callback)
+            ae_calibrate_callback(i*100/500);
     }
 
+#ifdef SERIAL_DEBUG
     Serial.printf("calibrate results:\n");
+#endif
+
     for (int j = 0; j < AE_ADC_STEPS; j++)
     {
         int max_index = -1;
@@ -208,20 +219,27 @@ void AnalogEncoder::calibrate()
                     calibrate_array[i] = 0;
                 }
             }
+#ifdef SERIAL_DEBUG
             Serial.printf("max_index %d value %d/%d\n", max_index, max, sum);
+#endif
             aencv[j] = max_index;
         }
     }
     
     qsort(aencv, AE_ADC_STEPS, sizeof(uint16_t), [](const void *cmp1, const void *cmp2){return *((uint16_t *)cmp1) - *((uint16_t *)cmp2);});
+#ifdef SERIAL_DEBUG
     for (int i = 0; i < AE_ADC_STEPS; i++)
     {
         Serial.printf("%d, ", aencv[i]);
     }
     Serial.printf("\n");
-    
+#endif
+
+    if (ae_calibrate_callback)
+        ae_calibrate_callback(100);
+
     free(calibrate_array);
-    delay(2000);
+    delay(1000);
 
     calibrate_mode = false;
 }

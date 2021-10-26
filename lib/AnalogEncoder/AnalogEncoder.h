@@ -10,6 +10,8 @@
 #define AE_DEBOUNCE_DELAY_MS 10
 #define AE_PRESS_DELAY_LONG_MS 500
 
+extern __attribute__((weak)) void ae_calibrate_callback(int step);
+
 class AnalogEncoder
 {
     public:

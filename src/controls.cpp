@@ -11,6 +11,9 @@
 #include "sound.h"
 #include "strcache.h"
 
+#include "controls.h"
+
+
 InputButton btn_1(BTN_1, true, ACTIVE_LOW);
 InputButton btn_2(BTN_2, true, ACTIVE_LOW);
 InputButton btn_3(BTN_3, true, ACTIVE_LOW);
@@ -479,6 +482,20 @@ bool sys_volshort()
 }
 
 
+bool cal_vol()
+{
+    sys_control(gui->sys_sel, 4);
+    return true;
+}
+
+
+bool cal_seek()
+{
+    sys_control(gui->sys_sel, 5);
+    return true;
+}
+
+
 bool nothing()
 {
     return true;
@@ -547,8 +564,8 @@ Controls sys_ctrl = {{
     nothing,            sys_volshort,       // vol_long,    vol_short 
     nothing,            nothing,            // seek_long,   seek_short
     nothing,            change_page,        // b1_long,     b1_short  
-    nothing,            nothing,            // b2_long,     b2_short
-    nothing,            nothing,            // b3_long,     b3_short  
+    nothing,            cal_vol,            // b2_long,     b2_short
+    nothing,            cal_seek,           // b3_long,     b3_short  
 }};
 
 
@@ -645,12 +662,12 @@ void serial_loop()
 
     if (r == 'c')
     {
-        enc1.calibrate();
+        controls_calibrate(1);
     }
 
     if (r == 'v')
     {
-        enc2.calibrate();
+        controls_calibrate(2);
     }
     
 }
@@ -660,4 +677,27 @@ void controls_loop()
 {
     input_loop();
     serial_loop();
+}
+
+
+void controls_calibrate(int n)
+{
+    if (n == 1) enc1.calibrate();
+    else enc2.calibrate();
+}
+
+
+void controls_set_prefs(uint8_t * src)
+{
+    memcpy(enc1.aencv, src, sizeof(enc1.aencv));
+    src += sizeof(enc1.aencv);
+    memcpy(enc2.aencv, src, sizeof(enc2.aencv));
+}
+
+
+void controls_get_prefs(uint8_t * dst)
+{
+    memcpy(dst, enc1.aencv, sizeof(enc1.aencv));
+    dst += sizeof(enc1.aencv);
+    memcpy(dst, enc2.aencv, sizeof(enc2.aencv));
 }
