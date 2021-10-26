@@ -49,7 +49,7 @@ static void prefs_close_fav()
 }
 
 
-static bool prefs_open_fav(int fav_num)
+bool prefs_open_fav(int fav_num)
 {
     if (curfav == fav_num)
         return true;
@@ -145,20 +145,6 @@ void prefs_save_main(int curfav, int prevfav, uint32_t sd_free)
     prefs.putBytes(prefs_key_controls, arr, sizeof(arr));
 
     prefs.end();
-}
-
-
-void prefs_load(int * curfav, int * prevfav, uint32_t * sd_free)
-{
-    prefs_load_main(curfav, prevfav, sd_free);
-    prefs_open_fav(*curfav);
-}
-
-
-void prefs_save(int curfav, int prevfav, uint32_t sd_free)
-{
-    prefs_save_main(curfav, prevfav, sd_free);
-    prefs_open_fav(curfav);
 }
 
 

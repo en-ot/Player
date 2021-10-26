@@ -194,7 +194,7 @@ bool fav_switch(int fav_num, bool init)
         prefs_save_now(need_save_current_file);
 
         prev_fav_num = cur_fav_num;
-        prefs_save(fav_num, prev_fav_num, sd_free_mb);
+        prefs_save_main(fav_num, prev_fav_num, sd_free_mb);
     }
 
     fav_num = clamp1(fav_num, FAV_MAX);
@@ -321,8 +321,11 @@ void sys_control(int16_t line, int key)
         break;
 
     case 6:
-        sd_free_mb = 0;
-        //calc_sd_free_size();
+        //sd_free_mb = 0;
+        sound_stop();
+        calc_sd_free_size();
+        prefs_save_main(cur_fav_num, prev_fav_num, sd_free_mb);
+        prefs_open_fav(cur_fav_num);
         break;
     }
 }
@@ -471,7 +474,8 @@ void setup()
     {
         prefs_erase_all();
     }
-    prefs_load(&cur_fav_num, &prev_fav_num, &sd_free_mb);
+    prefs_load_main(&cur_fav_num, &prev_fav_num, &sd_free_mb);
+    //prefs_open_fav(cur_fav_num);
     //Serial.printf("cur:%d prev:%d\n", cur_fav_num, prev_fav_num);
     end(4);
 
@@ -482,7 +486,10 @@ void setup()
         SD.initErrorHalt(); // SdFat-lib helper function
     }
     if (!sd_free_mb)
+    {
         calc_sd_free_size();
+        prefs_save_main(cur_fav_num, prev_fav_num, sd_free_mb);
+    }
 
     end(5);
 
