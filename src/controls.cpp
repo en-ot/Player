@@ -642,6 +642,17 @@ void serial_loop()
         sound_stop();
         prefs_erase_all();
     }
+
+    if (r == 'c')
+    {
+        enc1.calibrate();
+    }
+
+    if (r == 'v')
+    {
+        enc2.calibrate();
+    }
+    
 }
 
 

@@ -2,9 +2,6 @@
 
 #include "AnalogEncoder.h"
 
-#define DEBOUNCE_DELAY_MS 10
-#define PRESS_DELAY_LONG_MS 500
-
 AnalogEncoder::AnalogEncoder(int pin)
 {
     this->pin = pin;
@@ -20,7 +17,8 @@ AnalogEncoder::AnalogEncoder(int pin)
 
 //            000 001   010   011   100   101   110  111
 //            0, 1174, 1940, 2330, 2540, 2750, 2930, 3056
-int aencv[] = {587, 1557, 2315, 2435, 2645, 2840, 2993};
+//int aenct[] = {587, 1557, 2315, 2435, 2645, 2840, 2993};
+//int aencv[] = {0, 1174, 1940, 2330, 2540, 2750, 2930, 3056};
 
 
 void AnalogEncoder::process_button(bool new_state)
@@ -34,7 +32,7 @@ void AnalogEncoder::process_button(bool new_state)
         return;
     }
 
-    if ((int32_t)(t - debounce_time) < DEBOUNCE_DELAY_MS)
+    if ((int32_t)(t - debounce_time) < AE_DEBOUNCE_DELAY_MS)
         return;
 
     if (button_debounced != button_raw)
@@ -50,7 +48,7 @@ void AnalogEncoder::process_button(bool new_state)
         }
     }
 
-    if (((int32_t)(t - long_time) > PRESS_DELAY_LONG_MS) && button_debounced && (long_flag == 0))
+    if (((int32_t)(t - long_time) > AE_PRESS_DELAY_LONG_MS) && button_debounced && (long_flag == 0))
     {
         long_flag = 1;
         //Serial.print(".");
@@ -85,11 +83,26 @@ void AnalogEncoder::process_position(int code)
 
 void AnalogEncoder::process()
 {
+    if (calibrate_mode)
+        return;
+
     int x1 = analogRead(pin);
-    int code = 3;
-    code += (x1 > aencv[code]) ? 2 : -2;
-    code += (x1 > aencv[code]) ? 1 : -1;
-    code += (x1 > aencv[code]);
+    int d1 = 5000;
+    int code = 0;
+    for (int i = 0; i < AE_ADC_STEPS; i++)
+    {
+        int delta = abs(aencv[i] - x1);
+        if (delta < d1)
+        {
+            d1 = delta;
+            code = i;
+        }
+    }
+
+    // int code = 3;
+    // code += (x1 > aenct[code]) ? 2 : -2;
+    // code += (x1 > aenct[code]) ? 1 : -1;
+    // code += (x1 > aenct[code]);
     
     if (last_code != code)
     {
@@ -157,3 +170,58 @@ bool AnalogEncoder::press_and_repeat()
     return false;
 }
 
+
+void AnalogEncoder::calibrate()
+{
+    calibrate_mode = true;
+    Serial.printf("calibrate pin %d start...\n", pin);
+
+    uint16_t * calibrate_array = (uint16_t *)calloc(sizeof(uint16_t), AE_ADC_RANGE);
+    for (int i = 0; i < 5000; i++)
+    {
+        uint16_t x1 = analogRead(pin);
+        calibrate_array[x1]++;
+        delay(1);
+    }
+
+    Serial.printf("calibrate results:\n");
+    for (int j = 0; j < AE_ADC_STEPS; j++)
+    {
+        int max_index = -1;
+        for (int i = 0; i < AE_ADC_RANGE; i++)
+        {
+            if (calibrate_array[i] > calibrate_array[max_index])
+            {
+                max_index = i;
+            }
+        }
+ 
+        if (max_index >= 0)
+        {
+            uint16_t max = calibrate_array[max_index];
+            int sum = 0;
+            for (int i = max_index-AE_ADC_HALF_WIDTH; i <= max_index+AE_ADC_HALF_WIDTH; i++)
+            {
+                if ((i >= 0) && (i < AE_ADC_RANGE))
+                {
+                    sum += calibrate_array[i];
+                    calibrate_array[i] = 0;
+                }
+            }
+            Serial.printf("max_index %d value %d/%d\n", max_index, max, sum);
+            aencv[j] = max_index;
+        }
+    }
+    
+    qsort(aencv, AE_ADC_STEPS, sizeof(uint16_t), [](const void *cmp1, const void *cmp2){return *((uint16_t *)cmp1) - *((uint16_t *)cmp2);});
+    for (int i = 0; i < AE_ADC_STEPS; i++)
+    {
+        Serial.printf("%d, ", aencv[i]);
+    }
+    Serial.printf("\n");
+    
+    free(calibrate_array);
+    delay(2000);
+
+    calibrate_mode = false;
+}

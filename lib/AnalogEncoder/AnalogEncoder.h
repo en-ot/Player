@@ -3,9 +3,29 @@
 
 #include <Arduino.h>
 
+#define AE_ADC_STEPS 8
+#define AE_ADC_RANGE 4096
+#define AE_ADC_HALF_WIDTH 10
+
+#define AE_DEBOUNCE_DELAY_MS 10
+#define AE_PRESS_DELAY_LONG_MS 500
 
 class AnalogEncoder
 {
+    public:
+        AnalogEncoder(int pin);         // init
+
+        void process();                 // process encoder
+        int get_cnt();                  // get count value
+        int get_move();                 // get count difference
+        bool is_pressed();              // button is now pressed
+        bool long_press();              // released after long press
+        bool short_press();             // released after short press
+        bool press_and_repeat();        // repeating
+
+        void calibrate();
+        uint16_t aencv[AE_ADC_STEPS] = {0, 1174, 1940, 2330, 2540, 2750, 2930, 3056};
+
     private:
         int pin;
 
@@ -26,17 +46,7 @@ class AnalogEncoder
 
         portMUX_TYPE timer_mux = portMUX_INITIALIZER_UNLOCKED;
 
-    public:
-        AnalogEncoder(int pin);         // init
-
-        void process();                 // process encoder
-        int get_cnt();                  // get count value
-        int get_move();                 // get count difference
-        bool is_pressed();              // button is now pressed
-        bool long_press();              // released after long press
-        bool short_press();             // released after short press
-        bool press_and_repeat();        // repeating
-
+        bool calibrate_mode = false;
 };
 
 
