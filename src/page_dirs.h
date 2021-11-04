@@ -8,5 +8,14 @@
 extern CtrlPage * ctrl_page_dirs;
 
 
+class PageDirs
+{
+public:
+    void box(int dircnt);
+    void goto_curdir();
+};
+
+extern PageDirs page_dirs;
+
 
 #endif // _PAGE_DIRS_H_

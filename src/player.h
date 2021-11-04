@@ -58,12 +58,6 @@ public:
     void fav_set_num();
     void fav_goto_curfav();
 
-    bool dirs_pgupdn(int by);
-    bool dirs_seek(int by);
-    void dirs_goto_curdir();
-    void dirs_set_fav();
-    void dirs_play_sel();
-
     void sys_page();;
 
     bool shuffle;

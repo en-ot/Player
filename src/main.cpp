@@ -18,7 +18,7 @@
 
 //#include "page_info.h"
 //#include "page_files.h"
-//#include "page_dirs.h"
+#include "page_dirs.h"
 //#include "page_fav.h"
 #include "page_sys.h"
 
@@ -109,61 +109,6 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
 
 
 //###############################################################
-#define DIRS_CACHE_LINES 20
-StrCache * dirs_cache;
-
-bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
-{
-    int dirnum = nItem+1;
-
-    int index = dirs_cache->get(dirnum);
-    int dir_level = 0;
-    if (index == CACHE_MISS)
-    {
-        if (!pl->find_dir(dirnum))
-            return false;
-
-        int filenum = pl->curfile;
-
-        char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
-
-        int disp = 0;
-        dir_level = pl->level + 1;
-        disp = dir_level*2-2;
-
-        pl->file_name(pl->curfile, &buf[disp], sizeof(buf)-disp);
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
-
-        dirs_cache->put(dirnum, buf, dir_level | (filenum << 16));
-    }
-    else
-    {
-        uint32_t flags = dirs_cache->lines[index].flags;
-        int filenum = flags >> 16;
-        dir_level = flags & 0xFFFF;
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, dirs_cache->lines[index].txt);
-    }
-
-    int type = 0;
-    if (dirnum == fc->curdir)  type = 1;
-    gui->dirs_highlight(pvGui, pvElem, type);
-
-    return true;
-}
-
-
-int dirs_file_num(int dirs_sel)
-{
-    int dirnum = dirs_sel;
-    int index = dirs_cache->get(dirnum);
-    if (index == CACHE_MISS)
-        return 0;
-    int file_num = dirs_cache->lines[index].flags >> 16;
-    return file_num;
-}
-
-
-//###############################################################
 bool fav_switch(int fav_num, bool init)
 {
     DEBUG("switch to fav %d, %d\n", fav_num, init);
@@ -191,7 +136,7 @@ bool fav_switch(int fav_num, bool init)
     fc->set_root(fav_path);
     pl->set_root(fav_path);
     gui->files_box(pl->filecnt, files_get_item);
-    gui->dirs_box(pl->dircnt, dirs_get_item);
+    page_dirs.box(pl->dircnt);
 
     DEBUG("dircnt: %d\n", pl->dircnt);
 
@@ -210,15 +155,10 @@ bool fav_switch(int fav_num, bool init)
     else
         files_cache->clear();
 
-    if (!dirs_cache)
-        dirs_cache = new StrCache(DIRS_CACHE_LINES);
-    else
-        dirs_cache->clear();
-
     start_file(player->next_file, FAIL_NEXT);
 
     player->fav_goto_curfav();
-    player->dirs_goto_curdir();
+    page_dirs.goto_curdir();
     player->files_goto_curfile();
 
     if (player->filepos)

@@ -67,20 +67,13 @@ class Gui
         void fav_select(int num);
         void fav_highlight(void *m_gui, void *pElemRef, int type);
         
-        // page:dirs
-        int dirs_sel = 1;
-        void dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
-        void dirs_seek(int by);
-        void dirs_highlight(void *gslc, void *pElemRef, int type);
-        void dirs_select(int curdir);
-
 };
 
 
 extern gslc_tsGui gslc;
 
 extern Gui * gui;
-extern int ui_page;
+//extern int ui_page;
 
 void check_font();
 

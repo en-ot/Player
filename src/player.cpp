@@ -320,60 +320,6 @@ void Player::fav_goto_curfav()
 
 
 //###############################################################
-bool Player::dirs_pgupdn(int by)
-{
-    if (!by)
-        return false;
-    gui->dirs_seek(by * LISTBOX_LINES);
-    return true;
-}
-
-
-bool Player::dirs_seek(int by)
-{
-    if (!by)
-        return false;
-    gui->dirs_seek(by);
-    return true;
-}
-
-
-void Player::dirs_goto_curdir()
-{
-    gui->dirs_select(fc->curdir);
-}
-
-
-void Player::dirs_set_fav()
-{
-    int file_num = dirs_file_num(gui->dirs_sel);
-    if (!file_num)
-        return;
-
-    char path[PATHNAME_MAX_LEN];
-    pl->file_dirname(file_num, path, sizeof(path));
-
-    int fav_num = gui->fav_sel;
-    fav_set_path(fav_num, path);
-
-    ui_page = PAGE_FAV;
-    gui->page(ui_page);
-}
-
-
-void Player::dirs_play_sel()
-{
-    int file_num = dirs_file_num(gui->dirs_sel);
-    if (!file_num)
-        return;
-
-    ui_page = PAGE_INFO;
-    gui->page(ui_page);
-    play_file_num(file_num, FAIL_NEXT);
-}
-
-
-//###############################################################
 uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
 
 void Player::change_page()

@@ -659,59 +659,6 @@ void Gui::files_seek(int by)
 
 
 //###############################################################
-// page:dirs
-//###############################################################
-gslc_tsElem                 dirs_elem[DIRS_ELEM_MAX];
-gslc_tsElemRef              dirs_ref[DIRS_ELEM_MAX];
-
-gslc_tsXListbox             dirs_box_elem;
-gslc_tsElemRef*             dirs_box_ref   = NULL;
-
-gslc_tsXSlider              dirs_slider_elem;
-gslc_tsElemRef*             dirs_slider_ref    = NULL;
-
-void page_dirs_init()
-{
-    gslc_PageAdd(&gslc, PAGE_DIRS, dirs_elem, DIRS_ELEM_MAX, dirs_ref, DIRS_ELEM_MAX);
-    dirs_box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &dirs_box_elem,    DIRS_BACK_COL);
-    dirs_slider_ref = create_slider(PAGE_DIRS, DIRS_SLIDER_ELEM, &dirs_slider_elem, DIRS_BACK_COL);
-}
-
-
-void Gui::dirs_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
-{
-    dirs_box_elem.pfuncXGet = cb;
-    dirs_box_elem.nItemCnt = cnt;
-    dirs_box_elem.nItemCurSel = 0;
-    dirs_box_elem.nItemTop = 0;
-    dirs_box_elem.bNeedRecalc = true;
-}
-
-
-void Gui::dirs_highlight(void *gslc, void *pElemRef, int type)
-{
-    static gslc_tsColor colors_b[] = {DIRS_COL_NORMAL_B, DIRS_COL_PLAY_B};
-    static gslc_tsColor colors_f[] = {DIRS_COL_NORMAL_F, DIRS_COL_PLAY_F};
-    gslc_tsElem * elem = &dirs_elem[DIRS_BOX_ELEM-DIRS_BOX_ELEM];
-    elem->colElemText       = colors_f[type];
-    elem->colElemTextGlow   = colors_f[type];
-    elem->colElemFill       = colors_b[type];
-}
-
-
-void Gui::dirs_select(int dir_num)
-{
-    dirs_sel = box_goto(dirs_box_ref, dirs_slider_ref, dir_num-1, true) + 1;
-}
-
-
-void Gui::dirs_seek(int by)
-{
-    dirs_sel = box_goto(dirs_box_ref, dirs_slider_ref, dirs_sel-1-by, false) + 1;
-}
-
-
-//###############################################################
 // page:fav
 //###############################################################
 gslc_tsElem                 fav_elem[FAV_ELEM_MAX];
