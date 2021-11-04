@@ -25,6 +25,16 @@ Player::Player()
 }
 
 
+extern CtrlPage * ctrl_pages[PAGE_MAX];
+
+void Player::set_ctrl(int page, CtrlPage * ctrl)
+{
+    //DEBUG("%d:%X\n", page, ctrl);
+    ctrl_pages[page] = ctrl;
+    //DEBUG_DUMP32(ctrl_pages, 5, 5);
+}
+
+
 void Player::set_gui(Gui * gui)
 {
     _gui = gui;

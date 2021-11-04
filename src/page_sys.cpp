@@ -33,31 +33,31 @@ public:
     void b2_short();
     void b3_short();
 
-    gslc_tsElem                 sys_elem[SYS_ELEM_MAX];
-    gslc_tsElemRef              sys_ref[SYS_ELEM_MAX];
+    gslc_tsElem                 elem[SYS_ELEM_MAX];
+    gslc_tsElemRef              ref[SYS_ELEM_MAX];
 
-    gslc_tsXListbox             sys_box_elem;
-    gslc_tsElemRef*             sys_box_ref     = NULL;
+    gslc_tsXListbox             box_elem;
+    gslc_tsElemRef*             box_ref     = NULL;
 
-    gslc_tsXSlider              sys_slider_elem;
-    gslc_tsElemRef*             sys_slider_ref  = NULL;
+    gslc_tsXSlider              slider_elem;
+    gslc_tsElemRef*             slider_ref  = NULL;
 };
 
-SysPrivate gui_sys;
 PageSys page_sys;
 
 
 class CtrlPageSys : public CtrlPage
 {
     void b1_short()         {       player->change_page();}
-    bool vol(int change)    {return gui_sys.vol(change);}
-    void vol_short()        {       gui_sys.vol_short();}
-    bool seek(int by)       {return gui_sys.seek(by);}
-    void b2_short()         {       gui_sys.b2_short();}
-    void b3_short()         {       gui_sys.b3_short();}
-} ctrl_page_sys_;
+    bool vol(int change)    {return g->vol(change);}
+    void vol_short()        {       g->vol_short();}
+    bool seek(int by)       {return g->seek(by);}
+    void b2_short()         {       g->b2_short();}
+    void b3_short()         {       g->b3_short();}
 
-CtrlPage * ctrl_page_sys = &ctrl_page_sys_;
+    friend class PageSys;
+    SysPrivate * g;
+};
 
 
 //###############################################################
@@ -129,26 +129,31 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
 
 void PageSys::init()
 {
-    gslc_PageAdd(&gslc, PAGE_SYS, gui_sys.sys_elem, SYS_ELEM_MAX, gui_sys.sys_ref, SYS_ELEM_MAX);
-    gui_sys.sys_box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &gui_sys.sys_box_elem,    SYS_BACK_COL);
-    gui_sys.sys_slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &gui_sys.sys_slider_elem, SYS_BACK_COL);
-    gui_sys.box(7, page_sys_get_item, 0);//sys_tick);
+    g = new SysPrivate;
+    c = new CtrlPageSys;
+    c->g = g;
+    player->set_ctrl(PAGE_SYS, c);
+
+    gslc_PageAdd(&gslc, PAGE_SYS, g->elem, SYS_ELEM_MAX, g->ref, SYS_ELEM_MAX);
+    g->box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &g->box_elem,    SYS_BACK_COL);
+    g->slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &g->slider_elem, SYS_BACK_COL);
+    g->box(7, page_sys_get_item, 0);
 }
 
 
 void PageSys::update()
 {
     // DEBUG("Sys set update\n");
-    gslc_ElemSetRedraw(&gslc, gui_sys.sys_box_ref, GSLC_REDRAW_FULL);
+    gslc_ElemSetRedraw(&gslc, g->box_ref, GSLC_REDRAW_FULL);
 }
 
 
 void SysPrivate::box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb)
 {
-    sys_box_elem.pfuncXGet = cb;
-    sys_box_elem.nItemCnt = cnt;
-    sys_box_elem.bNeedRecalc = true;
-    gslc_ElemSetTickFunc(&gslc, sys_box_ref, tick_cb);
+    box_elem.pfuncXGet = cb;
+    box_elem.nItemCnt = cnt;
+    box_elem.bNeedRecalc = true;
+    gslc_ElemSetTickFunc(&gslc, box_ref, tick_cb);
 }
 
 
@@ -156,7 +161,7 @@ bool SysPrivate::seek(int by)
 {
     if (!by)
         return false;
-    sel = box_goto(sys_box_ref, sys_slider_ref, sel-1-by, false) + 1;
+    sel = box_goto(box_ref, slider_ref, sel-1-by, false) + 1;
     return true;
 }
 

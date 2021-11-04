@@ -5,16 +5,15 @@
 #include "player_ctrl.h"
 
 
-extern CtrlPage * ctrl_page_dirs;
-
-
 class PageDirs : public Page
 {
 public:
     void init();
     void box(int dircnt);
     void goto_cur();
-    //void update();
+
+    class DirsPrivate * g;
+    class CtrlPageDirs * c;
 };
 
 extern PageDirs page_dirs;

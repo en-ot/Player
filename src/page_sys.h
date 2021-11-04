@@ -5,6 +5,8 @@
 #include "player_ctrl.h"
 
 
+uint32_t calc_sd_free_size();
+
 class Sys
 {
 public:
@@ -15,12 +17,6 @@ public:
 
     bool read_error = false;
 };
-
-
-extern CtrlPage * ctrl_page_sys;
-
-uint32_t calc_sd_free_size();
-
 extern Sys sys;
 
 
@@ -28,17 +24,14 @@ class PageSys : public Page
 {
 public:
     void init();
-//    void box(int lines);
     void update();
     void loop();
+
+    class SysPrivate * g;
+    class CtrlPageSys * c;
 };
 
 extern PageSys page_sys;
-
-
-//void page_sys_init();
-//void page_sys_set_update();
-void page_sys_loop();
 
 
 #endif // _PAGE_SYS_H_

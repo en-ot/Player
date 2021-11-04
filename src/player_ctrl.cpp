@@ -137,16 +137,17 @@ void player_ctrl_init()
     ctrl_pages[PAGE_INFO]  = &ctrl_page_info;
     ctrl_pages[PAGE_FAV]   = &ctrl_page_fav;
     ctrl_pages[PAGE_FILES] = &ctrl_page_files;
-    ctrl_pages[PAGE_DIRS]  = ctrl_page_dirs;
-    ctrl_pages[PAGE_SYS]   = ctrl_page_sys;
+//    ctrl_pages[PAGE_DIRS]  = page_dirs.ctrl();
+//    ctrl_pages[PAGE_SYS]   = ctrl_page_sys;
 }
 
 
 bool player_ctrl_input(int ui_page, PlayerInputType type, int key)
 {
+    //DEBUG_DUMP32(ctrl_pages, 5, 5);
+
     CtrlPage * page = ctrl_pages[ui_page];
     return page->input(type, key);
-    // DEBUG_DUMP32(ctrl_pages, 5, 5);
 }
 
 

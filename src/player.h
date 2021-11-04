@@ -17,6 +17,7 @@ class Player
 public:
     Player();
     void set_gui(Gui * gui);
+    void set_ctrl(int page, CtrlPage * ctrl);
 
     void reset_to_defaults();
 
@@ -79,7 +80,7 @@ public:
 
 private:
     Gui * _gui = nullptr;
-    CtrlPage * ctrl_pages[PAGE_MAX] = {0};
+    //CtrlPage * ctrl_pages[PAGE_MAX] = {0};
 };
 
 

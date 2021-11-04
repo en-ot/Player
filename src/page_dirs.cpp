@@ -24,32 +24,32 @@ public:
     void set_fav();
     void play_sel();
 
-    gslc_tsElem                 dirs_elem[DIRS_ELEM_MAX];
-    gslc_tsElemRef              dirs_ref[DIRS_ELEM_MAX];
+    gslc_tsElem                 elem[DIRS_ELEM_MAX];
+    gslc_tsElemRef              ref[DIRS_ELEM_MAX];
 
-    gslc_tsXListbox             dirs_box_elem;
-    gslc_tsElemRef*             dirs_box_ref   = NULL;
+    gslc_tsXListbox             box_elem;
+    gslc_tsElemRef*             box_ref   = NULL;
 
-    gslc_tsXSlider              dirs_slider_elem;
-    gslc_tsElemRef*             dirs_slider_ref    = NULL;
+    gslc_tsXSlider              slider_elem;
+    gslc_tsElemRef*             slider_ref    = NULL;
 };
 
-DirsPrivate gui_dirs;
 PageDirs page_dirs;
 
 
 class CtrlPageDirs : public CtrlPage
 {
     void b1_short()         {       player->change_page();}
-    bool vol(int change)    {return gui_dirs.pgupdn(change);}
-    void vol_short()        {       gui_dirs.goto_cur();}
-    bool seek(int by)       {return gui_dirs.seek(by);}
-    void seek_long()        {       gui_dirs.set_fav();}
-    void seek_short()       {       gui_dirs.play_sel();}
-} ctrl_page_dirs_;
+    bool vol(int change)    {return g->pgupdn(change);}
+    void vol_short()        {       g->goto_cur();}
+    bool seek(int by)       {return g->seek(by);}
+    void seek_long()        {       g->set_fav();}
+    void seek_short()       {       g->play_sel();}
 
+    friend class PageDirs;
+    DirsPrivate * g;
+};
 
-CtrlPage * ctrl_page_dirs = &ctrl_page_dirs_;
 
 
 //###############################################################
@@ -90,7 +90,7 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
 
     int type = 0;
     if (dirnum == fc->curdir)  type = 1;
-    gui_dirs.highlight(pvGui, pvElem, type);
+    page_dirs.g->highlight(pvGui, pvElem, type);
 
     return true;
 }
@@ -113,19 +113,24 @@ int dirs_file_num(int dirs_sel)
 //###############################################################
 void PageDirs::init()
 {
-    gslc_PageAdd(&gslc, PAGE_DIRS, gui_dirs.dirs_elem, DIRS_ELEM_MAX, gui_dirs.dirs_ref, DIRS_ELEM_MAX);
-    gui_dirs.dirs_box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &gui_dirs.dirs_box_elem,    DIRS_BACK_COL);
-    gui_dirs.dirs_slider_ref = create_slider(PAGE_DIRS, DIRS_SLIDER_ELEM, &gui_dirs.dirs_slider_elem, DIRS_BACK_COL);
+    g = new DirsPrivate;
+    c = new CtrlPageDirs;
+    c->g = g;
+    player->set_ctrl(PAGE_DIRS, c);
+
+    gslc_PageAdd(&gslc, PAGE_DIRS, g->elem, DIRS_ELEM_MAX, g->ref, DIRS_ELEM_MAX);
+    g->box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &g->box_elem,    DIRS_BACK_COL);
+    g->slider_ref = create_slider(PAGE_DIRS, DIRS_SLIDER_ELEM, &g->slider_elem, DIRS_BACK_COL);
 }
 
 
 void PageDirs::box(int cnt)
 {
-    gui_dirs.dirs_box_elem.pfuncXGet = dirs_get_item;
-    gui_dirs.dirs_box_elem.nItemCnt = cnt;
-    gui_dirs.dirs_box_elem.nItemCurSel = 0;
-    gui_dirs.dirs_box_elem.nItemTop = 0;
-    gui_dirs.dirs_box_elem.bNeedRecalc = true;
+    g->box_elem.pfuncXGet = dirs_get_item;
+    g->box_elem.nItemCnt = cnt;
+    g->box_elem.nItemCurSel = 0;
+    g->box_elem.nItemTop = 0;
+    g->box_elem.bNeedRecalc = true;
 
     if (!dirs_cache)
         dirs_cache = new StrCache(DIRS_CACHE_LINES);
@@ -136,7 +141,7 @@ void PageDirs::box(int cnt)
 
 void PageDirs::goto_cur()
 {
-    gui_dirs.goto_cur();
+    g->goto_cur();
 }
 
 
@@ -144,7 +149,7 @@ void DirsPrivate::highlight(void *gslc, void *pElemRef, int type)
 {
     static gslc_tsColor colors_b[] = {DIRS_COL_NORMAL_B, DIRS_COL_PLAY_B};
     static gslc_tsColor colors_f[] = {DIRS_COL_NORMAL_F, DIRS_COL_PLAY_F};
-    gslc_tsElem * elem = &dirs_elem[DIRS_BOX_ELEM-DIRS_BOX_ELEM];
+    gslc_tsElem * elem = &this->elem[DIRS_BOX_ELEM-DIRS_BOX_ELEM];
     elem->colElemText       = colors_f[type];
     elem->colElemTextGlow   = colors_f[type];
     elem->colElemFill       = colors_b[type];
@@ -153,7 +158,7 @@ void DirsPrivate::highlight(void *gslc, void *pElemRef, int type)
 
 void DirsPrivate::select(int dir_num, bool center)
 {
-    sel = box_goto(dirs_box_ref, dirs_slider_ref, dir_num-1, center) + 1;
+    sel = box_goto(box_ref, slider_ref, dir_num-1, center) + 1;
 }
 
 
