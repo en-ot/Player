@@ -20,6 +20,8 @@ const char* ap_password = "player_admin";
 #include "debug.h"
 #include "sound.h"
 #include "gui.h"
+#include "page_sys.h"
+
 #include "globals.h"
 
 
@@ -456,7 +458,7 @@ void network_loop()
     services_begin();
 
     gui->net(WiFi.getMode());
-    gui->sys_set_update();
+    page_sys.sys_set_update();
 #else
     // xxx = (uint8_t*)malloc(100000);
     //xxx[0]++;

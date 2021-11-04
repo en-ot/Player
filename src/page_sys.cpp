@@ -11,6 +11,10 @@
 #include "player.h"
 #include "firmware.h"
 
+#include "gui.h"
+#include "gui_common.h"
+#include "gui_sys.h"
+
 #include "page_sys.h"
 
 
@@ -28,6 +32,18 @@ class CtrlPageSys : public CtrlPage
 } ctrl_page_sys_;
 
 CtrlPage * ctrl_page_sys = &ctrl_page_sys_;
+
+
+class GuiSys
+{
+public:
+    int sys_sel = 1;
+    void gui_seek(int by);
+    void sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb);
+};
+
+GuiSys gui_sys;
+
 
 
 //###############################################################
@@ -135,7 +151,7 @@ void memory_loop()
     sys.gui_sys_freeheap = heap_caps_get_free_size(caps);
     sys.gui_sys_minheap =  heap_caps_get_minimum_free_size(caps);
     //gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
-    gui->sys_set_update();
+    page_sys.sys_set_update();
 
 //    Serial.printf("free %d, min %d\n", gui_sys_freeheap, gui_sys_minheap);
 
@@ -177,7 +193,7 @@ void memory_loop()
 
 void gui_sys_init()
 {
-    gui->sys_box(7, sys_get_item, 0);//sys_tick);
+    gui_sys.sys_box(7, sys_get_item, 0);//sys_tick);
 }
 
 
@@ -185,7 +201,7 @@ bool PageSys::sys_seek(int by)
 {
     if (!by)
         return false;
-    gui->sys_seek(by);
+    gui_sys.gui_seek(by);
     return true;
 }
 
@@ -195,28 +211,71 @@ bool PageSys::sys_volupdn(int by)
     if (!by)
         return false;
     if (by > 0)
-        sys_control(gui->sys_sel, 1);
+        sys_control(gui_sys.sys_sel, 1);
     else
-        sys_control(gui->sys_sel, 2);
+        sys_control(gui_sys.sys_sel, 2);
     return true;
 }
 
 
 void PageSys::sys_volshort()
 {
-    sys_control(gui->sys_sel, 3);
+    sys_control(gui_sys.sys_sel, 3);
 }
 
 
 void PageSys::cal_vol()
 {
-    sys_control(gui->sys_sel, 4);
+    sys_control(gui_sys.sys_sel, 4);
 }
 
 
 void PageSys::cal_seek()
 {
-    sys_control(gui->sys_sel, 5);
+    sys_control(gui_sys.sys_sel, 5);
+}
+
+
+//###############################################################
+// page:sys
+//###############################################################
+gslc_tsElem                 sys_elem[SYS_ELEM_MAX];
+gslc_tsElemRef              sys_ref[SYS_ELEM_MAX];
+
+gslc_tsXListbox             sys_box_elem;
+gslc_tsElemRef*             sys_box_ref     = NULL;
+
+gslc_tsXSlider              sys_slider_elem;
+gslc_tsElemRef*             sys_slider_ref  = NULL;
+
+
+void PageSys::sys_set_update()
+{
+    // DEBUG("Sys set update\n");
+    gslc_ElemSetRedraw(&gslc, sys_box_ref, GSLC_REDRAW_FULL);
+}
+
+
+void page_sys_init()
+{
+    gslc_PageAdd(&gslc, PAGE_SYS, sys_elem, SYS_ELEM_MAX, sys_ref, SYS_ELEM_MAX);
+    sys_box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &sys_box_elem,    SYS_BACK_COL);
+    sys_slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &sys_slider_elem, SYS_BACK_COL);
+}
+
+
+void GuiSys::sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb)
+{
+    sys_box_elem.pfuncXGet = cb;
+    sys_box_elem.nItemCnt = cnt;
+    sys_box_elem.bNeedRecalc = true;
+    gslc_ElemSetTickFunc(&gslc, sys_box_ref, tick_cb);
+}
+
+
+void GuiSys::gui_seek(int by)
+{
+    sys_sel = box_goto(sys_box_ref, sys_slider_ref, sys_sel-1-by, false) + 1;
 }
 
 

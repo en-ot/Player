@@ -16,6 +16,8 @@ public:
 };
 
 
+class GuiSys;
+
 class PageSys
 {
 public:
@@ -24,6 +26,8 @@ public:
     void sys_volshort();
     void cal_vol();
     void cal_seek();
+
+    void sys_set_update();
 };
 
 extern CtrlPage * ctrl_page_sys;
@@ -37,5 +41,8 @@ void sys_control(int16_t line, int key);
 
 extern Sys sys;
 extern PageSys page_sys;
+
+void page_sys_init();
+
 
 #endif // _PAGE_SYS_H_

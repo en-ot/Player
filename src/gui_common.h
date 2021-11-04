@@ -1,3 +1,5 @@
+#include "elem/XSlider.h"
+
 //###############################################################
 #define COL_BLACK       ((gslc_tsColor) { 0, 0, 0})
 #define COL_GRAY_DARK   ((gslc_tsColor) { 32, 32, 32})
@@ -93,3 +95,7 @@ enum {
 #define SLIDER_RECT    (gslc_tsRect){LCD_W - SLIDER_W, BOX_Y, SLIDER_W, BOX_H}
 #define SLIDER_POS_MAX 240
 
+
+gslc_tsElemRef* create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pelem, gslc_tsColor col);
+gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem, gslc_tsColor col);
+int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center);

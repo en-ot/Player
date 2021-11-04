@@ -5,4 +5,3 @@
 #define SYS_COL_ERR_B      COL_RED_DARK
 #define SYS_COL_ERR_F      COL_RED_LIGHT
 
-void page_sys_init();

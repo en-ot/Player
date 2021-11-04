@@ -3,7 +3,6 @@
 #include "GUIslice.h"
 #include "GUIslice_drv.h"
 #include "elem/XProgress.h"
-#include "elem/XSlider.h"
 #include "elem/XTextbox.h"
 #include "elem/XListbox.h"
 
@@ -18,7 +17,8 @@
 #include "gui_files.h"
 #include "gui_dirs.h"
 #include "gui_fav.h"
-#include "gui_sys.h"
+
+#include "page_sys.h"
 
 #include "gui_icons.h"
 
@@ -573,7 +573,7 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 // }
 
 
-static int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center)
+int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center)
 {
     gslc_tsElem * elem = gslc_GetElemFromRef(&gslc, box_ref);
     gslc_tsXListbox * box = (gslc_tsXListbox *)elem->pXData;
@@ -759,48 +759,6 @@ void Gui::fav_select(int fav_num)
 void Gui::fav_seek(int by)
 {
     fav_sel = box_goto(fav_box_ref, fav_slider_ref, fav_sel-1-by, false) + 1;
-}
-
-
-//###############################################################
-// page:sys
-//###############################################################
-gslc_tsElem                 sys_elem[SYS_ELEM_MAX];
-gslc_tsElemRef              sys_ref[SYS_ELEM_MAX];
-
-gslc_tsXListbox             sys_box_elem;
-gslc_tsElemRef*             sys_box_ref     = NULL;
-
-gslc_tsXSlider              sys_slider_elem;
-gslc_tsElemRef*             sys_slider_ref  = NULL;
-
-void page_sys_init()
-{
-    gslc_PageAdd(&gslc, PAGE_SYS, sys_elem, SYS_ELEM_MAX, sys_ref, SYS_ELEM_MAX);
-    sys_box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &sys_box_elem,    SYS_BACK_COL);
-    sys_slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &sys_slider_elem, SYS_BACK_COL);
-}
-
-
-void Gui::sys_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb)
-{
-    sys_box_elem.pfuncXGet = cb;
-    sys_box_elem.nItemCnt = cnt;
-    sys_box_elem.bNeedRecalc = true;
-    gslc_ElemSetTickFunc(&gslc, sys_box_ref, tick_cb);
-}
-
-
-void Gui::sys_set_update()
-{
-    // DEBUG("Sys set update\n");
-    gslc_ElemSetRedraw(&gslc, sys_box_ref, GSLC_REDRAW_FULL);
-}
-
-
-void Gui::sys_seek(int by)
-{
-    sys_sel = box_goto(sys_box_ref, sys_slider_ref, sys_sel-1-by, false) + 1;
 }
 
 
