@@ -581,18 +581,80 @@ Controls controls[PAGE_MAX] =
 };
 
 
-
 class CtrlPage
 {
+public:
+    virtual bool change_volume(int param) {return false;}
+    virtual bool seek(int param) {return false;}
+};
 
+
+class CtrlPage1 : public CtrlPage
+{
+public:
+    bool change_volume(int change)
+    {
+        if (!change)
+            return false;
+
+        int new_volume = volume + change;
+        if (new_volume < 0)     new_volume = 0;
+        if (new_volume > 21)    new_volume = 21;
+        
+        if (new_volume == volume)
+            return false;
+
+        volume = new_volume;
+        gui->volume(volume);
+        gui->gain(true);
+        prefs_save_delayed(need_save_volume);
+        return true;
+    }
+
+    bool seek(int by)
+    {
+        const int seek_delay = 10;
+        static int speed = 5;
+        static uint32_t t_seek1 = 0;
+        uint32_t t = millis();
+
+        if (!by)
+        {
+            if ((int32_t)(t - t_seek1) > seek_delay)
+            {
+                t_seek1 = t;
+                if (speed > 5) 
+                    speed--;
+            }
+            return false;
+        }
+
+        file_seek_by += by * speed;
+        speed += 5;
+        return true;
+    }
+} page1;
+
+
+//CtrlPage1 page1;
+
+CtrlPage * ctrl_pages[] = {
+    &page1,
 };
 
 
 bool moved(PlayerKey key, int param)
 {
+    if (ui_page == PAGE_INFO)
+    {
+        CtrlPage * page = ctrl_pages[ui_page];
+        if (key == KEY_VOLUME) return page->change_volume(param);
+        if (key == KEY_SEEK) return page->seek(param);
+        return false;
+    }
+
     Controls * ctrl = &controls[ui_page];
-    ctrl->encoders[key](param);
-    return true;
+    return ctrl->encoders[key](param);
 }
 
 
@@ -606,8 +668,8 @@ bool button(PlayerKey key)
 
 bool input_loop()
 {
-    if (int move1 = enc1.get_move())    return moved(KEY_VOLUME, move1);
-    if (int move2 = enc2.get_move())    return moved(KEY_SEEK, -move2);
+    if (moved(KEY_VOLUME, enc1.get_move())) return true;
+    if (moved(KEY_SEEK, -enc2.get_move())) return true;
 
     if (enc1.long_press())              return button(KEY_VOLLONG);
     if (enc1.short_press())             return button(KEY_VOLSHORT);
