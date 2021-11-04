@@ -24,8 +24,8 @@
 
 Gui * gui;
 
-Playlist * fc;   //playing file
-Playlist * pl;   //files and dirs Playlist
+Playlist * fc;   //playlist for file playing
+Playlist * pl;   //playlist for display
 
 
 //###############################################################
@@ -528,16 +528,6 @@ bool cmp(char * info, const char * tst, char ** p)
 }
 
 
-void print_hex(char * data, int len)
-{
-    int i;
-    for (i = 0; i < len; i++)
-    {
-        DEBUG("%2X ", data[i]);
-    }
-}
-
-
 void display_loop()
 {
     uint32_t t = millis();
@@ -562,7 +552,7 @@ void display_loop()
     if (res == pdTRUE)
     {
         DEBUG("id3data[%i]: %s\n", strlen(msg), msg);
-//        print_hex(msg, 20);
+        //DEBUG_DUMP8(msg, len, len);
 //        DEBUG("\n");
 
         char * p;
