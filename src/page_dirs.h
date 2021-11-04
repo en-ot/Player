@@ -8,11 +8,13 @@
 extern CtrlPage * ctrl_page_dirs;
 
 
-class PageDirs
+class PageDirs : public Page
 {
 public:
+    void init();
     void box(int dircnt);
-    void goto_curdir();
+    void goto_cur();
+    //void update();
 };
 
 extern PageDirs page_dirs;

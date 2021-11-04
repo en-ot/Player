@@ -20,9 +20,18 @@ public:
 
     bool seek(int by);
     bool pgupdn(int by);
-    void goto_curdir();
+    void goto_cur();
     void set_fav();
     void play_sel();
+
+    gslc_tsElem                 dirs_elem[DIRS_ELEM_MAX];
+    gslc_tsElemRef              dirs_ref[DIRS_ELEM_MAX];
+
+    gslc_tsXListbox             dirs_box_elem;
+    gslc_tsElemRef*             dirs_box_ref   = NULL;
+
+    gslc_tsXSlider              dirs_slider_elem;
+    gslc_tsElemRef*             dirs_slider_ref    = NULL;
 };
 
 DirsPrivate gui_dirs;
@@ -33,7 +42,7 @@ class CtrlPageDirs : public CtrlPage
 {
     void b1_short()         {       player->change_page();}
     bool vol(int change)    {return gui_dirs.pgupdn(change);}
-    void vol_short()        {       gui_dirs.goto_curdir();}
+    void vol_short()        {       gui_dirs.goto_cur();}
     bool seek(int by)       {return gui_dirs.seek(by);}
     void seek_long()        {       gui_dirs.set_fav();}
     void seek_short()       {       gui_dirs.play_sel();}
@@ -41,9 +50,6 @@ class CtrlPageDirs : public CtrlPage
 
 
 CtrlPage * ctrl_page_dirs = &ctrl_page_dirs_;
-
-
-
 
 
 //###############################################################
@@ -105,30 +111,21 @@ int dirs_file_num(int dirs_sel)
 //###############################################################
 // page:dirs
 //###############################################################
-gslc_tsElem                 dirs_elem[DIRS_ELEM_MAX];
-gslc_tsElemRef              dirs_ref[DIRS_ELEM_MAX];
-
-gslc_tsXListbox             dirs_box_elem;
-gslc_tsElemRef*             dirs_box_ref   = NULL;
-
-gslc_tsXSlider              dirs_slider_elem;
-gslc_tsElemRef*             dirs_slider_ref    = NULL;
-
-void page_dirs_init()
+void PageDirs::init()
 {
-    gslc_PageAdd(&gslc, PAGE_DIRS, dirs_elem, DIRS_ELEM_MAX, dirs_ref, DIRS_ELEM_MAX);
-    dirs_box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &dirs_box_elem,    DIRS_BACK_COL);
-    dirs_slider_ref = create_slider(PAGE_DIRS, DIRS_SLIDER_ELEM, &dirs_slider_elem, DIRS_BACK_COL);
+    gslc_PageAdd(&gslc, PAGE_DIRS, gui_dirs.dirs_elem, DIRS_ELEM_MAX, gui_dirs.dirs_ref, DIRS_ELEM_MAX);
+    gui_dirs.dirs_box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &gui_dirs.dirs_box_elem,    DIRS_BACK_COL);
+    gui_dirs.dirs_slider_ref = create_slider(PAGE_DIRS, DIRS_SLIDER_ELEM, &gui_dirs.dirs_slider_elem, DIRS_BACK_COL);
 }
 
 
 void PageDirs::box(int cnt)
 {
-    dirs_box_elem.pfuncXGet = dirs_get_item;
-    dirs_box_elem.nItemCnt = cnt;
-    dirs_box_elem.nItemCurSel = 0;
-    dirs_box_elem.nItemTop = 0;
-    dirs_box_elem.bNeedRecalc = true;
+    gui_dirs.dirs_box_elem.pfuncXGet = dirs_get_item;
+    gui_dirs.dirs_box_elem.nItemCnt = cnt;
+    gui_dirs.dirs_box_elem.nItemCurSel = 0;
+    gui_dirs.dirs_box_elem.nItemTop = 0;
+    gui_dirs.dirs_box_elem.bNeedRecalc = true;
 
     if (!dirs_cache)
         dirs_cache = new StrCache(DIRS_CACHE_LINES);
@@ -137,9 +134,9 @@ void PageDirs::box(int cnt)
 }
 
 
-void PageDirs::goto_curdir()
+void PageDirs::goto_cur()
 {
-    gui_dirs.goto_curdir();
+    gui_dirs.goto_cur();
 }
 
 
@@ -178,7 +175,7 @@ bool DirsPrivate::seek(int by)
 }
 
 
-void DirsPrivate::goto_curdir()
+void DirsPrivate::goto_cur()
 {
     select(fc->curdir, true);
 }

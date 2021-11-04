@@ -18,6 +18,7 @@
 #include "gui_dirs.h"
 #include "gui_fav.h"
 
+#include "page_dirs.h"
 #include "page_sys.h"
 
 #include "gui_icons.h"
@@ -104,8 +105,8 @@ Gui::Gui()
     page_files_init();
     //page_pic_init();
     page_fav_init();
-    page_dirs_init();
-    page_sys_init();
+    page_dirs.init();
+    page_sys.init();
 
     page(PAGE_INFO);
 

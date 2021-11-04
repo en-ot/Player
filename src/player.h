@@ -83,6 +83,17 @@ private:
 };
 
 
+class Page
+{
+public:
+    void init() {};
+    void box(int dircnt) {};
+    void goto_cur() {};
+    void loop();
+    void update();
+};
+
+
 extern Player * player;
 
 

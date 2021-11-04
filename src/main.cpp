@@ -158,7 +158,7 @@ bool fav_switch(int fav_num, bool init)
     start_file(player->next_file, FAIL_NEXT);
 
     player->fav_goto_curfav();
-    page_dirs.goto_curdir();
+    page_dirs.goto_cur();
     player->files_goto_curfile();
 
     if (player->filepos)
@@ -439,7 +439,7 @@ void loop()
     prefs_loop();
     network_loop();
     check_loop();
-    page_sys_loop();
+    page_sys.loop();
     yield();
     //vTaskDelay(1);      //avoid watchdog
 }

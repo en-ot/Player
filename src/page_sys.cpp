@@ -32,9 +32,19 @@ public:
     void vol_short();
     void b2_short();
     void b3_short();
+
+    gslc_tsElem                 sys_elem[SYS_ELEM_MAX];
+    gslc_tsElemRef              sys_ref[SYS_ELEM_MAX];
+
+    gslc_tsXListbox             sys_box_elem;
+    gslc_tsElemRef*             sys_box_ref     = NULL;
+
+    gslc_tsXSlider              sys_slider_elem;
+    gslc_tsElemRef*             sys_slider_ref  = NULL;
 };
 
 SysPrivate gui_sys;
+PageSys page_sys;
 
 
 class CtrlPageSys : public CtrlPage
@@ -67,16 +77,6 @@ uint32_t calc_sd_free_size()
 //###############################################################
 // page:sys
 //###############################################################
-gslc_tsElem                 sys_elem[SYS_ELEM_MAX];
-gslc_tsElemRef              sys_ref[SYS_ELEM_MAX];
-
-gslc_tsXListbox             sys_box_elem;
-gslc_tsElemRef*             sys_box_ref     = NULL;
-
-gslc_tsXSlider              sys_slider_elem;
-gslc_tsElemRef*             sys_slider_ref  = NULL;
-
-
 bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     //char str[50] = "";
@@ -112,11 +112,11 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
             break;
         
         case 5:
-            snprintf(pStrItem, nStrItemLen, "Free Heap: %d", sys.gui_sys_freeheap);
+            snprintf(pStrItem, nStrItemLen, "Free Heap: %d", sys.freeheap);
             break;
 
         case 6:
-            snprintf(pStrItem, nStrItemLen, "Min Free Heap: %d", sys.gui_sys_minheap);
+            snprintf(pStrItem, nStrItemLen, "Min Free Heap: %d", sys.minheap);
             break;
 
         case 7:
@@ -127,19 +127,19 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
 }
 
 
-void page_sys_init()
+void PageSys::init()
 {
-    gslc_PageAdd(&gslc, PAGE_SYS, sys_elem, SYS_ELEM_MAX, sys_ref, SYS_ELEM_MAX);
-    sys_box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &sys_box_elem,    SYS_BACK_COL);
-    sys_slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &sys_slider_elem, SYS_BACK_COL);
+    gslc_PageAdd(&gslc, PAGE_SYS, gui_sys.sys_elem, SYS_ELEM_MAX, gui_sys.sys_ref, SYS_ELEM_MAX);
+    gui_sys.sys_box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &gui_sys.sys_box_elem,    SYS_BACK_COL);
+    gui_sys.sys_slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &gui_sys.sys_slider_elem, SYS_BACK_COL);
     gui_sys.box(7, page_sys_get_item, 0);//sys_tick);
 }
 
 
-void page_sys_set_update()
+void PageSys::update()
 {
     // DEBUG("Sys set update\n");
-    gslc_ElemSetRedraw(&gslc, sys_box_ref, GSLC_REDRAW_FULL);
+    gslc_ElemSetRedraw(&gslc, gui_sys.sys_box_ref, GSLC_REDRAW_FULL);
 }
 
 
@@ -205,7 +205,7 @@ void SysPrivate::b3_short()
 }
 
 
-void page_sys_loop()
+void PageSys::loop()
 {
     static uint32_t t0 = 0;
 //    static bool need_print = true;
@@ -217,12 +217,12 @@ void page_sys_loop()
     t0 = t;
 
     uint32_t caps = MALLOC_CAP_DEFAULT;
-    sys.gui_sys_freeheap = heap_caps_get_free_size(caps);
-    sys.gui_sys_minheap =  heap_caps_get_minimum_free_size(caps);
+    sys.freeheap = heap_caps_get_free_size(caps);
+    sys.minheap =  heap_caps_get_minimum_free_size(caps);
     //gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
-    page_sys_set_update();
+    update();
 
-//    Serial.printf("free %d, min %d\n", gui_sys_freeheap, gui_sys_minheap);
+//    Serial.printf("free %d, min %d\n", freeheap, minheap);
 
     // uint32_t freeheap = ESP.getFreeHeap();
     // if (freeheap < 50000)
@@ -247,8 +247,8 @@ void page_sys_loop()
 //     {
 //         // portDISABLE_INTERRUPTS();
 //         // uint32_t caps = MALLOC_CAP_DEFAULT;
-//         // // gui_sys_freeheap = heap_caps_get_free_size(caps);
-//         // // gui_sys_minheap =  heap_caps_get_minimum_free_size(caps);
+//         // // freeheap = heap_caps_get_free_size(caps);
+//         // // minheap =  heap_caps_get_minimum_free_size(caps);
 //         // // gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
 //         // portENABLE_INTERRUPTS();
         
