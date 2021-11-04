@@ -468,7 +468,7 @@ void setup()
     end(2);
 
     begin("controls");
-    controls_init();
+    controls_init(player_input);
     end(3);
 
     begin("prefs");

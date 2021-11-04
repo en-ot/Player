@@ -25,6 +25,9 @@
         "initializer_list": "cpp",
         "algorithm": "cpp",
         "iomanip": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "memory": "cpp",
+        "iosfwd": "cpp",
+        "numeric": "cpp"
     }
 }

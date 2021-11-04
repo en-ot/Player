@@ -24,6 +24,8 @@ public:
     
     bool input(PlayerInputType type, int key);
 
+    bool change_volume(int change);
+
 private:
     PlayerGui * _gui = nullptr;
 
@@ -42,5 +44,6 @@ bool play_dir_next();
 bool play_dir_prev();
 bool play_root_prev();
 
+bool player_input(PlayerInputType type, int key);
 
 #endif // _PLAYER_H_

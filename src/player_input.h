@@ -1,7 +1,6 @@
 #ifndef _PLAYER_INPUT_H_
 #define _PLAYER_INPUT_H_
 
-
 typedef enum
 {
     BTN_VOLLONG,          BTN_VOLSHORT,
@@ -19,7 +18,7 @@ typedef enum
     I_SEEK2,
 } PlayerInputType;
 
-bool input(PlayerInputType type, int key);
+
 
 
 #endif // _PLAYER_INPUT_H_

@@ -187,24 +187,24 @@ bool toggle_repeat()
 // }
 
 
-// bool change_volume(int change)
-// {
-//     if (!change)
-//         return false;
+bool Player::change_volume(int change)
+{
+    if (!change)
+        return false;
 
-//     int new_volume = volume + change;
-//     if (new_volume < 0)     new_volume = 0;
-//     if (new_volume > 21)    new_volume = 21;
+    int new_volume = volume + change;
+    if (new_volume < 0)     new_volume = 0;
+    if (new_volume > 21)    new_volume = 21;
     
-//     if (new_volume == volume)
-//         return false;
+    if (new_volume == volume)
+        return false;
 
-//     volume = new_volume;
-//     gui->volume(volume);
-//     gui->gain(true);
-//     prefs_save_delayed(need_save_volume);
-//     return true;
-// }
+    volume = new_volume;
+    gui->volume(volume);
+    gui->gain(true);
+    prefs_save_delayed(need_save_volume);
+    return true;
+}
 
 
 //###############################################################
@@ -577,26 +577,8 @@ public:
 class CtrlPageInfo : public CtrlPage
 {
 public:
-    bool vol(int change)
-    {
-        if (!change)
-            return false;
-
-        int new_volume = volume + change;
-        if (new_volume < 0)     new_volume = 0;
-        if (new_volume > 21)    new_volume = 21;
-        
-        if (new_volume == volume)
-            return false;
-
-        volume = new_volume;
-        gui->volume(volume);
-        gui->gain(true);
-        prefs_save_delayed(need_save_volume);
-        return true;
-    }
-
-    bool vol_short() {return play_file_next();}
+    bool vol(int change)    {return player.change_volume(change);}
+    bool vol_short()        {return play_file_next();}
 
     bool vol_long() //play_file_prev
     {
@@ -707,7 +689,7 @@ bool Player::input(PlayerInputType type, int key)
 }
 
 
-bool input(PlayerInputType type, int key)
+bool player_input(PlayerInputType type, int key)
 {
     return player.input(type, key);
 }
