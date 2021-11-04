@@ -13,8 +13,6 @@
 #define FAIL_RANDOM 0
 
 //###############################################################
-extern bool read_error;
-
 extern bool need_play_next_dir;
 extern bool need_play_next_file;
 extern bool need_set_file_pos;
@@ -40,13 +38,10 @@ void fav_set_path(int fav_num, const char * path);
 
 int dirs_file_num(int dirs_sel);
 
-void gui_sys_update();
-
 void main_restart();
 void main_resume();
 void main_pause();
 
-void sys_control(int16_t line, int key);
 
 
 //###############################################################

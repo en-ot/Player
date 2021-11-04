@@ -65,11 +65,6 @@ public:
     void dirs_play_sel();
 
     void sys_page();;
-    bool sys_seek(int by);
-    bool sys_volupdn(int by);
-    void sys_volshort();
-    void cal_vol();
-    void cal_seek();
 
     bool shuffle;
     bool repeat;

@@ -15,6 +15,20 @@
 
 
 Sys sys;
+PageSys page_sys;
+
+class CtrlPageSys : public CtrlPage
+{
+    void b1_short()         {       player->change_page();}
+    bool vol(int change)    {return page_sys.sys_volupdn(change);}
+    void vol_short()        {       page_sys.sys_volshort();}
+    bool seek(int by)       {return page_sys.sys_seek(by);}
+    void b2_short()         {       page_sys.cal_vol();}
+    void b3_short()         {       page_sys.cal_seek();}
+} ctrl_page_sys_;
+
+CtrlPage * ctrl_page_sys = &ctrl_page_sys_;
+
 
 //###############################################################
 #define SECTOR_SIZE 512
@@ -164,6 +178,45 @@ void memory_loop()
 void gui_sys_init()
 {
     gui->sys_box(7, sys_get_item, 0);//sys_tick);
+}
+
+
+bool PageSys::sys_seek(int by)
+{
+    if (!by)
+        return false;
+    gui->sys_seek(by);
+    return true;
+}
+
+
+bool PageSys::sys_volupdn(int by)
+{
+    if (!by)
+        return false;
+    if (by > 0)
+        sys_control(gui->sys_sel, 1);
+    else
+        sys_control(gui->sys_sel, 2);
+    return true;
+}
+
+
+void PageSys::sys_volshort()
+{
+    sys_control(gui->sys_sel, 3);
+}
+
+
+void PageSys::cal_vol()
+{
+    sys_control(gui->sys_sel, 4);
+}
+
+
+void PageSys::cal_seek()
+{
+    sys_control(gui->sys_sel, 5);
 }
 
 

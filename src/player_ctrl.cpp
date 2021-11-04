@@ -4,6 +4,8 @@
 #include "player.h"
 #include "player_ctrl.h"
 
+#include "page_sys.h"
+
 #include "globals.h"
 
 
@@ -104,17 +106,6 @@ class CtrlPageFav : public CtrlPage
 } ctrl_page_fav;
 
 
-class CtrlPageSys : public CtrlPage
-{
-    void b1_short()         {       player->change_page();}
-    bool vol(int change)    {return player->sys_volupdn(change);}
-    void vol_short()        {       player->sys_volshort();}
-    bool seek(int by)       {return player->sys_seek(by);}
-    void b2_short()         {       player->cal_vol();}
-    void b3_short()         {       player->cal_seek();}
-} ctrl_page_sys;
-
-
 bool CtrlPage::input(PlayerInputType type, int key)
 {
     if (type == I_SEEK1)
@@ -158,7 +149,7 @@ void player_ctrl_init()
     ctrl_pages[PAGE_FAV]   = &ctrl_page_fav;
     ctrl_pages[PAGE_FILES] = &ctrl_page_files;
     ctrl_pages[PAGE_DIRS]  = &ctrl_page_dirs;
-    ctrl_pages[PAGE_SYS]   = &ctrl_page_sys;
+    ctrl_pages[PAGE_SYS]   = ctrl_page_sys;
 }
 
 

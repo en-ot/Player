@@ -7,6 +7,7 @@
 #include "prefs.h"
 #include "playstack.h"
 //#include "controls.h"
+#include "page_sys.h"   //temp
 #include "player.h"
 
 #include "sound.h"
@@ -196,7 +197,7 @@ void audio_eof_mp3(const char *info)      //end of file
 void audio_error_mp3(const char *info) 
 {
     DEBUG("error_mp3   %s\n", info);
-    read_error = true;
+    sys.read_error = true;
 }
 
 

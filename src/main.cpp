@@ -40,9 +40,6 @@ Playlist * pl;   //playlist for display
 
 Player * player;
 
-//???
-bool read_error = false;
-
 //flags
 bool need_play_next_dir = false;
 bool need_play_next_file = false;
@@ -478,7 +475,7 @@ void check_loop()
         last_time = t;
     }
 
-    if (tick && (read_error || SD.card()->errorCode()))
+    if (tick && (sys.read_error || SD.card()->errorCode()))
     {
         last_time = millis();
         DEBUG(".");   
@@ -486,7 +483,7 @@ void check_loop()
         {
             // filectrl_rewind();
             DEBUG("\n");                 
-            read_error = false;   
+            sys.read_error = false;   
 //            need_save_current_file = false;
             player->next_file = 1;
             need_play_next_file = true;
