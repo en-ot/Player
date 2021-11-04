@@ -189,7 +189,7 @@ void playctrl_loop()
 void audio_eof_mp3(const char *info)      //end of file
 {
     DEBUG("eof_mp3     %s\n", info);
-    play_file_next();
+    player->play_file_next();
 }
 
 

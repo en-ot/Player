@@ -117,20 +117,20 @@ Gui::Gui()
     //tft.loadFont(FONT_NAME1);
     //tft.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
 
-    spi_flash_mmap_dump();
-    uint32_t free1 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_INST);
-    uint32_t free2 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);
-    Serial.printf("free inst:%d data:%d\n", free1, free2);
+    // spi_flash_mmap_dump();
+    // uint32_t free1 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_INST);
+    // uint32_t free2 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);
+    // Serial.printf("free inst:%d data:%d\n", free1, free2);
 
     //gui_spr.loadFont(FONT_NAME1);
     gui_spr.loadFont("font1", ESP_PARTITION_SUBTYPE_DATA_FAT);  //ESP_PARTITION_SUBTYPE_ANY
 
-    spi_flash_mmap_dump();
-    free1 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_INST);
-    free2 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);
-    Serial.printf("free inst:%d data:%d\n", free1, free2);
+    // spi_flash_mmap_dump();
+    // free1 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_INST);
+    // free2 = spi_flash_mmap_get_free_pages(SPI_FLASH_MMAP_DATA);
+    // Serial.printf("free inst:%d data:%d\n", free1, free2);
 
-    check_font();
+    //check_font();
 
     initialized = true;
     DEBUG("LCD init OK\n");

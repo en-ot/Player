@@ -32,6 +32,9 @@ Playlist * pl;   //files and dirs Playlist
 // globals
 //###############################################################
 
+Player * player;
+
+
 //prefs
 int cur_fav_num;
 int prev_fav_num;
@@ -235,9 +238,9 @@ bool fav_switch(int fav_num, bool init)
 
     start_file(next_file, FAIL_NEXT);
 
-    fav_goto_curfav();
-    dirs_goto_curdir();
-    files_goto_curfile();
+    player->fav_goto_curfav();
+    player->dirs_goto_curdir();
+    player->files_goto_curfile();
 
     if (filepos)
         need_set_file_pos = true;
@@ -435,6 +438,12 @@ void end(int curstep)
 }
 
 
+bool player_input(PlayerInputType type, int key)
+{
+    return player->input(type, key);
+}
+
+
 //###############################################################
 // Setup
 //###############################################################
@@ -452,8 +461,11 @@ void setup()
     // uint8_t *p2 = (uint8_t*)malloc(30000);
     // Serial.printf("%08X\n", (int)p2);
 
+    player = new Player();
+
     begin("gui");
     gui = new Gui();
+    player->set_gui(gui);
     end(0);
 
     // free(p1);
@@ -468,7 +480,7 @@ void setup()
     end(2);
 
     begin("controls");
-    controls_init(player_input);
+    controls_init(&player_input);
     end(3);
 
     begin("prefs");
