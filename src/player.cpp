@@ -19,6 +19,11 @@ Player::Player()
 }
 
 
+void Player::set_gui(PlayerGui * gui)
+{
+    _gui = gui;
+}
+
 //###############################################################
 bool play_file_num(int num, int updown)
 {
@@ -667,28 +672,26 @@ CtrlPage * ctrl_pages[] = {
 
 
 
-bool Player::input(InputType type, int key)
+bool Player::input(PlayerInputType type, int key)
 {
     if (ui_page == PAGE_INFO)
     {
         CtrlPage * page = ctrl_pages[ui_page];
         if (type == I_BUTTON) 
         {
-            DEBUG("BTN\n");
             switch (key)
             {
-            case KEY_SEEKSHORT: return page->seek_short();
-            case KEY_SEEKLONG:  return page->seek_long();
-            case KEY_VOLSHORT:  return page->vol_short();
-            case KEY_VOLLONG:   return page->vol_long();
-            case KEY_B1LONG:    return page->b1_long();
-            case KEY_B1SHORT:   return page->b1_short();
-            case KEY_B2LONG:    return page->b2_long();
-            case KEY_B2SHORT:   return page->b2_short();
-            case KEY_B3LONG:    return page->b3_long();
-            case KEY_B3SHORT:   return page->b3_short();
+            case BTN_SEEKSHORT: return page->seek_short();
+            case BTN_SEEKLONG:  return page->seek_long();
+            case BTN_VOLSHORT:  return page->vol_short();
+            case BTN_VOLLONG:   return page->vol_long();
+            case BTN_B1LONG:    return page->b1_long();
+            case BTN_B1SHORT:   return page->b1_short();
+            case BTN_B2LONG:    return page->b2_long();
+            case BTN_B2SHORT:   return page->b2_short();
+            case BTN_B3LONG:    return page->b3_long();
+            case BTN_B3SHORT:   return page->b3_short();
             }
-
             return false;
         }
         if (type == I_SEEK1)    return page->vol(key);
@@ -697,14 +700,14 @@ bool Player::input(InputType type, int key)
     }
 
     Controls * ctrl = &controls[ui_page];
-    if (type == I_BUTTON) return ctrl->keys[key-E_TOTAL]();
+    if (type == I_BUTTON) return ctrl->keys[key]();
     if (type == I_SEEK1)  return ctrl->encoders[E_VOLUME](key);
     if (type == I_SEEK2)  return ctrl->encoders[E_SEEK](key);
     return false;
 }
 
 
-bool input(InputType type, int key)
+bool input(PlayerInputType type, int key)
 {
     return player.input(type, key);
 }
@@ -725,7 +728,7 @@ bool input(InputType type, int key)
 
     if (r == 'e')
     {
-        input(I_BUTTON, KEY_VOLSHORT);
+        input(I_BUTTON, BTN_VOLSHORT);
     }
 
     if (r == 'q')

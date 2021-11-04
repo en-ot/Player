@@ -5,7 +5,7 @@
 #include "AnalogEncoder.h"
 
 #include "pinout.h"
-#include "player.h"
+#include "player_input.h"
 
 #include "controls.h"
 
@@ -62,20 +62,20 @@ bool input_loop()
     if (input(I_SEEK1,  enc1.get_move())) return true;
     if (input(I_SEEK2, -enc2.get_move())) return true;
 
-    if (enc1.long_press())              return input(I_BUTTON, KEY_VOLLONG);
-    if (enc1.short_press())             return input(I_BUTTON, KEY_VOLSHORT);
+    if (enc1.long_press())              return input(I_BUTTON, BTN_VOLLONG);
+    if (enc1.short_press())             return input(I_BUTTON, BTN_VOLSHORT);
     
-    if (enc2.long_press())              return input(I_BUTTON, KEY_SEEKLONG);
-    if (enc2.short_press())             return input(I_BUTTON, KEY_SEEKSHORT);
+    if (enc2.long_press())              return input(I_BUTTON, BTN_SEEKLONG);
+    if (enc2.short_press())             return input(I_BUTTON, BTN_SEEKSHORT);
 
-    if (btn_1.longPress())              return input(I_BUTTON, KEY_B1LONG);
-    if (btn_1.shortPress())             return input(I_BUTTON, KEY_B1SHORT);
+    if (btn_1.longPress())              return input(I_BUTTON, BTN_B1LONG);
+    if (btn_1.shortPress())             return input(I_BUTTON, BTN_B1SHORT);
 
-    if (btn_2.longPress())              return input(I_BUTTON, KEY_B2LONG);
-    if (btn_2.shortPress())             return input(I_BUTTON, KEY_B2SHORT);
+    if (btn_2.longPress())              return input(I_BUTTON, BTN_B2LONG);
+    if (btn_2.shortPress())             return input(I_BUTTON, BTN_B2SHORT);
 
-    if (btn_3.longPress())              return input(I_BUTTON, KEY_B3LONG);
-    if (btn_3.shortPress())             return input(I_BUTTON, KEY_B3SHORT);
+    if (btn_3.longPress())              return input(I_BUTTON, BTN_B3LONG);
+    if (btn_3.shortPress())             return input(I_BUTTON, BTN_B3SHORT);
 
     return false;
 }
