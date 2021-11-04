@@ -21,16 +21,40 @@ private:
 };
 
 
+typedef enum
+{
+    I_BUTTON,
+    I_KEY,
+    I_SEEK1, 
+    I_SEEK2,
+} InputType;
+
+
 class Player
 {
 public:
     Player();
     void set_gui(PlayerGui * gui);
     
-    void key_pressed(PlayerKey key, int param=0);
+    bool input(InputType type, int key);
 
 private:
     PlayerGui * _gui = nullptr;
 
 };
+
+
+//temp
+bool input(InputType type, int key);
+bool files_goto_curfile();
+bool dirs_goto_curdir();
+bool fav_goto_curfav();
+
+bool play_file_next();
+int file_random();
+
+bool play_dir_next();
+bool play_dir_prev();
+bool play_root_prev();
+
 

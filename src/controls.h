@@ -12,12 +12,5 @@ void controls_set_prefs(uint8_t * src);
 void controls_get_prefs(uint8_t * dst);
 void controls_calibrate(int n);
 
-bool files_goto_curfile();
-bool dirs_goto_curdir();
-bool fav_goto_curfav();
-
-bool play_file_next();
-int file_random();
-
 
 #endif // _CONTROLS_H_
