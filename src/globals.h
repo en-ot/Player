@@ -8,22 +8,11 @@
 //###############################################################
 #define PATHNAME_MAX_LEN 256
 
+#define FAIL_NEXT +1
+#define FAIL_PREV -1
+#define FAIL_RANDOM 0
+
 //###############################################################
-extern int file_seek_by;
-extern uint32_t filepos;
-extern bool shuffle;
-extern bool repeat;
-extern int8_t volume;
-
-extern int cur_fav_num;
-extern int prev_fav_num;
-
-extern int8_t volume_old;
-
-extern int next_file;
-extern int next_updown;
-extern int next_dir;
-
 extern bool read_error;
 
 extern bool need_play_next_dir;

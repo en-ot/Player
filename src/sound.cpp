@@ -121,23 +121,23 @@ void playctrl_loop()
         t_filepos = t;
     }
 
-    if (file_seek_by)
+    if (player->file_seek_by)
     {
         if ((int32_t)(t - t_fileseek) > T_FILESEEK_DELAY)
         {
             t_fileseek = t;
 
-            filepos = audio.getAudioCurrentTime();
-            DEBUG("seek by %d\n", file_seek_by);
-            int newpos = filepos + file_seek_by;
-            file_seek_by = 0;
+            player->filepos = audio.getAudioCurrentTime();
+            DEBUG("seek by %d\n", player->file_seek_by);
+            int newpos = player->filepos + player->file_seek_by;
+            player->file_seek_by = 0;
             if (newpos < 0)     newpos = 0;
             if (newpos > duration) newpos = duration;
 
-            if (newpos == filepos)
+            if (newpos == player->filepos)
                 return;
 
-            filepos = newpos;
+            player->filepos = newpos;
             need_set_file_pos = true;
             return;
         }
@@ -150,7 +150,7 @@ void playctrl_loop()
         if (running) audio.pauseResume();
         //audio.loop();
 
-        if (audio.setAudioPlayPosition(filepos))
+        if (audio.setAudioPlayPosition(player->filepos))
         {
             need_set_file_pos = false;
         }
@@ -163,24 +163,24 @@ void playctrl_loop()
     {
         need_play_next_dir = false;
         audio.stopSong();
-        fc->find_dir(next_dir);
-        next_file = fc->curfile;
+        fc->find_dir(player->next_dir);
+        player->next_file = fc->curfile;
         need_play_next_file = true;
     }
 
     if (need_play_next_file && fc->filecnt)
     {
         need_play_next_file = false;
-        start_file(next_file, next_updown);
-        filepos = 0;
+        start_file(player->next_file, player->next_updown);
+        player->filepos = 0;
         prefs_save_delayed(need_save_current_file);
         return;
     }
 
-    if (volume != volume_old)
+    if (player->volume != player->volume_old)
     {
-        volume_old = volume;
-        audio.setVolume(volume);
+        player->volume_old = player->volume;
+        audio.setVolume(player->volume);
         return;
     } 
 }

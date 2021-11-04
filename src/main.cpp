@@ -34,24 +34,6 @@ Playlist * pl;   //files and dirs Playlist
 
 Player * player;
 
-
-//prefs
-int cur_fav_num;
-int prev_fav_num;
-
-int8_t volume;   
-bool shuffle;
-bool repeat;
-uint32_t filepos;
-int next_file;
-
-int next_updown = FAIL_NEXT;
-
-// seek
-int file_seek_by;
-int8_t volume_old = -2; // -2 guarantees that setVolume is called at the beginning
-int next_dir;
-
 //???
 bool read_error = false;
 
@@ -67,8 +49,6 @@ bool need_save_volume = false;
 bool need_save_repeat = false;
 bool need_save_shuffle = false;
 bool need_save_file_pos = false;
-
-int ui_page = PAGE_INFO;
 
 #define QUEUE_DEPTH 20
 QueueHandle_t tag_queue;
@@ -192,18 +172,18 @@ bool fav_switch(int fav_num, bool init)
     if (!init)
     {
         if (sound_is_playing())
-            filepos = sound_current_time();
+            player->filepos = sound_current_time();
 
         sound_stop();
 
         prefs_save_now(need_save_current_file);
 
-        prev_fav_num = cur_fav_num;
-        prefs_save_main(fav_num, prev_fav_num, sd_free_mb);
+        player->prev_fav_num = player->cur_fav_num;
+        prefs_save_main(fav_num, player->prev_fav_num, sd_free_mb);
     }
 
     fav_num = clamp1(fav_num, FAV_MAX);
-    cur_fav_num = fav_num;
+    player->cur_fav_num = fav_num;
 
     char fav_path[PATHNAME_MAX_LEN] = {0};
     prefs_load_data(fav_num, fav_path, sizeof(fav_path));
@@ -217,9 +197,9 @@ bool fav_switch(int fav_num, bool init)
     DEBUG("dircnt: %d\n", pl->dircnt);
 
     gui->fav(fav_num);
-    gui->shuffle(shuffle);
-    gui->repeat(repeat);
-    gui->volume(volume);
+    gui->shuffle(player->shuffle);
+    gui->repeat(player->repeat);
+    gui->volume(player->volume);
     gui->alive(false);
     gui->gain(false);
     gui->index("");
@@ -236,13 +216,13 @@ bool fav_switch(int fav_num, bool init)
     else
         dirs_cache->clear();
 
-    start_file(next_file, FAIL_NEXT);
+    start_file(player->next_file, FAIL_NEXT);
 
     player->fav_goto_curfav();
     player->dirs_goto_curdir();
     player->files_goto_curfile();
 
-    if (filepos)
+    if (player->filepos)
         need_set_file_pos = true;
 
     return true;
@@ -272,7 +252,7 @@ bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint
 {
     int fav_num = nItem + 1;
     
-    int type = (fav_num == cur_fav_num) ? 1 : 0;
+    int type = (fav_num == player->cur_fav_num) ? 1 : 0;
     gui->fav_highlight(pvGui, pvElem, type);
 
     strlcpy(pStrItem, fav_str[nItem], nStrItemLen);
@@ -329,8 +309,8 @@ void sys_control(int16_t line, int key)
         //sd_free_mb = 0;
         sound_stop();
         calc_sd_free_size();
-        prefs_save_main(cur_fav_num, prev_fav_num, sd_free_mb);
-        prefs_open_fav(cur_fav_num);
+        prefs_save_main(player->cur_fav_num, player->prev_fav_num, sd_free_mb);
+        prefs_open_fav(player->cur_fav_num);
         break;
     }
 }
@@ -488,7 +468,7 @@ void setup()
     {
         prefs_erase_all();
     }
-    prefs_load_main(&cur_fav_num, &prev_fav_num, &sd_free_mb);
+    prefs_load_main(&player->cur_fav_num, &player->prev_fav_num, &sd_free_mb);
     //prefs_open_fav(cur_fav_num);
     //Serial.printf("cur:%d prev:%d\n", cur_fav_num, prev_fav_num);
     end(4);
@@ -502,7 +482,7 @@ void setup()
     if (!sd_free_mb)
     {
         calc_sd_free_size();
-        prefs_save_main(cur_fav_num, prev_fav_num, sd_free_mb);
+        prefs_save_main(player->cur_fav_num, player->prev_fav_num, sd_free_mb);
     }
 
     end(5);
@@ -528,7 +508,7 @@ void setup()
     end(10);
 
     begin("start");
-    fav_switch(cur_fav_num, true);
+    fav_switch(player->cur_fav_num, true);
     end(11);
 }
 
@@ -633,7 +613,7 @@ void check_loop()
             DEBUG("\n");                 
             read_error = false;   
 //            need_save_current_file = false;
-            next_file = 1;
+            player->next_file = 1;
             need_play_next_file = true;
         }
     }
@@ -700,7 +680,7 @@ void main_pause()
 
 void main_restart()
 {
-    fav_switch(cur_fav_num, false);
+    fav_switch(player->cur_fav_num, false);
 }
 
 

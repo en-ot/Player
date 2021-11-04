@@ -5,17 +5,21 @@
 #include "player_input.h"
 #include "player_ctrl.h"
 
+#include "globals.h"
+
 
 int file_random();
 
 
-// Player must contain all business logic, but no depenencies on components... later...
+// Player must contain all business logic, but no depenencies on components... maybe later...
 class Player
 {
 public:
     Player();
     void set_gui(Gui * gui);
-    
+
+    void reset_to_defaults();
+
     bool input(PlayerInputType type, int key);
 
     void change_page();
@@ -23,8 +27,8 @@ public:
     bool change_volume(int change);
     void toggle_shuffle();
     void toggle_repeat();
-    void change_pause();
-
+    void toggle_pause();
+    
     bool file_seek(int by);
 
     void play_file_num(int num, int updown);
@@ -67,23 +71,28 @@ public:
     void cal_vol();
     void cal_seek();
 
+    bool shuffle;
+    bool repeat;
+    int8_t volume;
+    int8_t volume_old;
+
+    int next_file;
+    int next_updown = FAIL_NEXT;
+    int next_dir;
+
+    uint32_t filepos;
+    int file_seek_by;
+
+    int cur_fav_num;
+    int prev_fav_num;
+
+    int ui_page = PAGE_INFO;
+
 private:
     Gui * _gui = nullptr;
     CtrlPage * ctrl_pages[PAGE_MAX] = {0};
 };
 
-
-//temp
-//bool files_goto_curfile();
-//bool dirs_goto_curdir();
-//bool fav_goto_curfav();
-
-
-//bool play_dir_next();
-//bool play_dir_prev();
-//bool play_root_prev();
-
-//bool player_input(PlayerInputType type, int key);
 
 extern Player * player;
 

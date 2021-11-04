@@ -169,7 +169,14 @@ bool Player::file_seek(int by)
 }
 
 
-void Player::change_pause()
+void Player::reset_to_defaults()
+{
+    sound_stop();
+    prefs_erase_all();
+}
+
+
+void Player::toggle_pause()
 {
     if (!sound_is_playing())
     {

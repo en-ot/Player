@@ -4,6 +4,50 @@
 #include "player.h"
 #include "player_ctrl.h"
 
+#include "globals.h"
+
+
+bool process_key(int key)
+{
+    player->next_file = fc->curfile + 1;
+
+    switch (key)
+    {
+    case 'd':   player->play_dir_next();    break;
+    case 'a':   player->play_dir_prev();    break;
+    case 'e':   player->toggle_pause();     break;
+    case 'q':   player->play_root_prev();   break;
+
+    case 'f':   player->reset_to_defaults();    break;
+    // case 'c':   controls_calibrate(1);          break;
+    // case 'v':   controls_calibrate(2);          break;
+
+    case 'r':
+    {
+        // if (SD.begin())
+        // {
+        //     filectrl_rewind();
+        //     DEBUG("Error Reset!\n");
+        // }
+        break;
+    }
+
+    case 'm':
+    {
+        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        heap_caps_print_heap_info(MALLOC_CAP_EXEC);
+        heap_caps_print_heap_info(MALLOC_CAP_32BIT);
+        break;
+    }
+
+    default:
+        return false;
+
+    }
+
+    return true;
+}
+
 
 class CtrlPageInfo : public CtrlPage
 {
@@ -14,7 +58,7 @@ public:
     void vol_short()        {       player->play_file_next();}
     void vol_long()         {       player->play_file_prev();}
     bool seek(int by)       {return player->file_seek(by);}
-    void seek_short()       {       player->change_pause();}
+    void seek_short()       {       player->toggle_pause();}
     void seek_long()        {       player->play_root_next();}
     void b1_long()          {       player->play_file_down();}
     void b2_long()          {       player->toggle_shuffle();}
@@ -78,9 +122,15 @@ bool CtrlPage::input(PlayerInputType type, int key)
     
     if (type == I_SEEK2)
         return seek(key);
-    
+
+
+    if (type == I_KEY)
+        return process_key(key);
+
     if (type != I_BUTTON) 
         return false;
+
+
 
     switch (key)
     {
@@ -122,60 +172,3 @@ bool player_ctrl_input(int ui_page, PlayerInputType type, int key)
 
 
 
-/*
-    //next_file = fc->curfile + 1;
-
-    if (r == 'd')
-    {
-        play_dir_next();
-    }
-
-    if (r == 'a')
-    {
-        play_dir_prev();
-    }
-
-    if (r == 'e')
-    {
-        input(I_BUTTON, BTN_VOLSHORT);
-    }
-
-    if (r == 'q')
-    {
-        play_root_prev();
-    }
-
-    if (r == 'r') 
-    {
-        // if (SD.begin())
-        // {
-        //     filectrl_rewind();
-        //     DEBUG("Error Reset!\n");
-        // }
-    }
-
-    if (r == 'm')
-    {
-        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
-        heap_caps_print_heap_info(MALLOC_CAP_EXEC);
-        heap_caps_print_heap_info(MALLOC_CAP_32BIT);
-    }
-
-
-    if (r == 'f')
-    {
-        sound_stop();
-        prefs_erase_all();
-    }
-
-    if (r == 'c')
-    {
-        controls_calibrate(1);
-    }
-
-    if (r == 'v')
-    {
-        controls_calibrate(2);
-    }
-    
-*/

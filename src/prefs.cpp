@@ -4,8 +4,10 @@
 #include "debug.h"
 
 #include "globals.h"
-#include "prefs.h"
 #include "controls.h"
+#include "player.h"
+
+#include "prefs.h"
 
 
 //todo: prefs.freeEntries();
@@ -101,14 +103,14 @@ int prefs_load_data(int fav_num, char * path, int len)
 {
     prefs_open_fav(fav_num);
 
-    volume = prefs.getInt(prefs_key_volume, 1);
-    next_file = prefs.getInt(prefs_key_curfile, 1);
-    shuffle = prefs.getBool(prefs_key_shuffle, false);
-    repeat = prefs.getBool(prefs_key_repeat, false);
-    filepos = prefs.getInt(prefs_key_filepos, 0);
+    player->volume = prefs.getInt(prefs_key_volume, 1);
+    player->next_file = prefs.getInt(prefs_key_curfile, 1);
+    player->shuffle = prefs.getBool(prefs_key_shuffle, false);
+    player->repeat = prefs.getBool(prefs_key_repeat, false);
+    player->filepos = prefs.getInt(prefs_key_filepos, 0);
     int size = prefs_get_path(fav_num, path, len);
 
-    DEBUG("Fav:%i Dir:%s File:%i Pos:%i Vol:%i Sh:%i Rep:%i\n", fav_num, path, next_file, filepos, volume, shuffle, repeat);
+    DEBUG("Fav:%i Dir:%s File:%i Pos:%i Vol:%i Sh:%i Rep:%i\n", fav_num, path, player->next_file, player->filepos, player->volume, player->shuffle, player->repeat);
     
     return size;
 }
@@ -160,29 +162,29 @@ void prefs_loop()
     {
         need_save_current_file = false;
         prefs.putInt(prefs_key_curfile, fc->curfile);
-        prefs.putInt(prefs_key_filepos, filepos);
-        DEBUG("File %i:%i saved\n", fc->curfile, filepos);
+        prefs.putInt(prefs_key_filepos, player->filepos);
+        DEBUG("File %i:%i saved\n", fc->curfile, player->filepos);
     }
 
     if (need_save_repeat)
     {
         need_save_repeat = false;
-        prefs.putBool(prefs_key_repeat, repeat);
-        DEBUG("Repeat %i saved\n", repeat);
+        prefs.putBool(prefs_key_repeat, player->repeat);
+        DEBUG("Repeat %i saved\n", player->repeat);
     }
 
     if (need_save_shuffle)
     {
         need_save_shuffle = false;
-        prefs.putBool(prefs_key_shuffle, shuffle);
-        DEBUG("Shuffle %i saved\n", shuffle);
+        prefs.putBool(prefs_key_shuffle, player->shuffle);
+        DEBUG("Shuffle %i saved\n", player->shuffle);
     }
 
     if (need_save_volume)
     {
         need_save_volume = false;
-        prefs.putInt(prefs_key_volume, volume);
-        DEBUG("Volume %d saved\n", volume);
+        prefs.putInt(prefs_key_volume, player->volume);
+        DEBUG("Volume %d saved\n", player->volume);
     }
 }
 

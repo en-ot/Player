@@ -4,9 +4,6 @@
 
 #include <stdint.h>
 
-#define FAIL_NEXT +1
-#define FAIL_PREV -1
-#define FAIL_RANDOM 0
 int start_file(int num, int updown);
 
 void sound_setup();
