@@ -10,6 +10,9 @@
 #include "page_dirs.h"
 
 
+#define DIRS_CACHE_LINES 20
+
+
 class DirsPrivate
 {
 public:
@@ -32,6 +35,8 @@ public:
 
     gslc_tsXSlider              slider_elem;
     gslc_tsElemRef*             slider_ref    = NULL;
+
+    StrCache * cache;
 };
 
 PageDirs page_dirs;
@@ -53,14 +58,11 @@ class CtrlPageDirs : public CtrlPage
 
 
 //###############################################################
-#define DIRS_CACHE_LINES 20
-StrCache * dirs_cache;
-
 bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     int dirnum = nItem+1;
 
-    int index = dirs_cache->get(dirnum);
+    int index = page_dirs.g->cache->get(dirnum);
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
@@ -78,14 +80,14 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         pl->file_name(pl->curfile, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
-        dirs_cache->put(dirnum, buf, dir_level | (filenum << 16));
+        page_dirs.g->cache->put(dirnum, buf, dir_level | (filenum << 16));
     }
     else
     {
-        uint32_t flags = dirs_cache->lines[index].flags;
+        uint32_t flags = page_dirs.g->cache->lines[index].flags;
         int filenum = flags >> 16;
         dir_level = flags & 0xFFFF;
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, dirs_cache->lines[index].txt);
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, page_dirs.g->cache->lines[index].txt);
     }
 
     int type = 0;
@@ -99,10 +101,10 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
 int dirs_file_num(int dirs_sel)
 {
     int dirnum = dirs_sel;
-    int index = dirs_cache->get(dirnum);
+    int index = page_dirs.g->cache->get(dirnum);
     if (index == CACHE_MISS)
         return 0;
-    int file_num = dirs_cache->lines[index].flags >> 16;
+    int file_num = page_dirs.g->cache->lines[index].flags >> 16;
     return file_num;
 }
 
@@ -132,10 +134,10 @@ void PageDirs::box(int cnt)
     g->box_elem.nItemTop = 0;
     g->box_elem.bNeedRecalc = true;
 
-    if (!dirs_cache)
-        dirs_cache = new StrCache(DIRS_CACHE_LINES);
+    if (!g->cache)
+        g->cache = new StrCache(DIRS_CACHE_LINES);
     else
-        dirs_cache->clear();
+        g->cache->clear();
 }
 
 
