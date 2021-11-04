@@ -16,6 +16,12 @@
 #include "network.h"
 #include "firmware.h"
 
+//#include "page_info.h"
+//#include "page_files.h"
+//#include "page_dirs.h"
+//#include "page_fav.h"
+#include "page_sys.h"
+
 #include "player.h"
 
 //###############################################################
@@ -53,11 +59,7 @@ bool need_save_file_pos = false;
 #define QUEUE_DEPTH 20
 QueueHandle_t tag_queue;
 
-uint32_t gui_sys_freeheap;
-uint32_t gui_sys_minheap;
-//uint32_t gui_sys_largestheap;
 
-uint32_t sd_free_mb = 0;
 
 
 //###############################################################
@@ -179,7 +181,7 @@ bool fav_switch(int fav_num, bool init)
         prefs_save_now(need_save_current_file);
 
         player->prev_fav_num = player->cur_fav_num;
-        prefs_save_main(fav_num, player->prev_fav_num, sd_free_mb);
+        prefs_save_main(fav_num, player->prev_fav_num, sys.sd_free_mb);
     }
 
     fav_num = clamp1(fav_num, FAV_MAX);
@@ -276,123 +278,6 @@ void fav_init()
 
 
 //###############################################################
-#define SECTOR_SIZE 512
-#define MBYTES (1024*1024)
-
-uint32_t calc_sd_free_size()
-{
-    uint64_t lFree = SD.vol()->freeClusterCount();
-    lFree *= SD.vol()->sectorsPerCluster() * SECTOR_SIZE;
-    sd_free_mb = lFree / MBYTES;
-    DEBUG("microSD free size: %u MB\n", sd_free_mb);
-    return sd_free_mb;
-}
-
-
-void sys_control(int16_t line, int key)
-{
-    int16_t nItem = line-1;
-    switch (nItem)
-    {
-    case 0:
-        if (key == 4)
-            controls_calibrate(1);
-        if (key == 5)
-            controls_calibrate(2);
-        break;
-
-    case 2:
-        network_reconnect(key == 1);
-        break;
-
-    case 6:
-        //sd_free_mb = 0;
-        sound_stop();
-        calc_sd_free_size();
-        prefs_save_main(player->cur_fav_num, player->prev_fav_num, sd_free_mb);
-        prefs_open_fav(player->cur_fav_num);
-        break;
-    }
-}
-
-
-bool sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
-{
-    //char str[50] = "";
-    int pos = 0;
-    //char * ptr = str;
-
-    switch (nItem)
-    {
-        case 0:
-            snprintf(pStrItem, nStrItemLen, "Version: %s", firmware_version());
-            break;
-        
-        case 1:
-            pos = strlcpy(pStrItem, "Date: ", nStrItemLen);
-            firmware_datetime(&pStrItem[pos], nStrItemLen-pos);
-            break;
-        
-        case 2:
-            pos = strlcpy(pStrItem, "IP: ", nStrItemLen);
-            if ((network_connected()))
-            {
-                network_address(&pStrItem[pos], nStrItemLen-pos);
-            }
-            else
-            {
-                strlcat(pStrItem, "not connected", nStrItemLen);
-            }
-            break;
-
-        case 3:
-            snprintf(pStrItem, nStrItemLen, "Free Prefs: %d", prefs_free());
-            break;
-        
-        case 4:
-            snprintf(pStrItem, nStrItemLen, "Free Heap: %d", gui_sys_freeheap);
-            break;
-
-        case 5:
-            snprintf(pStrItem, nStrItemLen, "Min Free Heap: %d", gui_sys_minheap);
-            break;
-
-        case 6:
-            snprintf(pStrItem, nStrItemLen, "microSD free: %u MB", sd_free_mb);
-            break;
-    }
-    return true;
-}
-
-
-// bool sys_tick(void* pvGui, void* pvElemRef)
-// {
-//     static uint32_t t0 = 0;
-//     uint32_t t = millis();
-//     if ((int32_t)(t - t0) > 1000)
-//     {
-//         // portDISABLE_INTERRUPTS();
-//         // uint32_t caps = MALLOC_CAP_DEFAULT;
-//         // // gui_sys_freeheap = heap_caps_get_free_size(caps);
-//         // // gui_sys_minheap =  heap_caps_get_minimum_free_size(caps);
-//         // // gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
-//         // portENABLE_INTERRUPTS();
-        
-//         gui->sys_set_update();
-//         // DEBUG("Free heap: %d\n", freeheap);
-//         t0 = t;
-//     }
-//     return true;
-// }
-
-
-void gui_sys_init()
-{
-    gui->sys_box(7, sys_get_item, 0);//sys_tick);
-}
-
-
-//###############################################################
 // Init steps
 //###############################################################
 #define STEPS_TOTAL 11
@@ -468,7 +353,7 @@ void setup()
     {
         prefs_erase_all();
     }
-    prefs_load_main(&player->cur_fav_num, &player->prev_fav_num, &sd_free_mb);
+    prefs_load_main(&player->cur_fav_num, &player->prev_fav_num, &sys.sd_free_mb);
     //prefs_open_fav(cur_fav_num);
     //Serial.printf("cur:%d prev:%d\n", cur_fav_num, prev_fav_num);
     end(4);
@@ -479,10 +364,10 @@ void setup()
         gui->error("SDcard init error");
         SD.initErrorHalt(); // SdFat-lib helper function
     }
-    if (!sd_free_mb)
+    if (!sys.sd_free_mb)
     {
         calc_sd_free_size();
-        prefs_save_main(player->cur_fav_num, player->prev_fav_num, sd_free_mb);
+        prefs_save_main(player->cur_fav_num, player->prev_fav_num, sys.sd_free_mb);
     }
 
     end(5);
@@ -608,40 +493,6 @@ void check_loop()
         }
     }
 }
-
-
-void memory_loop()
-{
-    static uint32_t t0 = 0;
-//    static bool need_print = true;
-    uint32_t t = millis();
-
-    if ((int32_t)(t - t0) < 1000)
-        return;
-
-    t0 = t;
-
-    uint32_t caps = MALLOC_CAP_DEFAULT;
-    gui_sys_freeheap = heap_caps_get_free_size(caps);
-    gui_sys_minheap =  heap_caps_get_minimum_free_size(caps);
-    //gui_sys_largestheap = heap_caps_get_largest_free_block(caps);
-    gui->sys_set_update();
-
-//    Serial.printf("free %d, min %d\n", gui_sys_freeheap, gui_sys_minheap);
-
-    // uint32_t freeheap = ESP.getFreeHeap();
-    // if (freeheap < 50000)
-    // {
-    //    need_print = true;
-    // }
-    
-    // if (need_print)
-    // {
-    //     need_print = false;
-    //     DEBUG("Memory free: %i\n", freeheap);
-    // }
-}
-
 
 
 //###############################################################

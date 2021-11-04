@@ -2,6 +2,8 @@
 #include "build_defs.h"
 
 #include "version.h"
+#include "firmware.h"
+
 
 const char * firmware_version()
 {
