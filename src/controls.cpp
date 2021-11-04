@@ -152,11 +152,11 @@ bool play_dir_prev()
 }
 
 
-bool play_root_next()
-{
-    fav_switch(prev_fav_num, false);
-    return true;
-}
+// bool play_root_next()
+// {
+//     fav_switch(prev_fav_num, false);
+//     return true;
+// }
 
 
 bool play_root_prev()
@@ -184,66 +184,66 @@ bool toggle_repeat()
 }
 
 
-bool file_seek(int by)
-{
-    const int seek_delay = 10;
-    static int speed = 5;
-    static uint32_t t_seek1 = 0;
-    uint32_t t = millis();
+// bool file_seek(int by)
+// {
+//     const int seek_delay = 10;
+//     static int speed = 5;
+//     static uint32_t t_seek1 = 0;
+//     uint32_t t = millis();
 
-    if (!by)
-    {
-        if ((int32_t)(t - t_seek1) > seek_delay)
-        {
-            t_seek1 = t;
-            if (speed > 5) 
-                speed--;
-        }
-        return false;
-    }
+//     if (!by)
+//     {
+//         if ((int32_t)(t - t_seek1) > seek_delay)
+//         {
+//             t_seek1 = t;
+//             if (speed > 5) 
+//                 speed--;
+//         }
+//         return false;
+//     }
 
-    // if (!sound_is_playing())
-    //     return false;
+//     // if (!sound_is_playing())
+//     //     return false;
 
-    file_seek_by += by * speed;
-    speed += 5;
-    return true;
-}
-
-
-bool change_pause()
-{
-    if (sound_is_playing())
-    {
-        sound_pause();
-        filepos = sound_current_time();
-        prefs_save_now(need_save_current_file);
-        return true;
-    }
-
-    sound_resume();
-    return true;
-}
+//     file_seek_by += by * speed;
+//     speed += 5;
+//     return true;
+// }
 
 
-bool change_volume(int change)
-{
-    if (!change)
-        return false;
+// bool change_pause()
+// {
+//     if (sound_is_playing())
+//     {
+//         sound_pause();
+//         filepos = sound_current_time();
+//         prefs_save_now(need_save_current_file);
+//         return true;
+//     }
 
-    int new_volume = volume + change;
-    if (new_volume < 0)     new_volume = 0;
-    if (new_volume > 21)    new_volume = 21;
+//     sound_resume();
+//     return true;
+// }
+
+
+// bool change_volume(int change)
+// {
+//     if (!change)
+//         return false;
+
+//     int new_volume = volume + change;
+//     if (new_volume < 0)     new_volume = 0;
+//     if (new_volume > 21)    new_volume = 21;
     
-    if (new_volume == volume)
-        return false;
+//     if (new_volume == volume)
+//         return false;
 
-    volume = new_volume;
-    gui->volume(volume);
-    gui->gain(true);
-    prefs_save_delayed(need_save_volume);
-    return true;
-}
+//     volume = new_volume;
+//     gui->volume(volume);
+//     gui->gain(true);
+//     prefs_save_delayed(need_save_volume);
+//     return true;
+// }
 
 
 //###############################################################
@@ -525,14 +525,24 @@ typedef struct
     bool (*keys[K_TOTAL])();
 } Controls;
 
+// Controls info_ctrl = {{
+//     change_volume,     file_seek   },{      // volume,      seek
+//     play_file_prev,    play_file_next,      // vol_long,    vol_short
+//     play_root_next,    change_pause,        // seek_long,   seek_short
+//     play_file_down,    change_page,         // b1_long,     b1_short
+//     toggle_shuffle,    play_dir_prev,       // b2_long,     b2_short
+//     toggle_repeat,     play_dir_next,       // b3_long,     b3_short
+// }};
+
 Controls info_ctrl = {{
-    change_volume,     file_seek   },{      // volume,      seek
+    0,     0   },{      // volume,      seek
     play_file_prev,    play_file_next,      // vol_long,    vol_short
-    play_root_next,    change_pause,        // seek_long,   seek_short
+    0,    0,        // seek_long,   seek_short
     play_file_down,    change_page,         // b1_long,     b1_short
     toggle_shuffle,    play_dir_prev,       // b2_long,     b2_short
     toggle_repeat,     play_dir_next,       // b3_long,     b3_short
 }};
+
 
 Controls files_ctrl = {{
     files_pgupdn,       files_seek   },{    // volume,      seek
@@ -584,15 +594,21 @@ Controls controls[PAGE_MAX] =
 class CtrlPage
 {
 public:
-    virtual bool change_volume(int param) {return false;}
-    virtual bool seek(int param) {return false;}
+    virtual bool vol(int change)    {return false;}
+    virtual bool vol_short()        {return false;}
+    virtual bool vol_long()         {return false;}
+
+    virtual bool seek(int change)   {return false;}
+    virtual bool seek_short()       {return false;}
+    virtual bool seek_long()        {return false;}
+
 };
 
 
-class CtrlPage1 : public CtrlPage
+class CtrlPageInfo : public CtrlPage
 {
 public:
-    bool change_volume(int change)
+    bool vol(int change)
     {
         if (!change)
             return false;
@@ -610,6 +626,22 @@ public:
         prefs_save_delayed(need_save_volume);
         return true;
     }
+
+    bool seek_short()
+    {
+        if (sound_is_playing())
+        {
+            sound_pause();
+            filepos = sound_current_time();
+            prefs_save_now(need_save_current_file);
+            return true;
+        }
+
+        sound_resume();
+        return true;
+    }
+
+    bool seek_long() {fav_switch(prev_fav_num, false); return true;};
 
     bool seek(int by)
     {
@@ -633,58 +665,68 @@ public:
         speed += 5;
         return true;
     }
-} page1;
+} page_info;
 
-
-//CtrlPage1 page1;
 
 CtrlPage * ctrl_pages[] = {
-    &page1,
+    &page_info,
 };
 
 
-bool moved(PlayerKey key, int param)
+typedef enum
+{
+    I_BUTTON,
+    I_KEY,
+    I_SEEK1, 
+    I_SEEK2,
+} InputType;
+
+
+bool input(InputType type, int key)
 {
     if (ui_page == PAGE_INFO)
     {
         CtrlPage * page = ctrl_pages[ui_page];
-        if (key == KEY_VOLUME) return page->change_volume(param);
-        if (key == KEY_SEEK) return page->seek(param);
+        if (type == I_BUTTON)
+        {
+            if (key == KEY_SEEKSHORT) return page->seek_short();
+            if (key == KEY_SEEKLONG) return page->seek_long();
+            if (key == KEY_VOLSHORT) return page->vol_short();
+            if (key == KEY_VOLLONG) return page->vol_long();
+            return true;
+        }
+        if (type == I_SEEK1) return page->vol(key);
+        if (type == I_SEEK2) return page->seek(key);
         return false;
     }
 
     Controls * ctrl = &controls[ui_page];
-    return ctrl->encoders[key](param);
-}
-
-
-bool button(PlayerKey key)
-{
-    Controls * ctrl = &controls[ui_page];
-    ctrl->keys[key-E_TOTAL]();
-    return true;
+    if (type == I_BUTTON) return ctrl->keys[key-E_TOTAL]();
+    if (type == I_SEEK1)  return ctrl->encoders[E_VOLUME](key);
+    if (type == I_SEEK2)  return ctrl->encoders[E_SEEK](key);
+    return false;
 }
 
 
 bool input_loop()
 {
-    if (moved(KEY_VOLUME, enc1.get_move())) return true;
-    if (moved(KEY_SEEK, -enc2.get_move())) return true;
+    if (input(I_SEEK1, enc1.get_move())) return true;
+    if (input(I_SEEK2, -enc2.get_move())) return true;
 
-    if (enc1.long_press())              return button(KEY_VOLLONG);
-    if (enc1.short_press())             return button(KEY_VOLSHORT);
+    if (enc1.long_press())              return input(I_BUTTON, KEY_VOLLONG);
+    if (enc1.short_press())             return input(I_BUTTON, KEY_VOLSHORT);
     
-    if (enc2.long_press())              return button(KEY_SEEKLONG);
-    if (enc2.short_press())             return button(KEY_SEEKSHORT);
+    if (enc2.long_press())              return input(I_BUTTON, KEY_SEEKLONG);
+    if (enc2.short_press())             return input(I_BUTTON, KEY_SEEKSHORT);
 
-    if (btn_1.longPress())              return button(KEY_B1LONG);
-    if (btn_1.shortPress())             return button(KEY_B1SHORT);
+    if (btn_1.longPress())              return input(I_BUTTON, KEY_B1LONG);
+    if (btn_1.shortPress())             return input(I_BUTTON, KEY_B1SHORT);
 
-    if (btn_2.longPress())              return button(KEY_B2LONG);
-    if (btn_2.shortPress())             return button(KEY_B2SHORT);
+    if (btn_2.longPress())              return input(I_BUTTON, KEY_B2LONG);
+    if (btn_2.shortPress())             return input(I_BUTTON, KEY_B2SHORT);
 
-    if (btn_3.longPress())              return button(KEY_B3LONG);
-    if (btn_3.shortPress())             return button(KEY_B3SHORT);
+    if (btn_3.longPress())              return input(I_BUTTON, KEY_B3LONG);
+    if (btn_3.shortPress())             return input(I_BUTTON, KEY_B3SHORT);
 
     return false;
 }
@@ -713,7 +755,7 @@ void serial_loop()
 
     if (r == 'e')
     {
-        play_root_next();
+        input(I_BUTTON, KEY_VOLSHORT);
     }
 
     if (r == 'q')
