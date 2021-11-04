@@ -31,12 +31,12 @@ public:
     gslc_tsElemRef              ref[DIRS_ELEM_MAX];
 
     gslc_tsXListbox             box_elem;
-    gslc_tsElemRef*             box_ref   = NULL;
+    gslc_tsElemRef*             box_ref   = nullptr;
 
     gslc_tsXSlider              slider_elem;
-    gslc_tsElemRef*             slider_ref    = NULL;
+    gslc_tsElemRef*             slider_ref    = nullptr;
 
-    StrCache * cache;
+    StrCache * cache = nullptr;
 };
 
 PageDirs page_dirs;
