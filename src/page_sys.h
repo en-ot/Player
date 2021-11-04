@@ -16,33 +16,15 @@ public:
 };
 
 
-class GuiSys;
-
-class PageSys
-{
-public:
-    bool sys_seek(int by);
-    bool sys_volupdn(int by);
-    void sys_volshort();
-    void cal_vol();
-    void cal_seek();
-
-    void sys_set_update();
-};
-
 extern CtrlPage * ctrl_page_sys;
 
 uint32_t calc_sd_free_size();
 
-void gui_sys_init();
-void memory_loop();
-void sys_control(int16_t line, int key);
-//void gui_sys_update();
-
 extern Sys sys;
-extern PageSys page_sys;
 
 void page_sys_init();
+void page_sys_set_update();
+void page_sys_loop();
 
 
 #endif // _PAGE_SYS_H_

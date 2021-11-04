@@ -54,8 +54,7 @@ bool process_key(int key)
 class CtrlPageInfo : public CtrlPage
 {
 public:
-    void b1_short()         {       DEBUG("!\n");
-        player->change_page();}
+    void b1_short()         {       player->change_page();}
     bool vol(int change)    {return player->change_volume(change);}
     void vol_short()        {       player->play_file_next();}
     void vol_long()         {       player->play_file_prev();}

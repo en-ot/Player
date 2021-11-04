@@ -277,7 +277,7 @@ void fav_init()
 //###############################################################
 // Init steps
 //###############################################################
-#define STEPS_TOTAL 11
+#define STEPS_TOTAL 10
 uint32_t step_t0 = 0;
 
 void begin(const char * step_name)
@@ -381,17 +381,13 @@ void setup()
     pl = new Playlist(SAFE_ACCESS);
     end(8);
 
-    begin("gui_sys");
-    gui_sys_init();
-    end(9);
-
     begin("network");
     network_init();
-    end(10);
+    end(9);
 
     begin("start");
     fav_switch(player->cur_fav_num, true);
-    end(11);
+    end(10);
 }
 
 
@@ -503,7 +499,7 @@ void loop()
     prefs_loop();
     network_loop();
     check_loop();
-    memory_loop();
+    page_sys_loop();
     yield();
     //vTaskDelay(1);      //avoid watchdog
 }
