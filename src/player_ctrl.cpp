@@ -5,6 +5,7 @@
 #include "player_ctrl.h"
 
 #include "page_sys.h"
+#include "page_dirs.h"
 
 #include "globals.h"
 
@@ -82,17 +83,6 @@ class CtrlPageFiles : public CtrlPage
 } ctrl_page_files;
 
 
-class CtrlPageDirs : public CtrlPage
-{
-    void b1_short()         {       player->change_page();}
-    bool vol(int change)    {return player->dirs_pgupdn(change);}
-    void vol_short()        {       player->dirs_goto_curdir();}
-    bool seek(int by)       {return player->dirs_seek(by);}
-    void seek_long()        {       player->dirs_set_fav();}
-    void seek_short()       {       player->dirs_play_sel();}
-} ctrl_page_dirs;
-
-
 class CtrlPageFav : public CtrlPage
 {
     void b1_short()         {       player->change_page();}
@@ -147,7 +137,7 @@ void player_ctrl_init()
     ctrl_pages[PAGE_INFO]  = &ctrl_page_info;
     ctrl_pages[PAGE_FAV]   = &ctrl_page_fav;
     ctrl_pages[PAGE_FILES] = &ctrl_page_files;
-    ctrl_pages[PAGE_DIRS]  = &ctrl_page_dirs;
+    ctrl_pages[PAGE_DIRS]  = ctrl_page_dirs;
     ctrl_pages[PAGE_SYS]   = ctrl_page_sys;
 }
 

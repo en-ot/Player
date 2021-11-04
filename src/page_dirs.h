@@ -1,0 +1,12 @@
+#ifndef _PAGE_DIRS_H_
+#define _PAGE_DIRS_H_
+
+#include "player.h"
+#include "player_ctrl.h"
+
+
+extern CtrlPage * ctrl_page_dirs;
+
+
+
+#endif // _PAGE_DIRS_H_
