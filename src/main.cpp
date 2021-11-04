@@ -19,7 +19,7 @@
 //#include "page_info.h"
 //#include "page_files.h"
 #include "page_dirs.h"
-//#include "page_fav.h"
+#include "page_fav.h"
 #include "page_sys.h"
 
 #include "player.h"
@@ -157,7 +157,7 @@ bool fav_switch(int fav_num, bool init)
 
     start_file(player->next_file, FAIL_NEXT);
 
-    player->fav_goto_curfav();
+    page_fav.goto_cur();
     page_dirs.goto_cur();
     player->files_goto_curfile();
 
@@ -165,52 +165,6 @@ bool fav_switch(int fav_num, bool init)
         need_set_file_pos = true;
 
     return true;
-}
-
-
-char fav_str[FAV_MAX][XLISTBOX_MAX_STR] = {0};
-
-
-void fav_set_str(int fav_num, const char * path)
-{
-    int nItem = fav_num - 1;
-    sprintf(fav_str[nItem], "%d ", fav_num);
-    strlcat(fav_str[nItem], path, sizeof(fav_str[nItem]));
-}
-
-
-void fav_set_path(int fav_num, const char * path)
-{
-    fav_set_str(fav_num, path);
-    prefs_set_path(fav_num, path);
-    gui->redraw();
-}
-
-
-bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
-{
-    int fav_num = nItem + 1;
-    
-    int type = (fav_num == player->cur_fav_num) ? 1 : 0;
-    gui->fav_highlight(pvGui, pvElem, type);
-
-    strlcpy(pStrItem, fav_str[nItem], nStrItemLen);
-    //DEBUG("%s\n", pStrItem);
-    return true;
-}
-
-
-void fav_init()
-{
-    gui->fav_box(FAV_MAX, fav_get_item);
-    char tmp[XLISTBOX_MAX_STR];
-    int fav_num;
-    for (fav_num = 1; fav_num <= FAV_MAX; fav_num++)
-    {
-        prefs_get_path(fav_num, tmp, sizeof(tmp));
-        if (!tmp[0]) strcpy(tmp, "/");
-        fav_set_str(fav_num, tmp);
-    }
 }
 
 
@@ -310,7 +264,7 @@ void setup()
     end(5);
 
     begin("fav");
-    fav_init();
+    page_fav.box();
     end(6);
 
     begin("filectrl");

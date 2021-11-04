@@ -8,6 +8,8 @@
 #include "sound.h"
 #include "strcache.h"
 
+#include "page_fav.h"
+
 #include "player.h"
 
 
@@ -280,52 +282,11 @@ void Player::files_set_fav()
     char path[PATHNAME_MAX_LEN];
     pl->file_dirname(file_num, path, sizeof(path));
 
-    int fav_num = gui->fav_sel;
+    int fav_num = page_fav.sel();
     fav_set_path(fav_num, path);
 
     ui_page = PAGE_FAV;
     gui->page(ui_page);
-}
-
-
-//###############################################################
-bool Player::fav_seek(int by)
-{
-    if (!by)
-        return false;
-    gui->fav_seek(by);
-    return true;
-}
-
-
-bool Player::fav_pgupdn(int by)
-{
-    if (!by)
-        return false;
-    gui->fav_seek(by * LISTBOX_LINES);
-    return true;
-}
-
-
-void Player::fav_reset()
-{
-    int fav_num = gui->fav_sel;
-    fav_set_path(fav_num, "/");
-}
-
-
-void Player::fav_set_num()
-{
-    int fav_num = gui->fav_sel;
-    fav_switch(fav_num, false);
-    ui_page = PAGE_INFO;
-    gui->page(ui_page);
-}
-
-
-void Player::fav_goto_curfav()
-{
-    gui->fav_select(cur_fav_num);
 }
 
 

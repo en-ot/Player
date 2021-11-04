@@ -1,3 +1,7 @@
+//###############################################################
+// page:dirs
+//###############################################################
+
 #include <Arduino.h>
 #include "debug.h"
 
@@ -7,6 +11,7 @@
 #include "gui_common.h"
 #include "gui_dirs.h"
 
+#include "page_fav.h"
 #include "page_dirs.h"
 
 
@@ -23,7 +28,6 @@ public:
 
     bool seek(int by);
     bool pgupdn(int by);
-    void goto_cur();
     void set_fav();
     void play_sel();
 
@@ -46,7 +50,7 @@ class CtrlPageDirs : public CtrlPage
 {
     void b1_short()         {       player->change_page();}
     bool vol(int change)    {return g->pgupdn(change);}
-    void vol_short()        {       g->goto_cur();}
+    void vol_short()        {       page_dirs.goto_cur();}
     bool seek(int by)       {return g->seek(by);}
     void seek_long()        {       g->set_fav();}
     void seek_short()       {       g->play_sel();}
@@ -109,10 +113,6 @@ int dirs_file_num(int dirs_sel)
 }
 
 
-
-//###############################################################
-// page:dirs
-//###############################################################
 void PageDirs::init()
 {
     g = new DirsPrivate;
@@ -138,12 +138,6 @@ void PageDirs::box(int cnt)
         g->cache = new StrCache(DIRS_CACHE_LINES);
     else
         g->cache->clear();
-}
-
-
-void PageDirs::goto_cur()
-{
-    g->goto_cur();
 }
 
 
@@ -182,9 +176,9 @@ bool DirsPrivate::seek(int by)
 }
 
 
-void DirsPrivate::goto_cur()
+void PageDirs::goto_cur()
 {
-    select(fc->curdir, true);
+    g->select(fc->curdir, true);
 }
 
 
@@ -197,7 +191,7 @@ void DirsPrivate::set_fav()
     char path[PATHNAME_MAX_LEN];
     pl->file_dirname(file_num, path, sizeof(path));
 
-    int fav_num = gui->fav_sel;
+    int fav_num = page_fav.sel();
     fav_set_path(fav_num, path);
 
     player->ui_page = PAGE_FAV;

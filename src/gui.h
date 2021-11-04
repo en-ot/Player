@@ -59,14 +59,6 @@ class Gui
         void files_select(int curfile);
         void files_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
         void files_highlight(void *m_gui, void *pElemRef, int type);
-
-        // page:fav
-        int fav_sel = 1;
-        void fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
-        void fav_seek(int by);
-        void fav_select(int num);
-        void fav_highlight(void *m_gui, void *pElemRef, int type);
-        
 };
 
 

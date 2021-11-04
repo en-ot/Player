@@ -53,12 +53,6 @@ public:
     void files_play_sel();
     void files_set_fav();
 
-    bool fav_seek(int by);
-    bool fav_pgupdn(int by);
-    void fav_reset();
-    void fav_set_num();
-    void fav_goto_curfav();
-
     void sys_page();;
 
     bool shuffle;

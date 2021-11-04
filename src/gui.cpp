@@ -20,6 +20,7 @@
 
 #include "page_dirs.h"
 #include "page_sys.h"
+#include "page_fav.h"
 
 #include "gui_icons.h"
 
@@ -104,7 +105,7 @@ Gui::Gui()
     page_info_init();
     page_files_init();
     //page_pic_init();
-    page_fav_init();
+    page_fav.init();
     page_dirs.init();
     page_sys.init();
 
@@ -656,57 +657,6 @@ void Gui::files_select(int curfile)
 void Gui::files_seek(int by)
 {
     files_sel = box_goto(files_box_ref, files_slider_ref, files_sel-1-by, false) + 1;
-}
-
-
-//###############################################################
-// page:fav
-//###############################################################
-gslc_tsElem                 fav_elem[FAV_ELEM_MAX];
-gslc_tsElemRef              fav_ref[FAV_ELEM_MAX];
-
-gslc_tsXListbox             fav_box_elem;
-gslc_tsElemRef*             fav_box_ref     = NULL;
-
-gslc_tsXSlider              fav_slider_elem;
-gslc_tsElemRef*             fav_slider_ref  = NULL;
-
-void page_fav_init()
-{
-    gslc_PageAdd(&gslc, PAGE_FAV, fav_elem, FAV_ELEM_MAX, fav_ref, FAV_ELEM_MAX);
-    fav_box_ref   = create_listbox(PAGE_FAV, FAV_BOX_ELEM,    &fav_box_elem,    FAV_BACK_COL);
-    fav_slider_ref = create_slider(PAGE_FAV, FAV_SLIDER_ELEM, &fav_slider_elem, FAV_BACK_COL);
-}
-
-
-void Gui::fav_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
-{
-    fav_box_elem.pfuncXGet = cb;
-    fav_box_elem.nItemCnt = cnt;
-    fav_box_elem.bNeedRecalc = true;
-}
-
-
-void Gui::fav_highlight(void *gslc, void *pElemRef, int type)
-{
-    static gslc_tsColor colors_b[] = {FAV_COL_NORMAL_B, FAV_COL_PLAY_B};
-    static gslc_tsColor colors_f[] = {FAV_COL_NORMAL_F, FAV_COL_PLAY_F};
-    gslc_tsElem * elem = &fav_elem[FAV_BOX_ELEM-FAV_BOX_ELEM];
-    elem->colElemText       = colors_f[type];
-    elem->colElemTextGlow   = colors_f[type];
-    elem->colElemFill       = colors_b[type];
-}
-
-
-void Gui::fav_select(int fav_num)
-{
-    fav_sel = box_goto(fav_box_ref, fav_slider_ref, fav_num-1, true) + 1;
-}
-
-
-void Gui::fav_seek(int by)
-{
-    fav_sel = box_goto(fav_box_ref, fav_slider_ref, fav_sel-1-by, false) + 1;
 }
 
 

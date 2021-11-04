@@ -13,6 +13,9 @@
 #define FAIL_RANDOM 0
 
 //###############################################################
+#define FAV_MAX 20
+
+//###############################################################
 extern bool need_play_next_dir;
 extern bool need_play_next_file;
 extern bool need_set_file_pos;

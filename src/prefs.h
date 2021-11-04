@@ -2,9 +2,6 @@
 #define _PREFS_H_
 
 //###############################################################
-#define FAV_MAX 20
-
-//###############################################################
 void prefs_erase_all();
 
 void prefs_save_main(int curfav, int prevfav, uint32_t sd_free);
