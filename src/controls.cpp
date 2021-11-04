@@ -13,6 +13,8 @@
 
 #include "controls.h"
 
+#include "player.h"
+
 
 InputButton btn_1(BTN_1, true, ACTIVE_LOW);
 InputButton btn_2(BTN_2, true, ACTIVE_LOW);
@@ -579,28 +581,48 @@ Controls controls[PAGE_MAX] =
 };
 
 
-bool input_loop()
+
+class CtrlPage
+{
+
+};
+
+
+bool moved(PlayerKey key, int param)
 {
     Controls * ctrl = &controls[ui_page];
+    ctrl->encoders[key](param);
+    return true;
+}
 
-    if (ctrl->encoders[E_VOLUME](enc1.get_move())) return true;
 
-    if (ctrl->encoders[E_SEEK](-enc2.get_move())) return true;
+bool button(PlayerKey key)
+{
+    Controls * ctrl = &controls[ui_page];
+    ctrl->keys[key-E_TOTAL]();
+    return true;
+}
 
-    if (enc1.long_press())          return ctrl->keys[K_VOLLONG]();
-    if (enc1.short_press())         return ctrl->keys[K_VOLSHORT]();
+
+bool input_loop()
+{
+    if (int move1 = enc1.get_move())    return moved(KEY_VOLUME, move1);
+    if (int move2 = enc2.get_move())    return moved(KEY_SEEK, -move2);
+
+    if (enc1.long_press())              return button(KEY_VOLLONG);
+    if (enc1.short_press())             return button(KEY_VOLSHORT);
     
-    if (enc2.long_press())          return ctrl->keys[K_SEEKLONG]();
-    if (enc2.short_press())         return ctrl->keys[K_SEEKSHORT]();
+    if (enc2.long_press())              return button(KEY_SEEKLONG);
+    if (enc2.short_press())             return button(KEY_SEEKSHORT);
 
-    if (btn_1.longPress())          return ctrl->keys[K_B1LONG]();
-    if (btn_1.shortPress())         return ctrl->keys[K_B1SHORT]();
+    if (btn_1.longPress())              return button(KEY_B1LONG);
+    if (btn_1.shortPress())             return button(KEY_B1SHORT);
 
-    if (btn_2.longPress())          return ctrl->keys[K_B2LONG]();
-    if (btn_2.shortPress())         return ctrl->keys[K_B2SHORT]();
+    if (btn_2.longPress())              return button(KEY_B2LONG);
+    if (btn_2.shortPress())             return button(KEY_B2SHORT);
 
-    if (btn_3.longPress())          return ctrl->keys[K_B3LONG]();
-    if (btn_3.shortPress())         return ctrl->keys[K_B3SHORT]();
+    if (btn_3.longPress())              return button(KEY_B3LONG);
+    if (btn_3.shortPress())             return button(KEY_B3SHORT);
 
     return false;
 }
