@@ -110,7 +110,7 @@ Gui::Gui()
     page_dirs.init();
     page_sys.init();
 
-    page(PAGE_INFO);
+    set_page(PAGE_INFO);
 
     DEBUG("gslc initialized\n");
 
@@ -156,7 +156,7 @@ void Gui::redraw()
 
 
 //###############################################################
-void Gui::page(int page_n)
+void Gui::set_page(int page_n)
 {
     static gslc_tsColor page_back_col[] = {INFO_BACK_COL, FILES_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
     gslc_SetPageCur(&gslc, page_n);
@@ -396,7 +396,7 @@ void Gui::step_progress(uint32_t pos, uint32_t total)
 
 void Gui::step_begin(const char * text)
 {
-    page(PAGE_INFO);
+    set_page(PAGE_INFO);
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], text);
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], "");
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_BAND], "");
@@ -410,7 +410,7 @@ void Gui::step_begin(const char * text)
 
 void Gui::message(const char * message)
 {
-    page(PAGE_INFO);
+    set_page(PAGE_INFO);
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], message);
     redraw();
     loop();

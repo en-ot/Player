@@ -24,7 +24,7 @@ class Gui
         Gui();
         
         void loop();
-        void page(int p);
+        void set_page(int p);
         void redraw();
         
         void scroll();
@@ -58,7 +58,6 @@ class Gui
 extern gslc_tsGui gslc;
 
 extern Gui * gui;
-//extern int ui_page;
 
 void check_font();
 

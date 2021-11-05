@@ -45,8 +45,8 @@ PageFav page_fav;
 
 class CtrlPageFav : public CtrlPage
 {
-    void b1_short()         {       player->change_page();}
-    void b2_short()         {       player->sys_page();}
+    void b1_short()         {       player->next_page();}
+    void b2_short()         {       player->set_page(PAGE_SYS);}
     bool vol(int change)    {return g->pgupdn(change);}
     void vol_short()        {       page_fav.goto_cur();}
     bool seek(int by)       {return g->seek(by);}
@@ -143,8 +143,7 @@ void FavPrivate::reset()
 void FavPrivate::set_num()
 {
     fav_switch(sel, false);
-    player->ui_page = PAGE_INFO;
-    gui->page(player->ui_page);
+    player->set_page(PAGE_INFO);
 }
 
 

@@ -23,7 +23,8 @@ public:
 
     bool input(PlayerInputType type, int key);
 
-    void change_page();
+    void set_page(int page);
+    void next_page();
 
     bool change_volume(int change);
     void toggle_shuffle();
@@ -44,8 +45,6 @@ public:
 
     void play_root_next();
     void play_root_prev();
-
-    void sys_page();;
 
     bool shuffle;
     bool repeat;

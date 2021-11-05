@@ -52,7 +52,7 @@ PageFiles page_files;
 
 class CtrlPageFiles : public CtrlPage
 {
-    void b1_short()         {       player->change_page();}
+    void b1_short()         {       player->next_page();}
     bool vol(int change)    {return g->pgupdn(change);}
     void vol_short()        {       p->goto_cur();}
     bool seek(int by)       {return g->seek(by);}
@@ -125,8 +125,7 @@ void PageFiles::goto_cur()
 
 void FilesPrivate::play_sel()
 {
-    player->ui_page = PAGE_INFO;
-    gui->page(player->ui_page);
+    player->set_page(PAGE_INFO);
     player->play_file_num(sel, FAIL_NEXT);
 }
 
@@ -142,8 +141,7 @@ void FilesPrivate::set_fav()
     int fav_num = page_fav.sel();
     fav_set_path(fav_num, path);
 
-    player->ui_page = PAGE_FAV;
-    gui->page(player->ui_page);
+    player->set_page(PAGE_FAV);
 }
 
 

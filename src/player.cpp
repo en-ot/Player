@@ -225,7 +225,15 @@ bool Player::change_volume(int change)
 //###############################################################
 uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
 
-void Player::change_page()
+
+void Player::set_page(int page)
+{
+    ui_page = page;
+    gui->set_page(ui_page);
+}
+
+
+void Player::next_page()
 {
     int i;
     for (i = 0; i < sizeof(page_order); i++)
@@ -238,20 +246,7 @@ void Player::change_page()
     }
     if (i >= sizeof(page_order)) 
         i = 0;
-    ui_page = page_order[i];
 
-    //sound_pause();
-
-    gui->page(ui_page);
+    set_page(page_order[i]);
 }
-
-
-//###############################################################
-void Player::sys_page()
-{
-    //sound_pause();
-    ui_page = PAGE_SYS;
-    gui->page(ui_page);
-}
-
 
