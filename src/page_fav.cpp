@@ -39,16 +39,16 @@ public:
 
     char cache[FAV_MAX][XLISTBOX_MAX_STR];
     void set_str(int fav_num, const char * path);
-};
 
-PageFav page_fav;
+    Gui * gui;
+};
 
 
 class PageFavCtrl : public CtrlPage
 {
 public:
-    void b1_short()         {       player->next_page();}
-    void b2_short()         {       player->change_page(PAGE_SYS);}
+    void b1_short()         {       player->page_next();}
+    void b2_short()         {       player->page_change(PAGE_SYS);}
     bool vol(int change)    {return g->pgupdn(change);}
     void vol_short()        {       p->goto_cur();}
     bool seek(int by)       {return g->seek(by);}
@@ -85,12 +85,14 @@ void PageFav::reset()
 
 bool fav_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
+    PageFav * page_fav = (PageFav *)*player->page_ptr(PAGE_FAV);
+
     int fav_num = nItem + 1;
     
     int type = (fav_num == player->cur_fav_num) ? 1 : 0;
-    page_fav.g->highlight(pvGui, pvElem, type);
+    page_fav->g->highlight(pvGui, pvElem, type);
 
-    strlcpy(pStrItem, page_fav.g->cache[nItem], nStrItemLen);
+    strlcpy(pStrItem, page_fav->g->cache[nItem], nStrItemLen);
     //DEBUG("%s\n", pStrItem);
     return true;
 }
@@ -102,9 +104,11 @@ int PageFav::sel()
 }
 
 
-void PageFav::init()
+PageFav::PageFav(Gui * gui)
 {
     g = new PageFavPrivate;
+    g->gui = gui;
+
     auto c = new PageFavCtrl;
     c->g = g;
     c->p = this;
@@ -150,7 +154,7 @@ bool PageFavPrivate::pgupdn(int by)
 void PageFavPrivate::set_num()
 {
     player->fav_switch(sel, false);
-    player->change_page(PAGE_INFO);
+    player->page_change(PAGE_INFO);
 }
 
 

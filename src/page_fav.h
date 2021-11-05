@@ -9,7 +9,7 @@
 class PageFav : public Page
 {
 public:
-    void init();
+    PageFav(Gui * gui);
     void box();
     void goto_cur();
     void activate();
@@ -20,8 +20,6 @@ public:
 
     class PageFavPrivate * g;
 };
-
-extern PageFav page_fav;
 
 
 #endif // _PAGE_FAV_H_

@@ -112,7 +112,7 @@ PageSys page_sys;
 class PageSysCtrl : public CtrlPage
 {
 public:
-    void b1_short()         {       player->next_page();}
+    void b1_short()         {       player->page_next();}
     bool vol(int change)    {return g->vol(change);}
     void vol_short()        {       g->vol_short();}
     bool seek(int by)       {return g->seek(by);}

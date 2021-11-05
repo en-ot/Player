@@ -41,11 +41,9 @@ public:
 
     void set_page(int page_num, Page * page);
     Page ** page_ptr(int page_num);
-    // PageInfo * info;
-    // PageDirs * dirs;
-    // PageFiles * files;
-    // PageFav * fav;
-    // PageSys * sys;
+    int ui_page = -1;//PAGE_INFO;
+    void page_change(int page);
+    void page_next();
 
     void reset_to_defaults();
     void freeze();
@@ -57,12 +55,10 @@ public:
     void fav_next();
     void fav_prev();
     void restart();
+    // int fav_sel();
+    void fav_set(const char * path);
 
     bool input(PlayerInputType type, int key);
-
-    int ui_page = -1;//PAGE_INFO;
-    void change_page(int page);
-    void next_page();
 
     int8_t volume;
     int8_t volume_old;
@@ -96,8 +92,7 @@ public:
     void play_dir_prev();
 
 private:
-    Gui * _gui = nullptr;
-    Page * pages[PAGE_MAX] = {0};
+    class PlayerPrivate * p = nullptr;
 };
 
 extern Player * player;

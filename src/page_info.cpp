@@ -61,7 +61,7 @@ public:
 class PageInfoCtrl : public CtrlPage
 {
 public:
-    void b1_short()         {       player->next_page();}
+    void b1_short()         {       player->page_next();}
     bool vol(int change)    {return player->change_volume(change);}
     void vol_short()        {       player->play_file_next();}
     void vol_long()         {       player->play_file_prev();}
@@ -319,7 +319,7 @@ void PageInfo::step_progress(uint32_t pos, uint32_t total)
 
 void PageInfo::step_begin(const char * text)
 {
-    player->change_page(PAGE_INFO);
+    player->page_change(PAGE_INFO);
     auto ref = g->lines_ref;
     gslc_ElemSetTxtStr(&gslc, ref[INFO_PATH], text);
     gslc_ElemSetTxtStr(&gslc, ref[INFO_FILE], "");
@@ -334,7 +334,7 @@ void PageInfo::step_begin(const char * text)
 
 void PageInfo::message(const char * message)
 {
-    player->change_page(PAGE_INFO);
+    player->page_change(PAGE_INFO);
     gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_FILE], message);
     gui->redraw();
     gui->loop();

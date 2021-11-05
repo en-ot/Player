@@ -25,17 +25,30 @@ int file_random()
 
 
 //###############################################################
+class PlayerPrivate
+{
+public:
+    PageInfo * info;
+    PageDirs * dirs;
+    PageFiles * files;
+    PageFav * fav;
+    PageSys * sys;
+
+    Gui * gui = nullptr;
+//    Page * pages[PAGE_MAX] = {0};
+};
+
+
 Player::Player()
 {
+    p = new PlayerPrivate;
 }
 
 
 void Player::loop()
 {
-    page_sys.loop2();
-    
-    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
-    page_info->loop2();
+    p->sys->loop2();
+    p->info->loop2();
 
     auto page = *page_ptr(ui_page);
     page->gui_loop();
@@ -44,7 +57,16 @@ void Player::loop()
 
 Page ** Player::page_ptr(int page_num)
 {
-    return &pages[page_num];
+    switch (page_num)
+    {
+    case PAGE_INFO:     return (Page**)&p->info;
+    case PAGE_SYS:      return (Page**)&p->sys;
+    case PAGE_DIRS:     return (Page**)&p->dirs;
+    case PAGE_FILES:    return (Page**)&p->files;
+    case PAGE_FAV:      return (Page**)&p->fav;
+    }
+    DEBUG("INVALID PAGE %d\n", page_num);
+    return nullptr;
 }
 
 
@@ -56,7 +78,7 @@ void Player::set_page(int page_num, Page * page)
 
 void Player::set_gui(Gui * gui)
 {
-    _gui = gui;
+    p->gui = gui;
 }
 
 
@@ -112,19 +134,17 @@ bool Player::fav_switch(int fav_num, bool init)
     fc->set_root(fav_path);
     pl->set_root(fav_path);
 
-    PageFiles * page_files = (PageFiles *)*page_ptr(PAGE_FILES);
-    page_files->box(pl->filecnt);
-
-    page_dirs.box(pl->dircnt);
+    p->files->box(pl->filecnt);
+    p->dirs->box(pl->dircnt);
 
     DEBUG("dircnt: %d\n", pl->dircnt);
 
     playstack_init();
     start_file(next_file, FAIL_NEXT);
 
-    page_fav.goto_cur();
-    page_dirs.goto_cur();
-    page_files->goto_cur();
+    p->fav->goto_cur();
+    p->dirs->goto_cur();
+    p->files->goto_cur();
 
     if (filepos)
         need_set_file_pos = true;
@@ -137,7 +157,7 @@ bool Player::fav_switch(int fav_num, bool init)
 
 void Player::update()
 {
-    auto page = pages[ui_page];
+    auto page = *page_ptr(ui_page);
     page->update();
 }
 
@@ -152,6 +172,20 @@ void Player::fav_prev()
 {
     fav_switch(prev_fav_num, false);
 }
+
+
+void Player::fav_set(const char * path)
+{
+    int fav_num = p->fav->sel();
+    p->fav->set_path(fav_num, path);
+}
+
+
+// int Player::fav_sel()
+// {
+//     PageFav * page_fav = (PageFav *)*page_ptr(PAGE_FAV);
+//     return page_fav->sel();
+// }
 
 
 void Player::restart()
@@ -238,8 +272,7 @@ void Player::play_dir_prev()
 void Player::toggle_shuffle()
 {
     shuffle = !shuffle;
-    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
-    page_info->shuffle(shuffle);
+    p->info->shuffle(shuffle);
     prefs_save_delayed(need_save_shuffle);
 }
 
@@ -247,8 +280,7 @@ void Player::toggle_shuffle()
 void Player::toggle_repeat()
 {
     repeat = !repeat;
-    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
-    page_info->repeat(repeat);
+    p->info->repeat(repeat);
     prefs_save_delayed(need_save_repeat);
 }
 
@@ -314,9 +346,8 @@ bool Player::change_volume(int change)
         return false;
 
     volume = new_volume;
-    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
-    page_info->volume(volume);
-    page_info->gain(true);
+    p->info->volume(volume);
+    p->info->gain(true);
     prefs_save_delayed(need_save_volume);
     return true;
 }
@@ -326,7 +357,7 @@ bool Player::change_volume(int change)
 uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
 
 
-void Player::change_page(int page_num)
+void Player::page_change(int page_num)
 {
     if (ui_page == page_num)
         return;
@@ -334,15 +365,14 @@ void Player::change_page(int page_num)
     ui_page = page_num;
     gui->set_page(ui_page);
 
-    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
-    page_info->scroll_reset();
+    p->info->scroll_reset();
 
-    auto page = pages[ui_page];
+    auto page = *page_ptr(ui_page);
     page->activate();
 }
 
 
-void Player::next_page()
+void Player::page_next()
 {
     int i;
     for (i = 0; i < sizeof(page_order); i++)
@@ -356,6 +386,6 @@ void Player::next_page()
     if (i >= sizeof(page_order)) 
         i = 0;
 
-    change_page(page_order[i]);
+    page_change(page_order[i]);
 }
 

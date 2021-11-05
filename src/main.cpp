@@ -70,13 +70,15 @@ void setup()
     sys.set_page(page_info);
 
     player->set_page(PAGE_FILES, new PageFiles(gui));
+    
+    auto page_fav = new PageFav(gui);
+    player->set_page(PAGE_FAV, page_fav);
 
-    page_fav.init();
     page_dirs.init();
     page_sys.init();
     //page_pic_init();
 
-    player->change_page(PAGE_INFO);
+    player->page_change(PAGE_INFO);
     sys.step_end(0);
 
     sys.step_begin("sound");
@@ -115,7 +117,7 @@ void setup()
     sys.step_end(5);
 
     sys.step_begin("fav");
-    page_fav.box();
+    page_fav->box();
     sys.step_end(6);
 
     sys.step_begin("filectrl");
