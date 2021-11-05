@@ -21,7 +21,7 @@ const char* ap_password = "player_admin";
 #include "sound.h"
 #include "gui.h"
 #include "page_sys.h"
-#include "page_info.h"
+//#include "page_info.h"
 
 #include "globals.h"
 
@@ -63,11 +63,11 @@ void ftp_callback(int event, const char* text)
             player->freeze();
             writeflag = false;
         case FTPSERV_READY:
-            page_info.net(NET_MODE_FTP);
+            sys.net(NET_MODE_FTP);
             break;
 
         case FTPSERV_RECEIVING:
-            page_info.net(NET_MODE_WRITE);
+            sys.net(NET_MODE_WRITE);
         case FTPSERV_REN:
         case FTPSERV_RMDIR:
         case FTPSERV_MKDIR:
@@ -76,11 +76,11 @@ void ftp_callback(int event, const char* text)
 
         case FTPSERV_SENDING:
         case FTPSERV_LIST:
-            page_info.net(NET_MODE_READ);
+            sys.net(NET_MODE_READ);
             break;
 
         case FTPSERV_ERROR:
-            page_info.net(NET_MODE_ERROR);
+            sys.net(NET_MODE_ERROR);
             break;
 
         case FTPSERV_CLIENT_DISCONNECTED:
@@ -94,7 +94,7 @@ void ftp_callback(int event, const char* text)
             {
                 player->unfreeze();
             }
-            page_info.net(WiFi.getMode());
+            sys.net(WiFi.getMode());
             break;
     }
 }
@@ -106,22 +106,22 @@ void ftp_callback(int event, const char* text)
 #ifdef NETWORK_ENABLED
 void ota_onEnd()
 {
-    page_info.message("End");
+    sys.message("End");
     gui->loop();
     player->restart();
-    page_info.net(WiFi.getMode());
+    sys.net(WiFi.getMode());
 }
 
 
 void ota_onStart(bool sketch) 
 {
     player->freeze();
-    page_info.step_begin("OTA Upload ");
+    sys.step_begin("OTA Upload ");
     const char * type = sketch ? "sketch" : "filesystem";
     Serial.println(type);
-    page_info.message(type);
+    sys.message(type);
     gui->loop();
-    page_info.net(NET_MODE_OTA);
+    sys.net(NET_MODE_OTA);
 }
 
 
@@ -130,7 +130,7 @@ void ota_onProgress(unsigned int progress, unsigned int total)
     int percent = progress / (total / 100);
     Serial.printf("Progress: %u%%\r", percent);
     
-    page_info.step_progress(percent, 100);
+    sys.step_progress(percent, 100);
     gui->loop();
 }
  
@@ -139,8 +139,8 @@ void ota_onError(int error, const char * errtxt)
 {
     char buf[30];
     sprintf(buf, "OTA Upload Error %u", error);
-    page_info.step_begin(buf);
-    page_info.error(errtxt);
+    sys.step_begin(buf);
+    sys.error(errtxt);
     gui->loop();
     player->restart();
 }
@@ -313,7 +313,7 @@ void wifi_sta()
 
 void wifi_off()
 {
-    page_info.net(WIFI_MODE_NULL);
+    sys.net(WIFI_MODE_NULL);
     WiFi.disconnect();
     DEBUG("WiFi disconnected\n");
     network_connected1 = false;
@@ -458,7 +458,7 @@ void network_loop()
     MDNS.begin(host);
     services_begin();
 
-    page_info.net(WiFi.getMode());
+    sys.net(WiFi.getMode());
     page_sys.update();
 #else
     // xxx = (uint8_t*)malloc(100000);

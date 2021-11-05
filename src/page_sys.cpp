@@ -19,11 +19,70 @@
 #include "gui_common.h"
 #include "gui_sys.h"
 
+#include "page_info.h"
+
 #include "page_sys.h"
 
 
 Sys sys;
 
+#define STEPS_TOTAL 10
+uint32_t step_t0 = 0;
+
+
+void Sys::set_page(PageInfo * page)
+{
+    this->page = page;
+}
+
+
+void Sys::step_end(int step_num)
+{
+    int32_t t = millis();
+    page->step_progress(step_num, STEPS_TOTAL);
+    gui->loop();
+    DEBUG("Step %d end (%dms)\n", step_num, (int)(t - step_t0));
+}
+
+
+void Sys::step_begin(const char * step_name)
+{
+    DEBUG("Init step: %s\n", step_name);
+    if (page)
+    {
+        page->step_begin(step_name);
+    }
+    step_t0 = millis();
+}
+
+
+void Sys::step_progress(uint32_t pos, uint32_t total)
+{
+    page->step_progress(pos, total);
+}
+
+
+void Sys::error(const char * err_text)
+{
+    page->error(err_text);
+}
+
+
+void Sys::message(const char * message)
+{
+    page->message(message);
+}
+
+
+void Sys::net(int mode)
+{
+    page->net(mode);
+}
+
+
+
+
+//#####################################################################################################
 
 class PageSysPrivate
 {

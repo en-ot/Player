@@ -7,6 +7,7 @@
 
 uint32_t calc_sd_free_size();
 
+class PageInfo;
 
 class Sys
 {
@@ -17,7 +18,20 @@ public:
     //uint32_t largestheap;
 
     bool read_error = false;
+
+    void set_page(PageInfo * page);
+
+    void step_begin(const char * step_name);
+    void step_end(int step_num);
+    void step_progress(uint32_t pos, uint32_t total);
+    void error(const char * err_text);
+    void message(const char * message);
+    void net(int mode);
+
+private:
+    PageInfo * page = nullptr;
 };
+
 extern Sys sys;
 
 

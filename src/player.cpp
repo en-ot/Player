@@ -33,19 +33,24 @@ Player::Player()
 void Player::loop()
 {
     page_sys.loop2();
-    page_info.loop2();
+    
+    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
+    page_info->loop2();
 
-    auto page = pages[ui_page];
+    auto page = *page_ptr(ui_page);
     page->gui_loop();
+}
+
+
+Page ** Player::page_ptr(int page_num)
+{
+    return &pages[page_num];
 }
 
 
 void Player::set_page(int page_num, Page * page)
 {
-//    DEBUG("%X : %X\n", page, page->ctrl);
-    //DEBUG("%d:%X\n", page_num, ctrl);
-    pages[page_num] = page;
-//    DEBUG_DUMP32(ctrl_pages, 5, 5);
+    *page_ptr(page_num) = page;
 }
 
 
@@ -60,7 +65,7 @@ bool Player::input(PlayerInputType type, int key)
     if (ui_page >= PAGE_MAX)
         return false;
 
-    auto ctrl = pages[ui_page]->ctrl;
+    auto ctrl = (*page_ptr(ui_page))->ctrl;
     return ctrl->input(type, key);
 }
 
@@ -111,8 +116,6 @@ bool Player::fav_switch(int fav_num, bool init)
 
     DEBUG("dircnt: %d\n", pl->dircnt);
 
-    page_info.update();
-
     playstack_init();
     start_file(next_file, FAIL_NEXT);
 
@@ -122,6 +125,8 @@ bool Player::fav_switch(int fav_num, bool init)
 
     if (filepos)
         need_set_file_pos = true;
+
+    update();
 
     return true;
 }
@@ -230,7 +235,8 @@ void Player::play_dir_prev()
 void Player::toggle_shuffle()
 {
     shuffle = !shuffle;
-    page_info.shuffle(shuffle);
+    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
+    page_info->shuffle(shuffle);
     prefs_save_delayed(need_save_shuffle);
 }
 
@@ -238,7 +244,8 @@ void Player::toggle_shuffle()
 void Player::toggle_repeat()
 {
     repeat = !repeat;
-    page_info.repeat(repeat);
+    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
+    page_info->repeat(repeat);
     prefs_save_delayed(need_save_repeat);
 }
 
@@ -304,8 +311,9 @@ bool Player::change_volume(int change)
         return false;
 
     volume = new_volume;
-    page_info.volume(volume);
-    page_info.gain(true);
+    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
+    page_info->volume(volume);
+    page_info->gain(true);
     prefs_save_delayed(need_save_volume);
     return true;
 }
@@ -317,9 +325,14 @@ uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
 
 void Player::change_page(int page_num)
 {
+    if (ui_page == page_num)
+        return;
+
     ui_page = page_num;
     gui->set_page(ui_page);
-    page_info.scroll_reset();
+
+    PageInfo * page_info = (PageInfo *)*page_ptr(PAGE_INFO);
+    page_info->scroll_reset();
 
     auto page = pages[ui_page];
     page->activate();

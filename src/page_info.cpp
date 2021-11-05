@@ -50,10 +50,12 @@ public:
     char                        lines_str[INFO_LINES][INFO_LINE_MAX_STR];
     gslc_tsElemRef*             lines_ref[INFO_LINES] = {0};
     gslc_tsElemRef*             icons_ref[INFO_LINES] = {0};
+
+    Gui * gui;
 };
 
 
-PageInfo page_info;
+//PageInfo * page_info;
 
 
 class PageInfoCtrl : public CtrlPage
@@ -114,7 +116,13 @@ gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsi
 void PageInfo::activate()
 {
     gslc_SetBkgndColor(&gslc, INFO_BACK_COL);
-    DEBUG("INFO ACTIVATED\n");
+    // DEBUG("INFO ACTIVATED\n");
+}
+
+
+PageInfo::PageInfo(Gui * gui)
+{
+    g->gui = gui;
 }
 
 
@@ -125,7 +133,7 @@ void PageInfo::init()
     c->g = g;
     c->p = this;
     ctrl = c;
-    player->set_page(PAGE_INFO, this);
+//    player->set_page(PAGE_INFO, this);
     // DEBUG("%X = %X\n", ctrl, this->ctrl);
 
     g->init();

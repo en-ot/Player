@@ -7,6 +7,12 @@
 #include "player_input.h"
 #include "player_ctrl.h"
 
+// #include "page_fav.h"
+// #include "page_info.h"
+// #include "page_files.h"
+// #include "page_dirs.h"
+// #include "page_sys.h"
+
 #include "globals.h"
 
 
@@ -30,9 +36,16 @@ class Player
 public:
     Player();
     void set_gui(Gui * gui);
-    void set_page(int page_num, Page * page);
     void loop();
     void update();
+
+    void set_page(int page_num, Page * page);
+    Page ** page_ptr(int page_num);
+    // PageInfo * info;
+    // PageDirs * dirs;
+    // PageFiles * files;
+    // PageFav * fav;
+    // PageSys * sys;
 
     void reset_to_defaults();
     void freeze();
@@ -47,7 +60,7 @@ public:
 
     bool input(PlayerInputType type, int key);
 
-    int ui_page = PAGE_INFO;
+    int ui_page = -1;//PAGE_INFO;
     void change_page(int page);
     void next_page();
 

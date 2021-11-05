@@ -52,4 +52,3 @@ enum {
 #define SCROLL_PERIOD 100
 #define SCROLL_STEP 10
 
-void page_info_init();

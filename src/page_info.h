@@ -8,6 +8,8 @@
 class PageInfo : public Page
 {
 public:
+    PageInfo(Gui * gui);
+
     void init();
     void gui_loop();
     void update();
@@ -40,10 +42,11 @@ public:
     void scroll();
     void scroll_reset();
 
+private:
     class PageInfoPrivate * g;
 };
 
-extern PageInfo page_info;
+//extern PageInfo * page_info;
 
 
 #endif // _PAGE_INFO_H_
