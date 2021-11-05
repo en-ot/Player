@@ -8,7 +8,7 @@
 class PageDirs : public Page
 {
 public:
-    void init();
+    PageDirs(Gui * gui);
     void box(int dircnt);
     void goto_cur();
     void activate();
@@ -16,8 +16,6 @@ public:
 
     class PageDirsPrivate * g;
 };
-
-extern PageDirs page_dirs;
 
 
 #endif // _PAGE_DIRS_H_

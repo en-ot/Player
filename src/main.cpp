@@ -74,7 +74,8 @@ void setup()
     auto page_fav = new PageFav(gui);
     player->set_page(PAGE_FAV, page_fav);
 
-    page_dirs.init();
+    player->set_page(PAGE_DIRS, new PageDirs(gui));
+
     page_sys.init();
     //page_pic_init();
 

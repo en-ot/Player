@@ -45,8 +45,6 @@ public:
     StrCache * cache = nullptr;
 };
 
-PageDirs page_dirs;
-
 
 class PageDirsCtrl : public CtrlPage
 {
@@ -63,13 +61,14 @@ public:
 };
 
 
-
 //###############################################################
 bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
 {
     int dirnum = nItem+1;
 
-    int index = page_dirs.g->cache->get(dirnum);
+    PageDirsPrivate * g = ((PageDirs *)*player->page_ptr(PAGE_DIRS))->g;
+
+    int index = g->cache->get(dirnum);
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
@@ -87,19 +86,19 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         pl->file_name(pl->curfile, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
-        page_dirs.g->cache->put(dirnum, buf, dir_level | (filenum << 16));
+        g->cache->put(dirnum, buf, dir_level | (filenum << 16));
     }
     else
     {
-        uint32_t flags = page_dirs.g->cache->lines[index].flags;
+        uint32_t flags = g->cache->lines[index].flags;
         int filenum = flags >> 16;
         dir_level = flags & 0xFFFF;
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, page_dirs.g->cache->lines[index].txt);
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, g->cache->lines[index].txt);
     }
 
     int type = 0;
     if (dirnum == fc->curdir)  type = 1;
-    page_dirs.g->highlight(pvGui, pvElem, type);
+    g->highlight(pvGui, pvElem, type);
 
     return true;
 }
@@ -108,22 +107,21 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
 int PageDirsPrivate::dir_file_num(int dirs_sel)
 {
     int dirnum = dirs_sel;
-    int index = page_dirs.g->cache->get(dirnum);
+    int index = cache->get(dirnum);
     if (index == CACHE_MISS)
         return 0;
-    int file_num = page_dirs.g->cache->lines[index].flags >> 16;
+    int file_num = cache->lines[index].flags >> 16;
     return file_num;
 }
 
 
-void PageDirs::init()
+PageDirs::PageDirs(Gui * gui)
 {
     g = new PageDirsPrivate;
     auto c = new PageDirsCtrl;
     c->g = g;
     c->p = this;
     ctrl = c;
-    player->set_page(PAGE_DIRS, this);
 
     gslc_PageAdd(&gslc, PAGE_DIRS, g->elem, DIRS_ELEM_MAX, g->ref, DIRS_ELEM_MAX);
     g->box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &g->box_elem,    DIRS_BACK_COL);
