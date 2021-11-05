@@ -29,22 +29,21 @@
 //###############################################################
 extern TFT_eSPI m_disp;
 TFT_eSPI &tft = m_disp;
-static int16_t DebugOut(char ch) { Serial.write(ch); return 0; }
-
 TFT_eSprite gui_spr = TFT_eSprite(&tft);
 uint8_t * spr_buf;
 
-//gslc_tsGui                  gslc;
-gslc_tsDriver               m_drv;
-gslc_tsFont                 fonts[FONT_MAX];
-gslc_tsPage                 pages[PAGE_MAX];
+static int16_t DebugOut(char ch) { Serial.write(ch); return 0; }
 
 
 void GuiPrivate::gslc_init()
 {
+    static gslc_tsDriver               m_drv;
+    static gslc_tsFont                 fonts[FONT_MAX];
+    static gslc_tsPage                 pages[PAGE_MAX];
+
     gslc_InitDebug(&DebugOut);
 
-    if (!gslc_Init(&gslc,&m_drv, pages, PAGE_MAX, fonts, FONT_MAX))
+    if (!gslc_Init(&gslc, &m_drv, pages, PAGE_MAX, fonts, FONT_MAX))
     {
         DEBUG("gslc init error\n");
         return;
