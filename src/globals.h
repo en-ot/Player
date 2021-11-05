@@ -38,11 +38,6 @@ extern QueueHandle_t tag_queue;
 
 int dirs_file_num(int dirs_sel);
 
-void main_restart();
-void main_resume();
-void main_pause();
-
-
 
 //###############################################################
 

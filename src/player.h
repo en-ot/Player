@@ -20,12 +20,15 @@ public:
     void set_ctrl(int page, CtrlPage * ctrl);
 
     void reset_to_defaults();
+    void freeze();
+    void unfreeze();
 
     int cur_fav_num;
     int prev_fav_num;
     bool fav_switch(int fav_num, bool init);
     void fav_next();
     void fav_prev();
+    void restart();
 
     bool input(PlayerInputType type, int key);
 

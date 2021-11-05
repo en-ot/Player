@@ -60,7 +60,7 @@ void ftp_callback(int event, const char* text)
     switch(event)
     {
         case FTPSERV_CLIENT_CONNECTED:
-            main_pause();
+            player->freeze();
             writeflag = false;
         case FTPSERV_READY:
             page_info.net(NET_MODE_FTP);
@@ -87,12 +87,12 @@ void ftp_callback(int event, const char* text)
         case FTPSERV_CLIENT_DISCONNECTING:
             if (writeflag)
             {
-                main_restart();
+                player->restart();
                 writeflag = false;
             }
             else
             {
-                main_resume();
+                player->unfreeze();
             }
             page_info.net(WiFi.getMode());
             break;
@@ -108,14 +108,14 @@ void ota_onEnd()
 {
     page_info.message("End");
     gui->loop();
-    main_restart();
+    player->restart();
     page_info.net(WiFi.getMode());
 }
 
 
 void ota_onStart(bool sketch) 
 {
-    main_pause();
+    player->freeze();
     page_info.step_begin("OTA Upload ");
     const char * type = sketch ? "sketch" : "filesystem";
     Serial.println(type);
@@ -142,7 +142,7 @@ void ota_onError(int error, const char * errtxt)
     page_info.step_begin(buf);
     page_info.error(errtxt);
     gui->loop();
-    main_restart();
+    player->restart();
 }
 #endif
 

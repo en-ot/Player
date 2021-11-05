@@ -288,22 +288,3 @@ void loop()
 }
 
 
-void main_pause()
-{
-    sound_pause();
-//    controls_pause();
-}
-
-
-void main_restart()
-{
-    player->fav_switch(player->cur_fav_num, false);
-}
-
-
-void main_resume()
-{
-    sound_resume();
-//    controls_resume();
-}
-

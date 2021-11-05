@@ -55,6 +55,20 @@ bool Player::input(PlayerInputType type, int key)
 }
 
 
+void Player::freeze()
+{
+    sound_pause();
+//    controls_pause();
+}
+
+
+void Player::unfreeze()
+{
+    sound_resume();
+//    controls_resume();
+}
+
+
 //###############################################################
 bool Player::fav_switch(int fav_num, bool init)
 {
@@ -100,6 +114,24 @@ bool Player::fav_switch(int fav_num, bool init)
         need_set_file_pos = true;
 
     return true;
+}
+
+
+void Player::fav_next()
+{
+    fav_switch(prev_fav_num, false);
+}
+
+
+void Player::fav_prev()
+{
+    fav_switch(prev_fav_num, false);
+}
+
+
+void Player::restart()
+{
+    fav_switch(cur_fav_num, false);
 }
 
 
@@ -175,18 +207,6 @@ void Player::play_dir_prev()
     next_dir = fc->curdir - 1;
     next_updown = FAIL_NEXT;
     need_play_next_dir = true;
-}
-
-
-void Player::fav_next()
-{
-    fav_switch(prev_fav_num, false);
-}
-
-
-void Player::fav_prev()
-{
-    fav_switch(prev_fav_num, false);
 }
 
 
