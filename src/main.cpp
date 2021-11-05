@@ -17,7 +17,7 @@
 #include "firmware.h"
 
 //#include "page_info.h"
-//#include "page_files.h"
+#include "page_files.h"
 #include "page_dirs.h"
 #include "page_fav.h"
 #include "page_sys.h"
@@ -60,55 +60,6 @@ QueueHandle_t tag_queue;
 
 
 //###############################################################
-#define FILES_CACHE_LINES 20
-StrCache * files_cache;
-
-bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uint8_t nStrItemLen)
-{
-    int filenum = nItem+1;
-
-    int index = files_cache->get(filenum);
-    int dir_level = 0;
-    if (index == CACHE_MISS)
-    {
-        if (!pl->find_file(filenum))
-            return false;
-
-        char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
-
-        int disp = 0;
-        if (pl->file_is_dir(filenum))
-        {
-            dir_level = pl->level + 1;
-            disp = dir_level*2-2;
-        }
-
-        pl->file_name(filenum, &buf[disp], sizeof(buf)-disp);
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
-
-        files_cache->put(filenum, buf, dir_level);
-    }
-    else
-    {
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, files_cache->lines[index].txt);
-        dir_level = files_cache->lines[index].flags;
-    }
-    if (nItem == 0)
-    {
-        int p = strlen(pStrItem);
-        snprintf(&pStrItem[p], nStrItemLen-p, " [%d]", pl->filecnt);
-    }
-
-    int type = 0;
-    if (filenum == fc->curfile) type = 2;
-    else if (dir_level)         type = 1;
-    gui->files_highlight(pvGui, pvElem, type);
-
-    return true;
-}
-
-
-//###############################################################
 bool fav_switch(int fav_num, bool init)
 {
     DEBUG("switch to fav %d, %d\n", fav_num, init);
@@ -135,7 +86,7 @@ bool fav_switch(int fav_num, bool init)
     
     fc->set_root(fav_path);
     pl->set_root(fav_path);
-    gui->files_box(pl->filecnt, files_get_item);
+    page_files.box(pl->filecnt);
     page_dirs.box(pl->dircnt);
 
     DEBUG("dircnt: %d\n", pl->dircnt);
@@ -150,16 +101,11 @@ bool fav_switch(int fav_num, bool init)
     gui->redraw();
 
     playstack_init();
-    if (!files_cache)
-        files_cache = new StrCache(FILES_CACHE_LINES);
-    else
-        files_cache->clear();
-
     start_file(player->next_file, FAIL_NEXT);
 
     page_fav.goto_cur();
     page_dirs.goto_cur();
-    player->files_goto_curfile();
+    page_files.goto_cur();
 
     if (player->filepos)
         need_set_file_pos = true;

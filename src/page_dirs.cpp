@@ -48,15 +48,17 @@ PageDirs page_dirs;
 
 class CtrlPageDirs : public CtrlPage
 {
+public:
     void b1_short()         {       player->change_page();}
     bool vol(int change)    {return g->pgupdn(change);}
-    void vol_short()        {       page_dirs.goto_cur();}
+    void vol_short()        {       p->goto_cur();}
     bool seek(int by)       {return g->seek(by);}
     void seek_long()        {       g->set_fav();}
     void seek_short()       {       g->play_sel();}
 
-    friend class PageDirs;
     DirsPrivate * g;
+    friend class PageDirs;
+    PageDirs * p;
 };
 
 
@@ -118,6 +120,7 @@ void PageDirs::init()
     g = new DirsPrivate;
     c = new CtrlPageDirs;
     c->g = g;
+    c->p = this;
     player->set_ctrl(PAGE_DIRS, c);
 
     gslc_PageAdd(&gslc, PAGE_DIRS, g->elem, DIRS_ELEM_MAX, g->ref, DIRS_ELEM_MAX);

@@ -70,19 +70,6 @@ public:
 } ctrl_page_info;
 
 
-class CtrlPageFiles : public CtrlPage
-{
-    void b1_short()         {       player->change_page();}
-    bool vol(int change)    {return player->files_pgupdn(change);}
-    void vol_short()        {       player->files_goto_curfile();}
-    bool seek(int by)       {return player->files_seek(by);}
-    void seek_long()        {       player->files_set_fav();}
-    void seek_short()       {       player->files_play_sel();}
-    void b2_short()         {       player->files_dir_prev();}
-    void b3_short()         {       player->files_dir_next();}
-} ctrl_page_files;
-
-
 bool CtrlPage::input(PlayerInputType type, int key)
 {
     if (type == I_SEEK1)
@@ -121,7 +108,7 @@ void player_ctrl_init()
 {
     ctrl_pages[PAGE_INFO]  = &ctrl_page_info;
 //    ctrl_pages[PAGE_FAV]   = &ctrl_page_fav;
-    ctrl_pages[PAGE_FILES] = &ctrl_page_files;
+//    ctrl_pages[PAGE_FILES] = &ctrl_page_files;
 //    ctrl_pages[PAGE_DIRS]  = page_dirs.ctrl();
 //    ctrl_pages[PAGE_SYS]   = ctrl_page_sys;
 }

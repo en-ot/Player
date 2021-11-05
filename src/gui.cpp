@@ -18,6 +18,7 @@
 #include "gui_dirs.h"
 #include "gui_fav.h"
 
+#include "page_files.h"
 #include "page_dirs.h"
 #include "page_sys.h"
 #include "page_fav.h"
@@ -103,7 +104,7 @@ Gui::Gui()
 
     gslc_init();
     page_info_init();
-    page_files_init();
+    page_files.init();
     //page_pic_init();
     page_fav.init();
     page_dirs.init();
@@ -604,59 +605,6 @@ int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t inde
     gslc_ElemXSliderSetPos(&gslc, slider_ref, pos);
 
     return index;
-}
-
-
-//###############################################################
-// page:files
-//###############################################################
-gslc_tsElem                 files_elem[FILES_ELEM_MAX];
-gslc_tsElemRef              files_ref[FILES_ELEM_MAX];
-
-gslc_tsXListbox             files_box_elem;
-gslc_tsElemRef*             files_box_ref   = NULL;
-
-gslc_tsXSlider              files_slider_elem;
-gslc_tsElemRef*             files_slider_ref    = NULL;
-
-void page_files_init()
-{
-    gslc_PageAdd(&gslc, PAGE_FILES, files_elem, FILES_ELEM_MAX, files_ref, FILES_ELEM_MAX);
-    files_box_ref   = create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &files_box_elem,    FILES_BACK_COL);
-    files_slider_ref = create_slider(PAGE_FILES, FILES_SLIDER_ELEM, &files_slider_elem, FILES_BACK_COL);
-}
-
-
-void Gui::files_highlight(void *gslc, void *pElemRef, int type)
-{
-    static gslc_tsColor colors_b[] = {FILES_COL_NORMAL_B, FILES_COL_DIR_B, FILES_COL_PLAY_B};
-    static gslc_tsColor colors_f[] = {FILES_COL_NORMAL_F, FILES_COL_DIR_F, FILES_COL_PLAY_F};
-    gslc_tsElem * elem = &files_elem[FILES_BOX_ELEM-FILES_BOX_ELEM];
-    elem->colElemText       = colors_f[type];
-    elem->colElemTextGlow   = colors_f[type];
-    elem->colElemFill       = colors_b[type];
-}
-
-
-void Gui::files_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb)
-{
-    files_box_elem.pfuncXGet = cb;
-    files_box_elem.nItemCnt = cnt;
-    files_box_elem.nItemCurSel = 0;
-    files_box_elem.nItemTop = 0;
-    files_box_elem.bNeedRecalc = true;
-}
-
-
-void Gui::files_select(int curfile)
-{
-    files_sel = box_goto(files_box_ref, files_slider_ref, curfile-1, true) + 1;
-}
-
-
-void Gui::files_seek(int by)
-{
-    files_sel = box_goto(files_box_ref, files_slider_ref, files_sel-1-by, false) + 1;
 }
 
 

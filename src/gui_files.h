@@ -8,5 +8,3 @@
 #define FILES_COL_PLAY_F     COL_RED_LIGHT
 #define FILES_COL_DIR_B      COL_GREEN_DARK
 #define FILES_COL_DIR_F      COL_GREEN_LIGHT
-
-void page_files_init();

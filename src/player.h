@@ -45,14 +45,6 @@ public:
     void play_root_next();
     void play_root_prev();
 
-    bool files_seek(int by);
-    bool files_pgupdn(int by);
-    void files_dir_prev();
-    void files_dir_next();
-    void files_goto_curfile();
-    void files_play_sel();
-    void files_set_fav();
-
     void sys_page();;
 
     bool shuffle;
@@ -86,6 +78,7 @@ public:
     void goto_cur() {};
     void loop();
     void update();
+    int sel();
 };
 
 

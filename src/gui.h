@@ -52,13 +52,6 @@ class Gui
         void alive(bool running);
         void net(int mode);
         void bluetooth(bool enabled);
-
-        // page:files
-        int files_sel = 1;
-        void files_seek(int by);
-        void files_select(int curfile);
-        void files_box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb);
-        void files_highlight(void *m_gui, void *pElemRef, int type);
 };
 
 
