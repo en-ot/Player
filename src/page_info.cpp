@@ -7,6 +7,8 @@
 
 #include "elem/XProgress.h"
 
+#include "sound.h"
+
 #include "gui.h"
 #include "gui_common.h"
 #include "gui_info.h"
@@ -447,3 +449,67 @@ void PageInfo::bluetooth(bool enabled)
 }
 
 
+//###############################################################
+// Display : Main Task
+//###############################################################
+static bool cmp(char * info, const char * tst, char ** p)
+{
+    int len = strlen(tst);
+    if (strncmp(info, tst, len))
+        return false;
+
+    *p = &info[len];
+//    DEBUG("%s: %s", tst, p); 
+    return true;
+}
+
+
+void PageInfo::loop()
+{
+    scroll();
+
+    uint32_t t = millis();
+
+    static uint32_t t1 = 0;
+    static uint32_t old_pos = 0;
+
+//    uint32_t pos = sound_is_playing() ? sound_current_time() : old_pos;
+    uint32_t pos = sound_current_time();
+
+    if (((int32_t)(t - t1) > 2000) || (pos != old_pos))
+    {
+        t1 = t;
+        old_pos = pos;
+        time_progress(pos, sound_duration());
+        return;
+    }
+
+    char msg[QUEUE_MSG_SIZE];
+    BaseType_t res = xQueueReceive(tag_queue, &msg, 0);
+    msg[QUEUE_MSG_SIZE-1] = 0;
+    if (res == pdTRUE)
+    {
+        DEBUG("id3data[%i]: %s\n", strlen(msg), msg);
+        //DEBUG_DUMP8(msg, len, len);
+//        DEBUG("\n");
+
+        char * p;
+             if (cmp(msg, "Artist: ", &p))    artist(p);
+        else if (cmp(msg, "Band: ", &p))      band(p);
+        else if (cmp(msg, "Album: ", &p))     album(p);
+        else if (cmp(msg, "Title: ", &p))     title(p);
+        else if (cmp(msg, "File: ", &p))      file(p);
+        else if (cmp(msg, "Path: ", &p))      path(p, fc->root_path.c_str());
+        else if (cmp(msg, "Index: ", &p))     index(p);
+        return;
+    }
+
+    static uint32_t t0 = 0;
+    if ((int32_t)(t - t0) > 100)
+    {
+        t0 = t;
+        alive(sound_is_playing());
+        gain(sound_is_gain());
+        return;
+    }
+}

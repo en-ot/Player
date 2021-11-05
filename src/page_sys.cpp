@@ -212,9 +212,43 @@ void PageSysPrivate::b3_short()
     }
 }
 
+//###############################################################
+// error check
+//###############################################################
+#define ERROR_CHECK_INTERVAL 2000
+
+void check_loop()
+{
+    static uint32_t last_time = 0;
+    uint32_t t = millis();
+    bool tick = false;
+    if ((int32_t)(t - last_time) > ERROR_CHECK_INTERVAL)
+    {
+        tick = true;
+        last_time = t;
+    }
+
+    if (tick && (sys.read_error || SD.card()->errorCode()))
+    {
+        last_time = millis();
+        DEBUG(".");   
+        if (SD.begin()) 
+        {
+            // filectrl_rewind();
+            DEBUG("\n");                 
+            sys.read_error = false;   
+//            need_save_current_file = false;
+            player->next_file = 1;
+            need_play_next_file = true;
+        }
+    }
+}
+
 
 void PageSys::loop()
 {
+    check_loop();
+    
     static uint32_t t0 = 0;
 //    static bool need_print = true;
     uint32_t t = millis();

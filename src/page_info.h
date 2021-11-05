@@ -9,6 +9,7 @@ class PageInfo : public Page
 {
 public:
     void init();
+    void loop();
     void update();
 
     void index(const char * text);

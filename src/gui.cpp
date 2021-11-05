@@ -144,7 +144,6 @@ Gui::Gui()
 void Gui::loop()
 {
     gslc_Update(&gslc);
-    page_info.scroll();
 }
 
 
