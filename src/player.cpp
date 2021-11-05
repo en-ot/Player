@@ -135,7 +135,7 @@ bool Player::fav_switch(int fav_num, bool init)
     DEBUG("fav path: %s\n", fav_path);
     
     fc->set_root(fav_path);
-    pl->set_root(fav_path);
+    pl->copy_from(fc);
 
     p->files->box(pl->filecnt);
     p->dirs->box(pl->dircnt);

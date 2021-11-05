@@ -23,6 +23,7 @@ class Playlist
         Playlist(int thread_id);
 
         void set_root(String path);
+        void copy_from(Playlist * other);
 
         bool find_file(int file_num);
         bool find_dir(int dir_num);

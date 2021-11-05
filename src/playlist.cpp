@@ -229,6 +229,15 @@ void Playlist::set_root(String path)
 }
 
 
+void Playlist::copy_from(Playlist * other)
+{
+    filecnt = other->filecnt;
+    dircnt = other->dircnt;
+    root_path = other->root_path;
+    rewind();
+}
+
+
 //###############################################################
 size_t Playlist::file_name(int file_num, char * dst, int len)
 {

@@ -46,6 +46,11 @@
         "iterator": "cpp",
         "map": "cpp",
         "queue": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "cstdbool": "cpp",
+        "cstdint": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "cinttypes": "cpp"
     }
 }

@@ -7,14 +7,14 @@
 
 // project
 #include "globals.h"
-#include "playstack.h"
+//#include "playstack.h"
 #include "prefs.h"
 #include "gui.h"
 #include "sound.h"
 #include "controls.h"
-#include "strcache.h"
+//#include "strcache.h"
 #include "network.h"
-#include "firmware.h"
+//#include "firmware.h"
 
 #include "page_info.h"
 #include "page_files.h"
