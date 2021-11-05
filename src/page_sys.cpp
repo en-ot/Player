@@ -223,7 +223,7 @@ void PageSysPrivate::b3_short()
 //###############################################################
 #define ERROR_CHECK_INTERVAL 2000
 
-void check_loop()
+void PageSys::loop2()
 {
     static uint32_t last_time = 0;
     uint32_t t = millis();
@@ -251,10 +251,8 @@ void check_loop()
 }
 
 
-void PageSys::loop()
+void PageSys::gui_loop()
 {
-    check_loop();
-    
     static uint32_t t0 = 0;
 //    static bool need_print = true;
     uint32_t t = millis();

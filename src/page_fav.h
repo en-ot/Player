@@ -12,6 +12,7 @@ public:
     void init();
     void box();
     void goto_cur();
+    void activate();
 
     int sel();
     void set_path(int fav_num, const char * path);

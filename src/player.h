@@ -16,12 +16,10 @@ int file_random();
 class Page
 {
 public:
-    void init()             {};
-    void box(int dircnt)    {};
-    void goto_cur()         {};
-    void loop()             {};
-    void update()           {};
-    void activate()         {};
+    virtual void init()     {};
+    virtual void gui_loop() {};
+    virtual void update()   {};
+    virtual void activate() {};
 
     CtrlPage * ctrl = nullptr;
 };
@@ -33,6 +31,8 @@ public:
     Player();
     void set_gui(Gui * gui);
     void set_page(int page_num, Page * page);
+    void loop();
+    void update();
 
     void reset_to_defaults();
     void freeze();
@@ -84,7 +84,7 @@ public:
 
 private:
     Gui * _gui = nullptr;
-    //CtrlPage * ctrl_pages[PAGE_MAX] = {0};
+    Page * pages[PAGE_MAX] = {0};
 };
 
 extern Player * player;

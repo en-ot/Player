@@ -11,6 +11,8 @@ public:
     void init();
     void box(int dircnt);
     void goto_cur();
+    void activate();
+    void update();
 
     class PageDirsPrivate * g;
 };

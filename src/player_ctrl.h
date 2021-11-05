@@ -28,7 +28,4 @@ public:
 };
 
 
-bool player_ctrl_input(int ui_page, PlayerInputType type, int key);
-
-
 #endif // _PLAYER_CTRL_H_

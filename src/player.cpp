@@ -30,13 +30,21 @@ Player::Player()
 }
 
 
-extern CtrlPage * ctrl_pages[PAGE_MAX];
+void Player::loop()
+{
+    page_sys.loop2();
+    page_info.loop2();
+
+    auto page = pages[ui_page];
+    page->gui_loop();
+}
+
 
 void Player::set_page(int page_num, Page * page)
 {
 //    DEBUG("%X : %X\n", page, page->ctrl);
     //DEBUG("%d:%X\n", page_num, ctrl);
-    ctrl_pages[page_num] = page->ctrl;
+    pages[page_num] = page;
 //    DEBUG_DUMP32(ctrl_pages, 5, 5);
 }
 
@@ -52,7 +60,8 @@ bool Player::input(PlayerInputType type, int key)
     if (ui_page >= PAGE_MAX)
         return false;
 
-    return player_ctrl_input(ui_page, type, key);
+    auto ctrl = pages[ui_page]->ctrl;
+    return ctrl->input(type, key);
 }
 
 
@@ -115,6 +124,13 @@ bool Player::fav_switch(int fav_num, bool init)
         need_set_file_pos = true;
 
     return true;
+}
+
+
+void Player::update()
+{
+    auto page = pages[ui_page];
+    page->update();
 }
 
 
@@ -304,10 +320,9 @@ void Player::change_page(int page_num)
     ui_page = page_num;
     gui->set_page(ui_page);
     page_info.scroll_reset();
-    if (page_num == PAGE_SYS)
-    {
-        page_sys.activate();
-    }
+
+    auto page = pages[ui_page];
+    page->activate();
 }
 
 

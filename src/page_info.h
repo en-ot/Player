@@ -9,8 +9,11 @@ class PageInfo : public Page
 {
 public:
     void init();
-    void loop();
+    void gui_loop();
     void update();
+    void activate();
+
+    void loop2();
 
     void index(const char * text);
     void fav(int fav_num);

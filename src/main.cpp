@@ -167,8 +167,7 @@ void setup()
 void loop()
 {
     controls_loop();
-    page_info.loop();
-    page_sys.loop();
+    player->loop();
     gui->loop();
     prefs_loop();
     network_loop();

@@ -7,6 +7,7 @@
 
 uint32_t calc_sd_free_size();
 
+
 class Sys
 {
 public:
@@ -25,8 +26,10 @@ class PageSys : public Page
 public:
     void init();
     void update();
-    void loop();
+    void gui_loop();
     void activate();
+
+    void loop2();
 
     class PageSysPrivate * g;
 };

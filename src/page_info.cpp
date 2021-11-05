@@ -111,6 +111,13 @@ gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsi
 }
 
 
+void PageInfo::activate()
+{
+    gslc_SetBkgndColor(&gslc, INFO_BACK_COL);
+    DEBUG("INFO ACTIVATED\n");
+}
+
+
 void PageInfo::init()
 {
     g = new PageInfoPrivate;
@@ -466,26 +473,8 @@ static bool cmp(char * info, const char * tst, char ** p)
 }
 
 
-void PageInfo::loop()
+void PageInfo::loop2()
 {
-    scroll();
-
-    uint32_t t = millis();
-
-    static uint32_t t1 = 0;
-    static uint32_t old_pos = 0;
-
-//    uint32_t pos = sound_is_playing() ? sound_current_time() : old_pos;
-    uint32_t pos = sound_current_time();
-
-    if (((int32_t)(t - t1) > 2000) || (pos != old_pos))
-    {
-        t1 = t;
-        old_pos = pos;
-        time_progress(pos, sound_duration());
-        return;
-    }
-
     char msg[QUEUE_MSG_SIZE];
     BaseType_t res = xQueueReceive(tag_queue, &msg, 0);
     msg[QUEUE_MSG_SIZE-1] = 0;
@@ -502,7 +491,30 @@ void PageInfo::loop()
         else if (cmp(msg, "Title: ", &p))     title(p);
         else if (cmp(msg, "File: ", &p))      file(p);
         else if (cmp(msg, "Path: ", &p))      path(p, fc->root_path.c_str());
-        else if (cmp(msg, "Index: ", &p))     index(p);
+        else if (cmp(msg, "Index: ", &p))     {index(p); player->update();}
+        else return;
+        return;
+    }
+}
+
+
+void PageInfo::gui_loop()
+{
+    scroll();
+
+    uint32_t t = millis();
+
+    static uint32_t t1 = 0;
+    static uint32_t old_pos = 0;
+
+//    uint32_t pos = sound_is_playing() ? sound_current_time() : old_pos;
+    uint32_t pos = sound_current_time();
+
+    if (((int32_t)(t - t1) > 2000) || (pos != old_pos))
+    {
+        t1 = t;
+        old_pos = pos;
+        time_progress(pos, sound_duration());
         return;
     }
 

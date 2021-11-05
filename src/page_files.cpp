@@ -220,6 +220,18 @@ void PageFiles::init()
 }
 
 
+void PageFiles::activate()
+{
+    gslc_SetBkgndColor(&gslc, FILES_BACK_COL);
+}
+
+
+void PageFiles::update()
+{
+    gui->redraw();
+}
+
+
 void PageFilesPrivate::highlight(void *gslc, void *pElemRef, int type)
 {
     static gslc_tsColor colors_b[] = {FILES_COL_NORMAL_B, FILES_COL_DIR_B, FILES_COL_PLAY_B};

@@ -131,6 +131,18 @@ void PageDirs::init()
 }
 
 
+void PageDirs::activate()
+{
+    gslc_SetBkgndColor(&gslc, DIRS_BACK_COL);
+}
+
+
+void PageDirs::update()
+{
+    gui->redraw();
+}
+
+
 void PageDirs::box(int cnt)
 {
     g->box_elem.pfuncXGet = dirs_get_item;

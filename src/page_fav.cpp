@@ -117,6 +117,12 @@ void PageFav::init()
 }
 
 
+void PageFav::activate()
+{
+    gslc_SetBkgndColor(&gslc, FAV_BACK_COL);
+}
+
+
 void PageFavPrivate::select(int fav_num, bool center)
 {
     sel = box_goto(box_ref, slider_ref, fav_num-1, center) + 1;
