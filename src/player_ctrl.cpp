@@ -12,7 +12,7 @@
 
 bool process_key(int key)
 {
-    player->next_file = player->playing->curfile + 1;
+    player->next_file = player->cur_playing_file() + 1;
 
     switch (key)
     {

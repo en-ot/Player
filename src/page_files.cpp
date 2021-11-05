@@ -131,7 +131,7 @@ void PageFilesPrivate::dir_next()
 
 void PageFiles::goto_cur()
 {
-    g->select(player->playing->curfile, true);
+    g->select(player->cur_playing_file(), true);
 }
 
 
@@ -194,7 +194,7 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
     }
 
     int type = 0;
-    if (filenum == player->playing->curfile) type = 2;
+    if (filenum == player->cur_playing_file()) type = 2;
     else if (dir_level)         type = 1;
     g->highlight(pvGui, pvElem, type);
 

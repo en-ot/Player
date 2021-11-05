@@ -187,16 +187,31 @@ void Player::fav_set(const char * path)
 }
 
 
-// int Player::fav_sel()
-// {
-//     PageFav * page_fav = (PageFav *)*page_ptr(PAGE_FAV);
-//     return page_fav->sel();
-// }
-
-
 void Player::restart()
 {
     fav_switch(cur_fav_num, false);
+}
+
+
+const char * Player::cur_fav_path()
+{
+    return playing->root_path.c_str();
+}
+
+
+int Player::cur_playing_dir()
+{
+    return playing->curdir;
+}
+
+int Player::cur_playing_file()
+{
+    return playing->curfile;
+}
+
+int Player::filecnt()
+{
+    return playing->filecnt;
 }
 
 

@@ -98,8 +98,7 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, g->cache->lines[index].txt);
     }
 
-    int type = 0;
-    if (dirnum == player->playing->curdir)  type = 1;
+    int type = (dirnum == player->cur_playing_dir()) ? 1 : 0;
     g->highlight(pvGui, pvElem, type);
 
     return true;
@@ -197,7 +196,7 @@ bool PageDirsPrivate::seek(int by)
 
 void PageDirs::goto_cur()
 {
-    g->select(player->playing->curdir, true);
+    g->select(player->cur_playing_dir(), true);
 }
 
 

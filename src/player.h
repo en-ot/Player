@@ -31,8 +31,7 @@ public:
     void set_gui(Gui * gui);
     void loop();
     void update();
-
-    int file_random();
+    bool input(PlayerInputType type, int key);
 
     int ui_page = -1;
     void set_page(int page_num, Page * page);
@@ -53,7 +52,11 @@ public:
     // int fav_sel();
     void fav_set(const char * path);
 
-    bool input(PlayerInputType type, int key);
+    const char * cur_fav_path();
+    int cur_playing_dir();
+    int cur_playing_file();
+    int file_random();
+    int filecnt();
 
     int8_t volume;
     int8_t volume_old;
