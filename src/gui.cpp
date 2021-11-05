@@ -34,12 +34,13 @@ static int16_t DebugOut(char ch) { Serial.write(ch); return 0; }
 TFT_eSprite gui_spr = TFT_eSprite(&tft);
 uint8_t * spr_buf;
 
-gslc_tsGui                  gslc;
+//gslc_tsGui                  gslc;
 gslc_tsDriver               m_drv;
 gslc_tsFont                 fonts[FONT_MAX];
 gslc_tsPage                 pages[PAGE_MAX];
 
-void gslc_init()
+
+void GuiPrivate::gslc_init()
 {
     gslc_InitDebug(&DebugOut);
 
@@ -69,7 +70,7 @@ void gslc_init()
 }
 
 
-void check_font()
+void GuiPrivate::check_font()
 {
     return;
 //     uint8_t *font_addr = (uint8_t *)gui_spr.gFont.gArray;
@@ -98,10 +99,12 @@ void check_font()
 //###############################################################
 Gui::Gui()
 {
+    p = new GuiPrivate();
+
     DEBUG("LCD init ...\n");
     spr_buf = (uint8_t *)malloc(LCD_W*LINE_H_MAX*(16/8)+1);
 
-    gslc_init();
+    p->gslc_init();
     
     DEBUG("gslc initialized\n");
 
@@ -134,14 +137,14 @@ Gui::Gui()
 //###############################################################
 void Gui::loop()
 {
-    gslc_Update(&gslc);
+    gslc_Update(&p->gslc);
 }
 
 
 //###############################################################
 void Gui::redraw()
 {
-    gslc_PageRedrawSet(&gslc, true);
+    gslc_PageRedrawSet(&p->gslc, true);
 }
 
 
@@ -149,7 +152,7 @@ void Gui::redraw()
 void Gui::set_page(int page_n)
 {
     //static gslc_tsColor page_back_col[] = {INFO_BACK_COL, FILES_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
-    gslc_SetPageCur(&gslc, page_n);
+    gslc_SetPageCur(&p->gslc, page_n);
     //gslc_SetBkgndColor(&gslc, page_back_col[page_n]);
 }
 
@@ -157,7 +160,7 @@ void Gui::set_page(int page_n)
 //###############################################################
 // listbox common
 //###############################################################
-gslc_tsElemRef* create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pelem, gslc_tsColor col)
+gslc_tsElemRef* GuiPrivate::create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pelem, gslc_tsColor col)
 {
     gslc_tsElemRef* pElemRef = gslc_ElemXListboxCreate(&gslc, elem, page, pelem, BOX_RECT, FONT_BUILTIN5X8, NULL, 0, 0);
     gslc_ElemXListboxSetSize            (&gslc, pElemRef, BOX_LINES, 1); // rows, columns
@@ -172,7 +175,7 @@ gslc_tsElemRef* create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pele
     return pElemRef;
 }
 
-gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem, gslc_tsColor col)
+gslc_tsElemRef* GuiPrivate::create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem, gslc_tsColor col)
 {
     gslc_tsElemRef* pElemRef = gslc_ElemXSliderCreate(&gslc, elem, page, pelem, SLIDER_RECT, 0, SLIDER_POS_MAX, 0, 5, true);
     gslc_ElemSetCol                     (&gslc, pElemRef, SLIDER_COL, col, col);
@@ -192,7 +195,7 @@ gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem,
 // }
 
 
-int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center)
+int GuiPrivate::box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center)
 {
     gslc_tsElem * elem = gslc_GetElemFromRef(&gslc, box_ref);
     gslc_tsXListbox * box = (gslc_tsXListbox *)elem->pXData;
@@ -222,6 +225,7 @@ int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t inde
 
     return index;
 }
+
 
 
 //###############################################################

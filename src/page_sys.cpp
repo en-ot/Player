@@ -120,6 +120,10 @@ public:
 
     gslc_tsXSlider              slider_elem;
     gslc_tsElemRef*             slider_ref  = NULL;
+
+    Gui * gui;
+    GuiPrivate * p;
+    gslc_tsGui * s;
 };
 
 
@@ -203,21 +207,26 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
 
 void PageSys::activate()
 {
-    gslc_SetBkgndColor(&gslc, SYS_BACK_COL);
+    gslc_SetBkgndColor(g->s, SYS_BACK_COL);
 }
 
 
 PageSys::PageSys(Gui * gui)
 {
     g = new PageSysPrivate;
+    g->gui = gui;
+    g->p = gui->p;
+    g->s = &gui->p->gslc;
+
+
     auto c = new PageSysCtrl;
     c->g = g;
     c->p = this;
     ctrl = c;
 
-    gslc_PageAdd(&gslc, PAGE_SYS, g->elem, SYS_ELEM_MAX, g->ref, SYS_ELEM_MAX);
-    g->box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &g->box_elem,    SYS_BACK_COL);
-    g->slider_ref = create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &g->slider_elem, SYS_BACK_COL);
+    gslc_PageAdd(g->s, PAGE_SYS, g->elem, SYS_ELEM_MAX, g->ref, SYS_ELEM_MAX);
+    g->box_ref    = g->p->create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &g->box_elem,    SYS_BACK_COL);
+    g->slider_ref = g->p->create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &g->slider_elem, SYS_BACK_COL);
     g->box(7, page_sys_get_item, 0);
 }
 
@@ -225,7 +234,7 @@ PageSys::PageSys(Gui * gui)
 void PageSys::update()
 {
     // DEBUG("Sys set update\n");
-    gslc_ElemSetRedraw(&gslc, g->box_ref, GSLC_REDRAW_FULL);
+    gslc_ElemSetRedraw(g->s, g->box_ref, GSLC_REDRAW_FULL);
 }
 
 
@@ -234,7 +243,7 @@ void PageSysPrivate::box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick
     box_elem.pfuncXGet = cb;
     box_elem.nItemCnt = cnt;
     box_elem.bNeedRecalc = true;
-    gslc_ElemSetTickFunc(&gslc, box_ref, tick_cb);
+    gslc_ElemSetTickFunc(s, box_ref, tick_cb);
 }
 
 
@@ -242,7 +251,7 @@ bool PageSysPrivate::seek(int by)
 {
     if (!by)
         return false;
-    sel = box_goto(box_ref, slider_ref, sel-1-by, false) + 1;
+    sel = p->box_goto(box_ref, slider_ref, sel-1-by, false) + 1;
     return true;
 }
 

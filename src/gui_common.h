@@ -98,8 +98,17 @@ enum {
 #define SLIDER_COL     COL_WHITE
 
 
-extern gslc_tsGui gslc;
+class GuiPrivate
+{
+public:
+    gslc_tsGui gslc;
 
-gslc_tsElemRef* create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pelem, gslc_tsColor col);
-gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem, gslc_tsColor col);
-int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center);
+    void gslc_init();
+    void check_font();
+
+    gslc_tsElemRef* create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pelem, gslc_tsColor col);
+    gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem, gslc_tsColor col);
+    int box_goto(gslc_tsElemRef * box_ref, gslc_tsElemRef * slider_ref, int16_t index, bool center);
+};
+
+

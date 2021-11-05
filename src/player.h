@@ -9,7 +9,8 @@
 #include "player_input.h"
 #include "player_ctrl.h"
 
-#include "playlist.h"
+
+int clamp1(int num, int cnt);   // from playlist.cpp
 
 
 enum PlaylistType

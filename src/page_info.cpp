@@ -52,6 +52,11 @@ public:
     gslc_tsElemRef*             icons_ref[INFO_LINES] = {0};
 
     Gui * gui;
+    GuiPrivate * p;
+    gslc_tsGui * s;
+
+    gslc_tsElemRef* create_icon(int elem_id, int icon1, int icon2, int16_t &x, int gap);
+    gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsize, int16_t &x, int gap);
 
     QueueHandle_t queue;
 };
@@ -87,26 +92,26 @@ const unsigned short * icons[ICONS_TOTAL] GSLC_PMEM = {
 };
 
 
-gslc_tsElemRef* create_icon(int elem_id, int icon1, int icon2, int16_t &x, int gap)
+gslc_tsElemRef* PageInfoPrivate::create_icon(int elem_id, int icon1, int icon2, int16_t &x, int gap)
 {
     gslc_tsImgRef imgref1 = gslc_GetImageFromProg((const unsigned char*)icons[icon1], GSLC_IMGREF_FMT_BMP24);
     gslc_tsImgRef imgref2 = gslc_GetImageFromProg((const unsigned char*)icons[icon2], GSLC_IMGREF_FMT_BMP24);
-    gslc_tsElemRef* pElemRef = gslc_ElemCreateImg(&gslc, elem_id, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
-    gslc_ElemSetGlowEn(&gslc, pElemRef, true);
-    gslc_ElemSetImage (&gslc, pElemRef, imgref1, imgref2);
-    gslc_ElemSetCol   (&gslc, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
+    gslc_tsElemRef* pElemRef = gslc_ElemCreateImg(s, elem_id, PAGE_INFO, INFO_MODE_ICON_RECT, imgref1);
+    gslc_ElemSetGlowEn(s, pElemRef, true);
+    gslc_ElemSetImage (s, pElemRef, imgref1, imgref2);
+    gslc_ElemSetCol   (s, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
     x += INFO_ICON_W + gap;
     return pElemRef;
 }
 
 
-gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsize, int16_t &x, int gap)
+gslc_tsElemRef* PageInfoPrivate::create_text(int elem_id, gslc_tsRect rect, char * str, int strsize, int16_t &x, int gap)
 {
-    gslc_tsElemRef* pElemRef = gslc_ElemCreateTxt(&gslc, elem_id, PAGE_INFO, rect, str, strsize, FONT_BUILTIN5X8);
-    gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
-    gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
-    gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_LEFT);
-    gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
+    gslc_tsElemRef* pElemRef = gslc_ElemCreateTxt(s, elem_id, PAGE_INFO, rect, str, strsize, FONT_BUILTIN5X8);
+    gslc_ElemSetTxtCol              (s, pElemRef, COL_TEXT_NORMAL);
+    gslc_ElemSetCol                 (s, pElemRef, COL_ERROR, INFO_COL, INFO_COL);
+    gslc_ElemSetTxtAlign            (s, pElemRef, GSLC_ALIGN_MID_LEFT);
+    gslc_ElemSetRoundEn             (s, pElemRef, true);
     x += rect.w + gap;
     return pElemRef;
 }
@@ -114,7 +119,7 @@ gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsi
 
 void PageInfo::activate()
 {
-    gslc_SetBkgndColor(&gslc, INFO_BACK_COL);
+    gslc_SetBkgndColor(g->s, INFO_BACK_COL);
     // DEBUG("INFO ACTIVATED\n");
 }
 
@@ -129,6 +134,8 @@ PageInfo::PageInfo(Gui * gui)
 {
     g = new PageInfoPrivate;
     g->gui = gui;
+    g->p = gui->p;
+    g->s = &gui->p->gslc;
 
     auto c = new PageInfoCtrl;
     c->g = g;
@@ -143,7 +150,7 @@ PageInfo::PageInfo(Gui * gui)
 
 void PageInfoPrivate::init()
 {
-    gslc_PageAdd(&gslc, PAGE_INFO, elem, INFO_ELEM_MAX, ref, INFO_ELEM_MAX);
+    gslc_PageAdd(s, PAGE_INFO, elem, INFO_ELEM_MAX, ref, INFO_ELEM_MAX);
     gslc_tsElemRef* pElemRef = NULL;
 
     gslc_tsColor col[INFO_LINES] = {COL_BLUE_DARK, COL_BLUE_DARK, COL_RED_DARK, COL_RED_DARK, COL_RED_DARK, COL_RED_DARK};
@@ -173,22 +180,22 @@ void PageInfoPrivate::init()
     mode_icons_ref[r++] = create_icon(INFO_WIFI_ICON, ICON_WIFI_OFF, ICON_WIFI_OFF, x, 0);
 
     // progress
-    pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_PGS1_ELEM, PAGE_INFO, INFO_PGS1_RECT, pgs1_str, sizeof(pgs1_str), FONT_BUILTIN5X8);
-    gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
-    gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
-    gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_PGS_FILL_COL, INFO_PGS_FILL_COL);
-    gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
+    pElemRef = gslc_ElemCreateTxt   (s, INFO_PGS1_ELEM, PAGE_INFO, INFO_PGS1_RECT, pgs1_str, sizeof(pgs1_str), FONT_BUILTIN5X8);
+    gslc_ElemSetTxtAlign            (s, pElemRef, GSLC_ALIGN_MID_MID);
+    gslc_ElemSetTxtCol              (s, pElemRef, COL_TEXT_NORMAL);
+    gslc_ElemSetCol                 (s, pElemRef, COL_ERROR, INFO_PGS_FILL_COL, INFO_PGS_FILL_COL);
+    gslc_ElemSetRoundEn             (s, pElemRef, true);
     pgs1_ref = pElemRef;
 
-    pElemRef = gslc_ElemXProgressCreate(&gslc, INFO_PGS2_ELEM, PAGE_INFO, &pgs2_elem, INFO_PGS2_RECT, 0, INFO_PGS2_MAX, 0, INFO_PGS2_LINE_COL, false);
-    gslc_ElemSetCol                 (&gslc, pElemRef, INFO_PGS2_FRAME_COL, INFO_PGS2_FILL_COL, INFO_PGS2_FILL_COL);
+    pElemRef = gslc_ElemXProgressCreate(s, INFO_PGS2_ELEM, PAGE_INFO, &pgs2_elem, INFO_PGS2_RECT, 0, INFO_PGS2_MAX, 0, INFO_PGS2_LINE_COL, false);
+    gslc_ElemSetCol                 (s, pElemRef, INFO_PGS2_FRAME_COL, INFO_PGS2_FILL_COL, INFO_PGS2_FILL_COL);
     pgs2_ref = pElemRef;
 
-    pElemRef = gslc_ElemCreateTxt   (&gslc, INFO_PGS3_ELEM, PAGE_INFO, INFO_PGS3_RECT, pgs3_str, sizeof(pgs3_str), FONT_BUILTIN5X8);
-    gslc_ElemSetTxtAlign            (&gslc, pElemRef, GSLC_ALIGN_MID_MID);
-    gslc_ElemSetTxtCol              (&gslc, pElemRef, COL_TEXT_NORMAL);
-    gslc_ElemSetCol                 (&gslc, pElemRef, COL_ERROR, INFO_PGS_FILL_COL, INFO_PGS_FILL_COL);
-    gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
+    pElemRef = gslc_ElemCreateTxt   (s, INFO_PGS3_ELEM, PAGE_INFO, INFO_PGS3_RECT, pgs3_str, sizeof(pgs3_str), FONT_BUILTIN5X8);
+    gslc_ElemSetTxtAlign            (s, pElemRef, GSLC_ALIGN_MID_MID);
+    gslc_ElemSetTxtCol              (s, pElemRef, COL_TEXT_NORMAL);
+    gslc_ElemSetCol                 (s, pElemRef, COL_ERROR, INFO_PGS_FILL_COL, INFO_PGS_FILL_COL);
+    gslc_ElemSetRoundEn             (s, pElemRef, true);
     pgs3_ref = pElemRef;
 
     // lines
@@ -198,16 +205,16 @@ void PageInfoPrivate::init()
     {
         lines_str[i][0] = 0;
 
-        pElemRef = gslc_ElemCreateTxt(&gslc, INFO_PATH_ELEM+i, PAGE_INFO, INFO_LINE_RECT, lines_str[i], sizeof(lines_str[i]), FONT_BUILTIN5X8);
-        gslc_ElemSetTxtCol          (&gslc, pElemRef, COL_TEXT_NORMAL);
-        gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, colors[i], colors[i]);
+        pElemRef = gslc_ElemCreateTxt(s, INFO_PATH_ELEM+i, PAGE_INFO, INFO_LINE_RECT, lines_str[i], sizeof(lines_str[i]), FONT_BUILTIN5X8);
+        gslc_ElemSetTxtCol          (s, pElemRef, COL_TEXT_NORMAL);
+        gslc_ElemSetCol             (s, pElemRef, COL_ERROR, colors[i], colors[i]);
         //gslc_ElemSetTxtMarginXY     (&gslc, pElemRef, 2, 2);
-        gslc_ElemSetRoundEn             (&gslc, pElemRef, true);
+        gslc_ElemSetRoundEn             (s, pElemRef, true);
         lines_ref[i] = pElemRef;
 
-        pElemRef = gslc_ElemCreateImg(&gslc, INFO_PATH_ICON+i, PAGE_INFO, INFO_ICON_RECT,
+        pElemRef = gslc_ElemCreateImg(s, INFO_PATH_ICON+i, PAGE_INFO, INFO_ICON_RECT,
             gslc_GetImageFromProg((const unsigned char*)icons[ICON_PATH+i], GSLC_IMGREF_FMT_BMP24)); 
-        gslc_ElemSetCol             (&gslc, pElemRef, COL_ERROR, colors[i], colors[i]);
+        gslc_ElemSetCol             (s, pElemRef, COL_ERROR, colors[i], colors[i]);
         icons_ref[i] = pElemRef;
 
         y += INFO_LINE_STEP;
@@ -229,7 +236,7 @@ void PageInfo::scroll_reset()
         if (pElem->scr_pos)
         {
             pElem->scr_pos = 0;
-            gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+            gslc_ElemSetRedraw(g->s, pElemRef, GSLC_REDRAW_INC);
         }
         scroll_rounds[i] = 0;
         scroll_t0[i] = millis() + SCROLL_DELAY;
@@ -256,7 +263,7 @@ void PageInfo::scroll()
             if (scroll_rounds[i] < 1)
             {
                 pElem->scr_pos += SCROLL_STEP;
-                gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+                gslc_ElemSetRedraw(g->s, pElemRef, GSLC_REDRAW_INC);
             }
         }
         else
@@ -271,7 +278,7 @@ void PageInfo::scroll()
                 else
                 {
                     pElem->scr_pos = 0;
-                    gslc_ElemSetRedraw(&gslc, pElemRef, GSLC_REDRAW_INC);
+                    gslc_ElemSetRedraw(g->s, pElemRef, GSLC_REDRAW_INC);
                 }
             }
         } 
@@ -294,13 +301,13 @@ void PageInfo::fav(int fav_num)
 {
     char t[10] = "";
     sprintf(t, "%i", fav_num);
-    gslc_ElemSetTxtStr(&gslc, g->fav_ref, t);
+    gslc_ElemSetTxtStr(g->s, g->fav_ref, t);
 }
 
 
 void PageInfo::index(const char * text)
 {
-    gslc_ElemSetTxtStr(&gslc, g->index_ref, text);
+    gslc_ElemSetTxtStr(g->s, g->index_ref, text);
 }
 
 
@@ -309,13 +316,13 @@ void PageInfo::step_progress(uint32_t pos, uint32_t total)
     char t[10] = "";
 
     sprintf(t, "%i", pos);
-    gslc_ElemSetTxtStr(&gslc, g->pgs1_ref, t);
+    gslc_ElemSetTxtStr(g->s, g->pgs1_ref, t);
 
     sprintf(t, "%i", total);
-    gslc_ElemSetTxtStr(&gslc, g->pgs3_ref, t);
+    gslc_ElemSetTxtStr(g->s, g->pgs3_ref, t);
 
     int wdt = total ? INFO_PGS2_MAX * pos / total : 0;
-    gslc_ElemXProgressSetVal(&gslc, g->pgs2_ref, wdt);
+    gslc_ElemXProgressSetVal(g->s, g->pgs2_ref, wdt);
 }
 
 
@@ -323,12 +330,12 @@ void PageInfo::step_begin(const char * text)
 {
     player->page_change(PAGE_INFO);
     auto ref = g->lines_ref;
-    gslc_ElemSetTxtStr(&gslc, ref[INFO_PATH], text);
-    gslc_ElemSetTxtStr(&gslc, ref[INFO_FILE], "");
-    gslc_ElemSetTxtStr(&gslc, ref[INFO_BAND], "");
-    gslc_ElemSetTxtStr(&gslc, ref[INFO_ARTIST], "");
-    gslc_ElemSetTxtStr(&gslc, ref[INFO_ALBUM], "");
-    gslc_ElemSetTxtStr(&gslc, ref[INFO_TITLE], "");
+    gslc_ElemSetTxtStr(g->s, ref[INFO_PATH], text);
+    gslc_ElemSetTxtStr(g->s, ref[INFO_FILE], "");
+    gslc_ElemSetTxtStr(g->s, ref[INFO_BAND], "");
+    gslc_ElemSetTxtStr(g->s, ref[INFO_ARTIST], "");
+    gslc_ElemSetTxtStr(g->s, ref[INFO_ALBUM], "");
+    gslc_ElemSetTxtStr(g->s, ref[INFO_TITLE], "");
     //redraw();
     g->gui->loop();
 }
@@ -337,7 +344,7 @@ void PageInfo::step_begin(const char * text)
 void PageInfo::message(const char * message)
 {
     player->page_change(PAGE_INFO);
-    gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_FILE], message);
+    gslc_ElemSetTxtStr(g->s, g->lines_ref[INFO_FILE], message);
     g->gui->redraw();
     g->gui->loop();
 }
@@ -355,43 +362,43 @@ void PageInfo::time_progress(uint32_t pos, uint32_t total)
     char t[15] = "";
 
     sprintf(t, "%i:%02i", pos/60, pos%60);
-    gslc_ElemSetTxtStr(&gslc, g->pgs1_ref, t);
+    gslc_ElemSetTxtStr(g->s, g->pgs1_ref, t);
 
     sprintf(t, "%i:%02i", total/60, total%60);
-    gslc_ElemSetTxtStr(&gslc, g->pgs3_ref, t);
+    gslc_ElemSetTxtStr(g->s, g->pgs3_ref, t);
 
     int wdt = total ? INFO_PGS2_MAX * pos / total : 0;
-    gslc_ElemXProgressSetVal(&gslc, g->pgs2_ref, wdt);
+    gslc_ElemXProgressSetVal(g->s, g->pgs2_ref, wdt);
 }
 
 
 void PageInfo::band(const char * text)
 {
-    gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_BAND], text);
+    gslc_ElemSetTxtStr(g->s, g->lines_ref[INFO_BAND], text);
 }
 
 
 void PageInfo::artist(const char * text)
 {
-    gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_ARTIST], text);
+    gslc_ElemSetTxtStr(g->s, g->lines_ref[INFO_ARTIST], text);
 }
 
 
 void PageInfo::album(const char * text)
 {
-    gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_ALBUM], text);
+    gslc_ElemSetTxtStr(g->s, g->lines_ref[INFO_ALBUM], text);
 }
 
 
 void PageInfo::title(const char * text)
 {
-    gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_TITLE], text);
+    gslc_ElemSetTxtStr(g->s, g->lines_ref[INFO_TITLE], text);
 }
 
 
 void PageInfo::file(const char * text)
 {
-    gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_FILE], text);
+    gslc_ElemSetTxtStr(g->s, g->lines_ref[INFO_FILE], text);
 }
 
 
@@ -399,13 +406,13 @@ void PageInfo::path(const char * text, const char * root)
 {
     scroll_reset();
     UNUSED(root);
-    gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_PATH], text);
+    gslc_ElemSetTxtStr(g->s, g->lines_ref[INFO_PATH], text);
 }
 
 
 void PageInfo::gain(bool gain)
 {
-    gslc_ElemSetGlow(&gslc, g->mode_icons_ref[INFO_VOLUME_ICON], gain);
+    gslc_ElemSetGlow(g->s, g->mode_icons_ref[INFO_VOLUME_ICON], gain);
 }
 
 
@@ -413,19 +420,19 @@ void PageInfo::volume(int volume)
 {
     char t[20];
     sprintf(t, "%2i", volume);
-    gslc_ElemSetTxtStr(&gslc, g->mode_ref, t);
+    gslc_ElemSetTxtStr(g->s, g->mode_ref, t);
 }
 
 
 void PageInfo::repeat(bool val)
 {
-    gslc_ElemSetGlow(&gslc, g->mode_icons_ref[INFO_REPEAT_ICON], val);
+    gslc_ElemSetGlow(g->s, g->mode_icons_ref[INFO_REPEAT_ICON], val);
 }
 
 
 void PageInfo::shuffle(bool val)
 {
-    gslc_ElemSetGlow(&gslc, g->mode_icons_ref[INFO_SHUFFLE_ICON], val);
+    gslc_ElemSetGlow(g->s, g->mode_icons_ref[INFO_SHUFFLE_ICON], val);
 }
 
 
@@ -446,7 +453,7 @@ void PageInfo::alive(bool running)
     }
 
     gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
-    gslc_ElemSetImage(&gslc, g->mode_icons_ref[INFO_PLAY_ICON], imgref, imgref);
+    gslc_ElemSetImage(g->s, g->mode_icons_ref[INFO_PLAY_ICON], imgref, imgref);
 }
 
 
@@ -454,7 +461,7 @@ void PageInfo::net(int mode)
 {
     int index = ICON_WIFI_OFF + mode;
     gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
-    gslc_ElemSetImage(&gslc, g->mode_icons_ref[INFO_WIFI_ICON], imgref, imgref);
+    gslc_ElemSetImage(g->s, g->mode_icons_ref[INFO_WIFI_ICON], imgref, imgref);
 }
 
 

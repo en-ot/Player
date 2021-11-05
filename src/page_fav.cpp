@@ -41,6 +41,8 @@ public:
     void set_str(int fav_num, const char * path);
 
     Gui * gui;
+    GuiPrivate * p;
+    gslc_tsGui * s;
 };
 
 
@@ -108,6 +110,8 @@ PageFav::PageFav(Gui * gui)
 {
     g = new PageFavPrivate;
     g->gui = gui;
+    g->p = gui->p;
+    g->s = &gui->p->gslc;
 
     auto c = new PageFavCtrl;
     c->g = g;
@@ -115,21 +119,21 @@ PageFav::PageFav(Gui * gui)
     ctrl = c;
     player->set_page(PAGE_FAV, this);
 
-    gslc_PageAdd(&gslc, PAGE_FAV, g->elem, FAV_ELEM_MAX, g->ref, FAV_ELEM_MAX);
-    g->box_ref   = create_listbox(PAGE_FAV, FAV_BOX_ELEM,    &g->box_elem,    FAV_BACK_COL);
-    g->slider_ref = create_slider(PAGE_FAV, FAV_SLIDER_ELEM, &g->slider_elem, FAV_BACK_COL);
+    gslc_PageAdd(g->s, PAGE_FAV, g->elem, FAV_ELEM_MAX, g->ref, FAV_ELEM_MAX);
+    g->box_ref   = g->p->create_listbox(PAGE_FAV, FAV_BOX_ELEM,    &g->box_elem,    FAV_BACK_COL);
+    g->slider_ref = g->p->create_slider(PAGE_FAV, FAV_SLIDER_ELEM, &g->slider_elem, FAV_BACK_COL);
 }
 
 
 void PageFav::activate()
 {
-    gslc_SetBkgndColor(&gslc, FAV_BACK_COL);
+    gslc_SetBkgndColor(g->s, FAV_BACK_COL);
 }
 
 
 void PageFavPrivate::select(int fav_num, bool center)
 {
-    sel = box_goto(box_ref, slider_ref, fav_num-1, center) + 1;
+    sel = p->box_goto(box_ref, slider_ref, fav_num-1, center) + 1;
 }
 
 

@@ -46,6 +46,8 @@ public:
     StrCache * cache = nullptr;
 
     Gui * gui;
+    GuiPrivate * p;
+    gslc_tsGui * s;
 };
 
 
@@ -75,21 +77,23 @@ PageFiles::PageFiles(Gui * gui)
 {
     g = new PageFilesPrivate;
     g->gui = gui;
+    g->p = gui->p;
+    g->s = &gui->p->gslc;
 
     auto c = new PageFilesCtrl;
     c->g = g;
     c->p = this;
     ctrl = c;
 
-    gslc_PageAdd(&gslc, PAGE_FILES, g->elem, FILES_ELEM_MAX, g->files_ref, FILES_ELEM_MAX);
-    g->box_ref   = create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &g->box_elem,    FILES_BACK_COL);
-    g->slider_ref = create_slider(PAGE_FILES, FILES_SLIDER_ELEM, &g->slider_elem, FILES_BACK_COL);
+    gslc_PageAdd(g->s, PAGE_FILES, g->elem, FILES_ELEM_MAX, g->files_ref, FILES_ELEM_MAX);
+    g->box_ref   =  g->p->create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &g->box_elem,    FILES_BACK_COL);
+    g->slider_ref = g->p->create_slider(PAGE_FILES, FILES_SLIDER_ELEM, &g->slider_elem, FILES_BACK_COL);
 }
 
 
 void PageFilesPrivate::select(int curfile, bool center)
 {
-    sel = box_goto(box_ref, slider_ref, curfile-1, center) + 1;
+    sel = p->box_goto(box_ref, slider_ref, curfile-1, center) + 1;
 }
 
 
@@ -225,7 +229,7 @@ void PageFilesPrivate::box(int cnt)
 
 void PageFiles::activate()
 {
-    gslc_SetBkgndColor(&gslc, FILES_BACK_COL);
+    gslc_SetBkgndColor(g->s, FILES_BACK_COL);
 }
 
 

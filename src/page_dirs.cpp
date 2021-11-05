@@ -45,6 +45,8 @@ public:
     StrCache * cache = nullptr;
 
     Gui * gui;
+    GuiPrivate * p;
+    gslc_tsGui * s;
 };
 
 
@@ -120,21 +122,23 @@ PageDirs::PageDirs(Gui * gui)
 {
     g = new PageDirsPrivate;
     g->gui = gui;
+    g->p = gui->p;
+    g->s = &gui->p->gslc;
 
     auto c = new PageDirsCtrl;
     c->g = g;
     c->p = this;
     ctrl = c;
 
-    gslc_PageAdd(&gslc, PAGE_DIRS, g->elem, DIRS_ELEM_MAX, g->ref, DIRS_ELEM_MAX);
-    g->box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &g->box_elem,    DIRS_BACK_COL);
-    g->slider_ref = create_slider(PAGE_DIRS, DIRS_SLIDER_ELEM, &g->slider_elem, DIRS_BACK_COL);
+    gslc_PageAdd(g->s, PAGE_DIRS, g->elem, DIRS_ELEM_MAX, g->ref, DIRS_ELEM_MAX);
+    g->box_ref   = g->gui->p->create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &g->box_elem,    DIRS_BACK_COL);
+    g->slider_ref = g->gui->p->create_slider(PAGE_DIRS, DIRS_SLIDER_ELEM, &g->slider_elem, DIRS_BACK_COL);
 }
 
 
 void PageDirs::activate()
 {
-    gslc_SetBkgndColor(&gslc, DIRS_BACK_COL);
+    gslc_SetBkgndColor(g->s, DIRS_BACK_COL);
 }
 
 
@@ -172,7 +176,7 @@ void PageDirsPrivate::highlight(void *gslc, void *pElemRef, int type)
 
 void PageDirsPrivate::select(int dir_num, bool center)
 {
-    sel = box_goto(box_ref, slider_ref, dir_num-1, center) + 1;
+    sel = gui->p->box_goto(box_ref, slider_ref, dir_num-1, center) + 1;
 }
 
 

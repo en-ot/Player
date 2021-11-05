@@ -22,6 +22,7 @@
 #include "page_fav.h"
 #include "page_sys.h"
 
+#include "playlist.h"
 #include "player.h"
 Player * player;
 

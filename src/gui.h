@@ -16,21 +16,22 @@ enum {PAGE_INFO, PAGE_FILES, /*PAGE_PIC,*/ PAGE_FAV, PAGE_DIRS, PAGE_SYS, PAGE_M
 
 class Gui
 {
-    private:
-        bool initialized = false;
-        // void mode();
+private:
+    bool initialized = false;
+    // void mode();
 
-    public:
-        Gui();
-        
-        void loop();
-        void set_page(int p);
-        void redraw();
+public:
+    Gui();
+    
+    void loop();
+    void set_page(int p);
+    void redraw();
+
+    class GuiPrivate * p;
 };
 
 
 //extern Gui * gui;
 
-void check_font();
 
 #endif // _GUI_H_
