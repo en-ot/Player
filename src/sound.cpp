@@ -170,7 +170,7 @@ void playctrl_loop()
     {
         player->need_play_next_dir = false;
         audio.stopSong();
-        player->playing->find_dir(player->next_dir);
+        player->set_playing_dir(player->next_dir);
         player->next_file = player->cur_playing_file();
         player->need_play_next_file = true;
     }
@@ -298,7 +298,7 @@ int start_file(int num, int updown)
         int level = playstack_is_instack(num);
         if ((player->filecnt() <= PLAYSTACK_LEVELS) || (level == PLAYSTACK_NOT_IN_STACK) || (updown != FAIL_RANDOM))
         {
-            if (!player->playing->find_file(num))
+            if (!player->set_playing_file(num))
             {
                 snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
                 xQueueSend(queue, tmp, 0);
@@ -308,12 +308,12 @@ int start_file(int num, int updown)
             
             //DEBUG("Dir %d, File %d\n", playing->curdir, num);
 
-            if (!player->playing->file_is_dir(num))
+            if (!player->playing_file_is_dir(num))
             {
-                player->playing->file_name(num, filename, sizeof(filename));
+                player->playing_file_name(num, filename, sizeof(filename));
                 //DEBUG("%s\n", filename);
 
-                int x = player->playing->file_dirname(num, dirname, sizeof(dirname));
+                int x = player->playing_dir_name(num, dirname, sizeof(dirname));
                 //DEBUG("%s\n", dirname);
 
                 strlcpy(filepath, dirname, sizeof(filepath));

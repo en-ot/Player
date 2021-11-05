@@ -57,6 +57,11 @@ public:
     int cur_playing_file();
     int file_random();
     int filecnt();
+    void set_playing_dir(int dir_num);
+    bool set_playing_file(int file_num);
+    bool playing_file_is_dir(int file_num);
+    size_t playing_file_name(int file_num, char * dst, int len);
+    size_t playing_dir_name(int file_num, char * dst, int len);
 
     int8_t volume;
     int8_t volume_old;

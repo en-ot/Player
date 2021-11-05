@@ -204,14 +204,46 @@ int Player::cur_playing_dir()
     return playing->curdir;
 }
 
+
 int Player::cur_playing_file()
 {
     return playing->curfile;
 }
 
+
 int Player::filecnt()
 {
     return playing->filecnt;
+}
+
+
+void Player::set_playing_dir(int dir_num)
+{
+    playing->find_dir(dir_num);
+}
+
+
+bool Player::set_playing_file(int file_num)
+{
+    return playing->find_file(file_num);
+}
+
+
+bool Player::playing_file_is_dir(int file_num)
+{
+    return playing->file_is_dir(file_num);
+}
+
+
+size_t Player::playing_file_name(int file_num, char * dst, int len)
+{
+    return playing->file_name(file_num, dst, len);
+}
+
+
+size_t Player::playing_dir_name(int file_num, char * dst, int len)
+{
+    return playing->file_dirname(file_num, dst, len);
 }
 
 

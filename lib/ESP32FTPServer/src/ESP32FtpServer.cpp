@@ -874,6 +874,11 @@ boolean FtpServer::dataConnect()
 {
     uint32_t startTime = millis();
 
+    if (!dataPassiveConn) data.connect(dataIp, dataPort);  // connect to client on data port
+
+    if(dataServer.hasClient()) 
+        data.stop();
+
     if (!data.connected()) {  //wait 10 seconds for a data connection
         while (!dataServer.hasClient() && (int32_t)(millis() - startTime) < 10000) 
         {
