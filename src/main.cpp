@@ -33,8 +33,6 @@ Playlist * fc;   //playlist for file playing
 Playlist * pl;   //playlist for display
 Player * player;
 
-#define QUEUE_DEPTH 20
-QueueHandle_t tag_queue;
 
 
 //###############################################################
@@ -83,12 +81,13 @@ void setup()
     player->page_change(PAGE_INFO);
     sys.step_end(0);
 
-    sys.step_begin("sound");
-    sound_setup();
+    sys.step_begin("queue");
+    QueueHandle_t tag_queue = xQueueCreate(QUEUE_DEPTH, QUEUE_MSG_SIZE);
+    page_info->set_queue(tag_queue);
     sys.step_end(1);
 
-    sys.step_begin("queue");
-    tag_queue = xQueueCreate(QUEUE_DEPTH, QUEUE_MSG_SIZE);
+    sys.step_begin("sound");
+    sound_setup(tag_queue);
     sys.step_end(2);
 
     sys.step_begin("controls");

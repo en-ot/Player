@@ -52,10 +52,9 @@ public:
     gslc_tsElemRef*             icons_ref[INFO_LINES] = {0};
 
     Gui * gui;
+
+    QueueHandle_t queue;
 };
-
-
-//PageInfo * page_info;
 
 
 class PageInfoCtrl : public CtrlPage
@@ -117,6 +116,12 @@ void PageInfo::activate()
 {
     gslc_SetBkgndColor(&gslc, INFO_BACK_COL);
     // DEBUG("INFO ACTIVATED\n");
+}
+
+
+void PageInfo::set_queue(QueueHandle_t tag_queue)
+{
+    g->queue = tag_queue;
 }
 
 
@@ -477,7 +482,7 @@ static bool cmp(char * info, const char * tst, char ** p)
 void PageInfo::loop2()
 {
     char msg[QUEUE_MSG_SIZE];
-    BaseType_t res = xQueueReceive(tag_queue, &msg, 0);
+    BaseType_t res = xQueueReceive(g->queue, &msg, 0);
     msg[QUEUE_MSG_SIZE-1] = 0;
     if (res == pdTRUE)
     {

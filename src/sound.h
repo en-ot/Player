@@ -6,7 +6,7 @@
 
 int start_file(int num, int updown);
 
-void sound_setup();
+void sound_setup(QueueHandle_t tag_queue);
 
 extern TaskHandle_t audio_task_handle;
 

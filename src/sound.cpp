@@ -27,6 +27,9 @@ int sound_errors=0;
 //###############################################################
 void playctrl_loop();
 
+static QueueHandle_t queue;
+
+
 TaskHandle_t audio_task_handle;
 static void sound_task(void * pvParameters)
 {
@@ -39,8 +42,9 @@ static void sound_task(void * pvParameters)
 }
 
 
-void sound_setup()
+void sound_setup(QueueHandle_t tag_queue)
 {
+    queue = tag_queue;
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, 1);
 }
@@ -247,7 +251,7 @@ void audio_id3data(const char *info)  //id3 metadata
         }
         gain_index++;
     }
-    xQueueSend(tag_queue, info, 0);
+    xQueueSend(queue, info, 0);
 }
 
 
@@ -271,12 +275,12 @@ int start_file(int num, int updown)
 
     num = clamp1(num, fc->filecnt);
 
-    xQueueSend(tag_queue, "Path: ", 0);
-    xQueueSend(tag_queue, "File: ", 0);
-    xQueueSend(tag_queue, "Band: ", 0);
-    xQueueSend(tag_queue, "Artist: ", 0);
-    xQueueSend(tag_queue, "Album: ", 0);
-    xQueueSend(tag_queue, "Title: ", 0);
+    xQueueSend(queue, "Path: ", 0);
+    xQueueSend(queue, "File: ", 0);
+    xQueueSend(queue, "Band: ", 0);
+    xQueueSend(queue, "Artist: ", 0);
+    xQueueSend(queue, "Album: ", 0);
+    xQueueSend(queue, "Title: ", 0);
 
     char tmp[QUEUE_MSG_SIZE];
     char filename[PATHNAME_MAX_LEN] = "";
@@ -295,7 +299,7 @@ int start_file(int num, int updown)
             if (!fc->find_file(num))
             {
                 snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
-                xQueueSend(tag_queue, tmp, 0);
+                xQueueSend(queue, tmp, 0);
                 DEBUG("no file %d\n", num);
                 return fc->curfile;
             }
@@ -338,7 +342,7 @@ int start_file(int num, int updown)
     if (!retry)
     {
         snprintf(tmp, sizeof(tmp)-1, "File: retry count 0");
-        xQueueSend(tag_queue, tmp, 0);
+        xQueueSend(queue, tmp, 0);
         DEBUG("retry count\n");
         return 0;
     }
@@ -346,13 +350,13 @@ int start_file(int num, int updown)
     playstack_push(num);
 
     snprintf(tmp, sizeof(tmp)-1, "Index: %i", num);//, fc->filecnt);
-    xQueueSend(tag_queue, tmp, 0);
+    xQueueSend(queue, tmp, 0);
     
     snprintf(tmp, sizeof(tmp)-1, "Path: %s", dirname);
-    xQueueSend(tag_queue, tmp, 0);
+    xQueueSend(queue, tmp, 0);
 
     snprintf(tmp, sizeof(tmp)-1, "File: %s", filename);
-    xQueueSend(tag_queue, tmp, 0);
+    xQueueSend(queue, tmp, 0);
     
     return fc->curfile;
 }

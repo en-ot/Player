@@ -20,6 +20,7 @@ extern Playlist * fc;   //playing
 extern Playlist * pl;   //list
 
 #define QUEUE_MSG_SIZE 250
-extern QueueHandle_t tag_queue;
+#define QUEUE_DEPTH 20
+
 
 #endif // _GLOBALS_H_
