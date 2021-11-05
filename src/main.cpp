@@ -69,7 +69,8 @@ void setup()
     player->set_page(PAGE_INFO, page_info);
     sys.set_page(page_info);
 
-    page_files.init();
+    player->set_page(PAGE_FILES, new PageFiles(gui));
+
     page_fav.init();
     page_dirs.init();
     page_sys.init();

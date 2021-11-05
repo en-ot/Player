@@ -8,7 +8,7 @@
 class PageFiles : public Page
 {
 public:
-    void init();
+    PageFiles(Gui * gui);
     void box(int dircnt);
     void goto_cur();
     void activate();
@@ -17,7 +17,7 @@ public:
     class PageFilesPrivate * g;
 };
 
-extern PageFiles page_files;
+//extern PageFiles page_files;
 
 
 #endif // _PAGE_FILES_H_

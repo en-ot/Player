@@ -122,13 +122,9 @@ void PageInfo::activate()
 
 PageInfo::PageInfo(Gui * gui)
 {
-    g->gui = gui;
-}
-
-
-void PageInfo::init()
-{
     g = new PageInfoPrivate;
+    g->gui = gui;
+
     auto c = new PageInfoCtrl;
     c->g = g;
     c->p = this;

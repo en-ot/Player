@@ -10,7 +10,6 @@ class PageInfo : public Page
 public:
     PageInfo(Gui * gui);
 
-    void init();
     void gui_loop();
     void update();
     void activate();

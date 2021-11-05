@@ -111,7 +111,10 @@ bool Player::fav_switch(int fav_num, bool init)
     
     fc->set_root(fav_path);
     pl->set_root(fav_path);
-    page_files.box(pl->filecnt);
+
+    PageFiles * page_files = (PageFiles *)*page_ptr(PAGE_FILES);
+    page_files->box(pl->filecnt);
+
     page_dirs.box(pl->dircnt);
 
     DEBUG("dircnt: %d\n", pl->dircnt);
@@ -121,7 +124,7 @@ bool Player::fav_switch(int fav_num, bool init)
 
     page_fav.goto_cur();
     page_dirs.goto_cur();
-    page_files.goto_cur();
+    page_files->goto_cur();
 
     if (filepos)
         need_set_file_pos = true;

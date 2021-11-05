@@ -44,10 +44,12 @@ public:
     gslc_tsElemRef*             slider_ref    = nullptr;
 
     StrCache * cache = nullptr;
+
+    Gui * gui;
 };
 
 
-PageFiles page_files;
+//PageFiles page_files;
 
 
 class PageFilesCtrl : public CtrlPage
@@ -69,6 +71,22 @@ public:
 
 
 //###############################################################
+PageFiles::PageFiles(Gui * gui)
+{
+    g = new PageFilesPrivate;
+    g->gui = gui;
+
+    auto c = new PageFilesCtrl;
+    c->g = g;
+    c->p = this;
+    ctrl = c;
+
+    gslc_PageAdd(&gslc, PAGE_FILES, g->elem, FILES_ELEM_MAX, g->files_ref, FILES_ELEM_MAX);
+    g->box_ref   = create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &g->box_elem,    FILES_BACK_COL);
+    g->slider_ref = create_slider(PAGE_FILES, FILES_SLIDER_ELEM, &g->slider_elem, FILES_BACK_COL);
+}
+
+
 void PageFilesPrivate::select(int curfile, bool center)
 {
     sel = box_goto(box_ref, slider_ref, curfile-1, center) + 1;
@@ -143,7 +161,9 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
 {
     int filenum = nItem+1;
 
-    int index = page_files.g->cache->get(filenum);
+    PageFilesPrivate * g = ((PageFiles *)*player->page_ptr(PAGE_FILES))->g;
+
+    int index = g->cache->get(filenum);
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
@@ -162,12 +182,12 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
         pl->file_name(filenum, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
-        page_files.g->cache->put(filenum, buf, dir_level);
+        g->cache->put(filenum, buf, dir_level);
     }
     else
     {
-        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, page_files.g->cache->lines[index].txt);
-        dir_level = page_files.g->cache->lines[index].flags;
+        snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, g->cache->lines[index].txt);
+        dir_level = g->cache->lines[index].flags;
     }
     if (nItem == 0)
     {
@@ -178,7 +198,7 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
     int type = 0;
     if (filenum == fc->curfile) type = 2;
     else if (dir_level)         type = 1;
-    page_files.g->highlight(pvGui, pvElem, type);
+    g->highlight(pvGui, pvElem, type);
 
     return true;
 }
@@ -202,21 +222,6 @@ void PageFilesPrivate::box(int cnt)
         cache = new StrCache(FILES_CACHE_LINES);
     else
         cache->clear();
-}
-
-
-void PageFiles::init()
-{
-    g = new PageFilesPrivate;
-    auto c = new PageFilesCtrl;
-    c->g = g;
-    c->p = this;
-    ctrl = c;
-    player->set_page(PAGE_FILES, this);
-
-    gslc_PageAdd(&gslc, PAGE_FILES, g->elem, FILES_ELEM_MAX, g->files_ref, FILES_ELEM_MAX);
-    g->box_ref   = create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &g->box_elem,    FILES_BACK_COL);
-    g->slider_ref = create_slider(PAGE_FILES, FILES_SLIDER_ELEM, &g->slider_elem, FILES_BACK_COL);
 }
 
 
