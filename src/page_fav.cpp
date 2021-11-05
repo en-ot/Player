@@ -48,7 +48,7 @@ class PageFavCtrl : public CtrlPage
 {
 public:
     void b1_short()         {       player->next_page();}
-    void b2_short()         {       player->set_page(PAGE_SYS);}
+    void b2_short()         {       player->change_page(PAGE_SYS);}
     bool vol(int change)    {return g->pgupdn(change);}
     void vol_short()        {       p->goto_cur();}
     bool seek(int by)       {return g->seek(by);}
@@ -105,10 +105,11 @@ int PageFav::sel()
 void PageFav::init()
 {
     g = new PageFavPrivate;
-    c = new PageFavCtrl;
+    auto c = new PageFavCtrl;
     c->g = g;
     c->p = this;
-    player->set_ctrl(PAGE_FAV, c);
+    ctrl = c;
+    player->set_page(PAGE_FAV, this);
 
     gslc_PageAdd(&gslc, PAGE_FAV, g->elem, FAV_ELEM_MAX, g->ref, FAV_ELEM_MAX);
     g->box_ref   = create_listbox(PAGE_FAV, FAV_BOX_ELEM,    &g->box_elem,    FAV_BACK_COL);
@@ -143,7 +144,7 @@ bool PageFavPrivate::pgupdn(int by)
 void PageFavPrivate::set_num()
 {
     player->fav_switch(sel, false);
-    player->set_page(PAGE_INFO);
+    player->change_page(PAGE_INFO);
 }
 
 

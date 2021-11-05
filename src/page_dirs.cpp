@@ -119,10 +119,11 @@ int PageDirsPrivate::dir_file_num(int dirs_sel)
 void PageDirs::init()
 {
     g = new PageDirsPrivate;
-    c = new PageDirsCtrl;
+    auto c = new PageDirsCtrl;
     c->g = g;
     c->p = this;
-    player->set_ctrl(PAGE_DIRS, c);
+    ctrl = c;
+    player->set_page(PAGE_DIRS, this);
 
     gslc_PageAdd(&gslc, PAGE_DIRS, g->elem, DIRS_ELEM_MAX, g->ref, DIRS_ELEM_MAX);
     g->box_ref   = create_listbox(PAGE_DIRS, DIRS_BOX_ELEM,    &g->box_elem,    DIRS_BACK_COL);
@@ -198,7 +199,7 @@ void PageDirsPrivate::set_fav()
     int fav_num = page_fav.sel();
     page_fav.set_path(fav_num, path);
 
-    player->set_page(PAGE_FAV);
+    player->change_page(PAGE_FAV);
 }
 
 
@@ -208,7 +209,7 @@ void PageDirsPrivate::play_sel()
     if (!file_num)
         return;
 
-    player->set_page(PAGE_INFO);
+    player->change_page(PAGE_INFO);
     player->play_file_num(file_num, FAIL_NEXT);
 }
 

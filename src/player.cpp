@@ -32,11 +32,12 @@ Player::Player()
 
 extern CtrlPage * ctrl_pages[PAGE_MAX];
 
-void Player::set_ctrl(int page, CtrlPage * ctrl)
+void Player::set_page(int page_num, Page * page)
 {
-    //DEBUG("%d:%X\n", page, ctrl);
-    ctrl_pages[page] = ctrl;
-    //DEBUG_DUMP32(ctrl_pages, 5, 5);
+//    DEBUG("%X : %X\n", page, page->ctrl);
+    //DEBUG("%d:%X\n", page_num, ctrl);
+    ctrl_pages[page_num] = page->ctrl;
+//    DEBUG_DUMP32(ctrl_pages, 5, 5);
 }
 
 
@@ -298,10 +299,15 @@ bool Player::change_volume(int change)
 uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
 
 
-void Player::set_page(int page)
+void Player::change_page(int page_num)
 {
-    ui_page = page;
+    ui_page = page_num;
     gui->set_page(ui_page);
+    page_info.scroll_reset();
+    if (page_num == PAGE_SYS)
+    {
+        page_sys.activate();
+    }
 }
 
 
@@ -319,6 +325,6 @@ void Player::next_page()
     if (i >= sizeof(page_order)) 
         i = 0;
 
-    set_page(page_order[i]);
+    change_page(page_order[i]);
 }
 

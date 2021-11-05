@@ -1,5 +1,3 @@
-#define SLIDER_COL     COL_WHITE
-
 #define FILES_BACK_COL       COL_BLACK
 
 #define FILES_COL_NORMAL_B   COL_BLACK

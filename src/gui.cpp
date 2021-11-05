@@ -13,16 +13,16 @@
 #include "gui.h"
 
 #include "gui_common.h"
-#include "gui_info.h"
-#include "gui_files.h"
-#include "gui_dirs.h"
-#include "gui_fav.h"
+// #include "gui_info.h"
+// #include "gui_files.h"
+// #include "gui_dirs.h"
+// #include "gui_fav.h"
 
-#include "page_info.h"
-#include "page_files.h"
-#include "page_dirs.h"
-#include "page_sys.h"
-#include "page_fav.h"
+// #include "page_info.h"
+// #include "page_files.h"
+// #include "page_dirs.h"
+// #include "page_sys.h"
+// #include "page_fav.h"
 
 //###############################################################
 // GUI common
@@ -103,15 +103,6 @@ Gui::Gui()
 
     gslc_init();
     
-    page_info.init();
-    page_files.init();
-    //page_pic_init();
-    page_fav.init();
-    page_dirs.init();
-    page_sys.init();
-
-    set_page(PAGE_INFO);
-
     DEBUG("gslc initialized\n");
 
     tft.fillScreen(TFT_BLACK);
@@ -157,10 +148,9 @@ void Gui::redraw()
 //###############################################################
 void Gui::set_page(int page_n)
 {
-    static gslc_tsColor page_back_col[] = {INFO_BACK_COL, FILES_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
+    //static gslc_tsColor page_back_col[] = {INFO_BACK_COL, FILES_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
     gslc_SetPageCur(&gslc, page_n);
-    gslc_SetBkgndColor(&gslc, page_back_col[page_n]);
-    page_info.scroll_reset();
+    //gslc_SetBkgndColor(&gslc, page_back_col[page_n]);
 }
 
 

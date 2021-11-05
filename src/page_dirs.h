@@ -13,7 +13,6 @@ public:
     void goto_cur();
 
     class PageDirsPrivate * g;
-    class PageDirsCtrl * c;
 };
 
 extern PageDirs page_dirs;

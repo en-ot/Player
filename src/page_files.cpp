@@ -119,7 +119,7 @@ void PageFiles::goto_cur()
 
 void PageFilesPrivate::play_sel()
 {
-    player->set_page(PAGE_INFO);
+    player->change_page(PAGE_INFO);
     player->play_file_num(sel, FAIL_NEXT);
 }
 
@@ -135,7 +135,7 @@ void PageFilesPrivate::set_fav()
     int fav_num = page_fav.sel();
     page_fav.set_path(fav_num, path);
 
-    player->set_page(PAGE_FAV);
+    player->change_page(PAGE_FAV);
 }
 
 
@@ -208,10 +208,11 @@ void PageFilesPrivate::box(int cnt)
 void PageFiles::init()
 {
     g = new PageFilesPrivate;
-    c = new PageFilesCtrl;
+    auto c = new PageFilesCtrl;
     c->g = g;
     c->p = this;
-    player->set_ctrl(PAGE_FILES, c);
+    ctrl = c;
+    player->set_page(PAGE_FILES, this);
 
     gslc_PageAdd(&gslc, PAGE_FILES, g->elem, FILES_ELEM_MAX, g->files_ref, FILES_ELEM_MAX);
     g->box_ref   = create_listbox(PAGE_FILES, FILES_BOX_ELEM,    &g->box_elem,    FILES_BACK_COL);

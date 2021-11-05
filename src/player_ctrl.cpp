@@ -88,7 +88,7 @@ CtrlPage * ctrl_pages[PAGE_MAX];
  
 bool player_ctrl_input(int ui_page, PlayerInputType type, int key)
 {
-    //DEBUG_DUMP32(ctrl_pages, 5, 5);
+//    DEBUG_DUMP32(ctrl_pages, 5, 5);
 
     CtrlPage * page = ctrl_pages[ui_page];
     return page->input(type, key);

@@ -18,7 +18,6 @@ public:
     void reset();
 
     class PageFavPrivate * g;
-    class PageFavCtrl * c;
 };
 
 extern PageFav page_fav;

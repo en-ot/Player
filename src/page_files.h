@@ -13,7 +13,6 @@ public:
     void goto_cur();
 
     class PageFilesPrivate * g;
-    class PageFilesCtrl * c;
 };
 
 extern PageFiles page_files;

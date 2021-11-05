@@ -26,9 +26,9 @@ public:
     void init();
     void update();
     void loop();
+    void activate();
 
     class PageSysPrivate * g;
-    class PageSysCtrl * c;
 };
 
 extern PageSys page_sys;

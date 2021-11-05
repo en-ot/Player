@@ -128,14 +128,20 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
     return true;
 }
 
+void PageSys::activate()
+{
+    gslc_SetBkgndColor(&gslc, SYS_BACK_COL);
+}
+
 
 void PageSys::init()
 {
     g = new PageSysPrivate;
-    c = new PageSysCtrl;
+    auto c = new PageSysCtrl;
     c->g = g;
     c->p = this;
-    player->set_ctrl(PAGE_SYS, c);
+    ctrl = c;
+    player->set_page(PAGE_SYS, this);
 
     gslc_PageAdd(&gslc, PAGE_SYS, g->elem, SYS_ELEM_MAX, g->ref, SYS_ELEM_MAX);
     g->box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &g->box_elem,    SYS_BACK_COL);

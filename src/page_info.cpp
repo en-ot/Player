@@ -114,10 +114,12 @@ gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsi
 void PageInfo::init()
 {
     g = new PageInfoPrivate;
-    c = new PageInfoCtrl;
+    auto c = new PageInfoCtrl;
     c->g = g;
     c->p = this;
-    player->set_ctrl(PAGE_INFO, c);
+    ctrl = c;
+    player->set_page(PAGE_INFO, this);
+    // DEBUG("%X = %X\n", ctrl, this->ctrl);
 
     g->init();
 }
@@ -306,7 +308,7 @@ void PageInfo::step_progress(uint32_t pos, uint32_t total)
 
 void PageInfo::step_begin(const char * text)
 {
-    player->set_page(PAGE_INFO);
+    player->change_page(PAGE_INFO);
     auto ref = g->lines_ref;
     gslc_ElemSetTxtStr(&gslc, ref[INFO_PATH], text);
     gslc_ElemSetTxtStr(&gslc, ref[INFO_FILE], "");
@@ -321,7 +323,7 @@ void PageInfo::step_begin(const char * text)
 
 void PageInfo::message(const char * message)
 {
-    player->set_page(PAGE_INFO);
+    player->change_page(PAGE_INFO);
     gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_FILE], message);
     gui->redraw();
     gui->loop();

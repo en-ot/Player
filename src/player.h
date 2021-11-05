@@ -1,3 +1,5 @@
+// Player must contain all business logic, but no depenencies on components... maybe later...
+
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
@@ -11,13 +13,26 @@
 int file_random();
 
 
-// Player must contain all business logic, but no depenencies on components... maybe later...
+class Page
+{
+public:
+    void init()             {};
+    void box(int dircnt)    {};
+    void goto_cur()         {};
+    void loop()             {};
+    void update()           {};
+    void activate()         {};
+
+    CtrlPage * ctrl = nullptr;
+};
+
+
 class Player
 {
 public:
     Player();
     void set_gui(Gui * gui);
-    void set_ctrl(int page, CtrlPage * ctrl);
+    void set_page(int page_num, Page * page);
 
     void reset_to_defaults();
     void freeze();
@@ -33,7 +48,7 @@ public:
     bool input(PlayerInputType type, int key);
 
     int ui_page = PAGE_INFO;
-    void set_page(int page);
+    void change_page(int page);
     void next_page();
 
     int8_t volume;
@@ -71,19 +86,6 @@ private:
     Gui * _gui = nullptr;
     //CtrlPage * ctrl_pages[PAGE_MAX] = {0};
 };
-
-
-class Page
-{
-public:
-    void init() {};
-    void box(int dircnt) {};
-    void goto_cur() {};
-    void loop();
-    void update();
-    int sel();
-};
-
 
 extern Player * player;
 

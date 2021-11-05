@@ -95,6 +95,8 @@ enum {
 #define SLIDER_RECT    (gslc_tsRect){LCD_W - SLIDER_W, BOX_Y, SLIDER_W, BOX_H}
 #define SLIDER_POS_MAX 240
 
+#define SLIDER_COL     COL_WHITE
+
 
 gslc_tsElemRef* create_listbox(int16_t page, int16_t elem, gslc_tsXListbox* pelem, gslc_tsColor col);
 gslc_tsElemRef* create_slider(int16_t page, int16_t elem, gslc_tsXSlider* pelem, gslc_tsColor col);

@@ -25,19 +25,12 @@
 #include "player.h"
 
 //###############################################################
-// gui input and output
+// global objects
 //###############################################################
 
 Gui * gui;
-
 Playlist * fc;   //playlist for file playing
 Playlist * pl;   //playlist for display
-
-
-//###############################################################
-// globals
-//###############################################################
-
 Player * player;
 
 #define QUEUE_DEPTH 20
@@ -98,6 +91,14 @@ void setup()
     begin("gui");
     gui = new Gui();
     player->set_gui(gui);
+
+    page_info.init();
+    page_files.init();
+    //page_pic_init();
+    page_fav.init();
+    page_dirs.init();
+    page_sys.init();
+    player->change_page(PAGE_INFO);
     end(0);
 
     // free(p1);
