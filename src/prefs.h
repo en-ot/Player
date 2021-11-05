@@ -19,6 +19,12 @@ void prefs_loop();
 
 int prefs_free(void);
 
+extern uint32_t save_time;
+extern bool need_save_current_file;
+extern bool need_save_volume;
+extern bool need_save_repeat;
+extern bool need_save_shuffle;
+extern bool need_save_file_pos;
 
 //###############################################################
 

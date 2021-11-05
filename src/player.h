@@ -47,10 +47,12 @@ public:
     void toggle_repeat();
     void toggle_pause();
 
+    bool need_set_file_pos = false;
     uint32_t filepos;
     int file_seek_by;
     bool file_seek(int by);
 
+    bool need_play_next_file = false;
     int next_file;
     int next_updown = FAIL_NEXT;
     void play_file_num(int num, int updown);
@@ -60,6 +62,7 @@ public:
     void play_file_prev();
     void play_file_random();
 
+    bool need_play_next_dir = false;
     int next_dir;
     void play_dir_next();
     void play_dir_prev();

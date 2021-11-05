@@ -40,19 +40,6 @@ Playlist * pl;   //playlist for display
 
 Player * player;
 
-//flags
-bool need_play_next_dir = false;
-bool need_play_next_file = false;
-
-bool need_set_file_pos = false;
-
-uint32_t save_time;
-bool need_save_current_file = false;
-bool need_save_volume = false;
-bool need_save_repeat = false;
-bool need_save_shuffle = false;
-bool need_save_file_pos = false;
-
 #define QUEUE_DEPTH 20
 QueueHandle_t tag_queue;
 

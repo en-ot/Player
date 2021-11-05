@@ -34,6 +34,15 @@ static const char *prefs_key_filepos = "filepos";
 static const char *prefs_key_shuffle = "shuffle";
 static const char *prefs_key_repeat = "repeat";
 
+//flags
+uint32_t save_time;
+bool need_save_current_file = false;
+bool need_save_volume = false;
+bool need_save_repeat = false;
+bool need_save_shuffle = false;
+bool need_save_file_pos = false;
+
+
 //###############################################################
 void prefs_erase_all()
 {

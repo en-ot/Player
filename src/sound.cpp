@@ -139,12 +139,12 @@ void playctrl_loop()
                 return;
 
             player->filepos = newpos;
-            need_set_file_pos = true;
+            player->need_set_file_pos = true;
             return;
         }
     }
 
-    if (need_set_file_pos && ((int32_t)(t - t_filepos) > T_FILEPOS_DELAY))
+    if (player->need_set_file_pos && ((int32_t)(t - t_filepos) > T_FILEPOS_DELAY))
     {
         bool running = audio.isRunning();
         
@@ -153,25 +153,25 @@ void playctrl_loop()
 
         if (audio.setAudioPlayPosition(player->filepos))
         {
-            need_set_file_pos = false;
+            player->need_set_file_pos = false;
         }
         //audio.loop();
         if (running) audio.pauseResume();
         //audio.loop();
     }
 
-    if (need_play_next_dir && fc->filecnt)
+    if (player->need_play_next_dir && fc->filecnt)
     {
-        need_play_next_dir = false;
+        player->need_play_next_dir = false;
         audio.stopSong();
         fc->find_dir(player->next_dir);
         player->next_file = fc->curfile;
-        need_play_next_file = true;
+        player->need_play_next_file = true;
     }
 
-    if (need_play_next_file && fc->filecnt)
+    if (player->need_play_next_file && fc->filecnt)
     {
-        need_play_next_file = false;
+        player->need_play_next_file = false;
         start_file(player->next_file, player->next_updown);
         player->filepos = 0;
         prefs_save_delayed(need_save_current_file);

@@ -239,7 +239,7 @@ void check_loop()
             sys.read_error = false;   
 //            need_save_current_file = false;
             player->next_file = 1;
-            need_play_next_file = true;
+            player->need_play_next_file = true;
         }
     }
 }
