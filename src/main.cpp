@@ -28,9 +28,6 @@
 // global objects
 //###############################################################
 
-Gui * gui;
-Playlist * fc;   //playlist for file playing
-Playlist * pl;   //playlist for display
 Player * player;
 
 
@@ -59,13 +56,13 @@ void setup()
     player = new Player();
 
     sys.step_begin("gui");
-    gui = new Gui();
+    auto gui = new Gui();
     player->set_gui(gui);
 
     auto page_info = new PageInfo(gui);
     page_info->init();
     player->set_page(PAGE_INFO, page_info);
-    sys.set_page(page_info);
+    sys.set_page(page_info, gui);
 
     player->set_page(PAGE_FILES, new PageFiles(gui));
     
@@ -122,11 +119,11 @@ void setup()
     sys.step_end(6);
 
     sys.step_begin("filectrl");
-    fc = new Playlist(DIRECT_ACCESS);
+    player->fc = new Playlist(DIRECT_ACCESS);
     sys.step_end(7);
  
     sys.step_begin("Playlist");
-    pl = new Playlist(SAFE_ACCESS);
+    player->pl = new Playlist(SAFE_ACCESS);
     sys.step_end(8);
 
     sys.step_begin("network");
@@ -146,7 +143,6 @@ void loop()
 {
     controls_loop();
     player->loop();
-    gui->loop();
     prefs_loop();
     network_loop();
     yield();

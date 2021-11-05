@@ -3,20 +3,13 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
+#include "globals.h"
+
 #include "gui.h"
 #include "player_input.h"
 #include "player_ctrl.h"
 
-// #include "page_fav.h"
-// #include "page_info.h"
-// #include "page_files.h"
-// #include "page_dirs.h"
-// #include "page_sys.h"
-
-#include "globals.h"
-
-
-int file_random();
+#include "playlist.h"
 
 
 class Page
@@ -39,9 +32,11 @@ public:
     void loop();
     void update();
 
+    int file_random();
+
+    int ui_page = -1;
     void set_page(int page_num, Page * page);
     Page ** page_ptr(int page_num);
-    int ui_page = -1;//PAGE_INFO;
     void page_change(int page);
     void page_next();
 
@@ -90,6 +85,9 @@ public:
     int next_dir;
     void play_dir_next();
     void play_dir_prev();
+
+    Playlist * fc;   //playlist for file playing
+    Playlist * pl;   //playlist for display
 
 private:
     class PlayerPrivate * p = nullptr;

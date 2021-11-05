@@ -43,6 +43,8 @@ public:
     gslc_tsElemRef*             slider_ref    = nullptr;
 
     StrCache * cache = nullptr;
+
+    Gui * gui;
 };
 
 
@@ -72,18 +74,18 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
-        if (!pl->find_dir(dirnum))
+        if (!player->pl->find_dir(dirnum))
             return false;
 
-        int filenum = pl->curfile;
+        int filenum = player->pl->curfile;
 
         char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
 
         int disp = 0;
-        dir_level = pl->level + 1;
+        dir_level = player->pl->level + 1;
         disp = dir_level*2-2;
 
-        pl->file_name(pl->curfile, &buf[disp], sizeof(buf)-disp);
+        player->pl->file_name(player->pl->curfile, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
         g->cache->put(dirnum, buf, dir_level | (filenum << 16));
@@ -97,7 +99,7 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
     }
 
     int type = 0;
-    if (dirnum == fc->curdir)  type = 1;
+    if (dirnum == player->fc->curdir)  type = 1;
     g->highlight(pvGui, pvElem, type);
 
     return true;
@@ -118,6 +120,8 @@ int PageDirsPrivate::dir_file_num(int dirs_sel)
 PageDirs::PageDirs(Gui * gui)
 {
     g = new PageDirsPrivate;
+    g->gui = gui;
+
     auto c = new PageDirsCtrl;
     c->g = g;
     c->p = this;
@@ -137,7 +141,7 @@ void PageDirs::activate()
 
 void PageDirs::update()
 {
-    gui->redraw();
+    g->gui->redraw();
 }
 
 
@@ -193,7 +197,7 @@ bool PageDirsPrivate::seek(int by)
 
 void PageDirs::goto_cur()
 {
-    g->select(fc->curdir, true);
+    g->select(player->fc->curdir, true);
 }
 
 
@@ -204,7 +208,7 @@ void PageDirsPrivate::set_fav()
         return;
 
     char path[PATHNAME_MAX_LEN];
-    pl->file_dirname(file_num, path, sizeof(path));
+    player->pl->file_dirname(file_num, path, sizeof(path));
 
     player->fav_set(path);
     player->page_change(PAGE_FAV);

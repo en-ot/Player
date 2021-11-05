@@ -7,6 +7,7 @@
 #include "gui.h"
 #include "sound.h"
 #include "strcache.h"
+#include "playlist.h"
 
 #include "page_fav.h"
 #include "page_info.h"
@@ -18,7 +19,7 @@
 
 
 //###############################################################
-int file_random()
+int Player::file_random()
 {
     return random(1, fc->filecnt+1);
 }
@@ -52,6 +53,8 @@ void Player::loop()
 
     auto page = *page_ptr(ui_page);
     page->gui_loop();
+
+    p->gui->loop();
 }
 
 
@@ -366,7 +369,7 @@ void Player::page_change(int page_num)
         return;
 
     ui_page = page_num;
-    gui->set_page(ui_page);
+    p->gui->set_page(ui_page);
 
     p->info->scroll_reset();
 

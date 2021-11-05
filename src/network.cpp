@@ -107,7 +107,7 @@ void ftp_callback(int event, const char* text)
 void ota_onEnd()
 {
     sys.message("End");
-    gui->loop();
+    player->loop();
     player->restart();
     sys.net(WiFi.getMode());
 }
@@ -120,7 +120,7 @@ void ota_onStart(bool sketch)
     const char * type = sketch ? "sketch" : "filesystem";
     Serial.println(type);
     sys.message(type);
-    gui->loop();
+    player->loop();
     sys.net(NET_MODE_OTA);
 }
 
@@ -131,7 +131,7 @@ void ota_onProgress(unsigned int progress, unsigned int total)
     Serial.printf("Progress: %u%%\r", percent);
     
     sys.step_progress(percent, 100);
-    gui->loop();
+    player->loop();
 }
  
 
@@ -141,7 +141,7 @@ void ota_onError(int error, const char * errtxt)
     sprintf(buf, "OTA Upload Error %u", error);
     sys.step_begin(buf);
     sys.error(errtxt);
-    gui->loop();
+    player->loop();
     player->restart();
 }
 #endif

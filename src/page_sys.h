@@ -12,6 +12,8 @@ class PageInfo;
 class Sys
 {
 public:
+    Sys();
+
     uint32_t sd_free_mb = 0;
     uint32_t freeheap;
     uint32_t minheap;
@@ -19,7 +21,7 @@ public:
 
     bool read_error = false;
 
-    void set_page(PageInfo * page);
+    void set_page(PageInfo * page, Gui * gui);
 
     void step_begin(const char * step_name);
     void step_end(int step_num);
@@ -29,7 +31,7 @@ public:
     void net(int mode);
 
 private:
-    PageInfo * page = nullptr;
+    class SysPrivate * p = nullptr;
 };
 
 extern Sys sys;

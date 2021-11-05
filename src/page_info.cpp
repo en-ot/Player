@@ -286,7 +286,7 @@ void PageInfo::update()
     shuffle(player->shuffle);
     repeat(player->repeat);
     volume(player->volume);
-    gui->redraw();
+    g->gui->redraw();
 }
 
 
@@ -330,7 +330,7 @@ void PageInfo::step_begin(const char * text)
     gslc_ElemSetTxtStr(&gslc, ref[INFO_ALBUM], "");
     gslc_ElemSetTxtStr(&gslc, ref[INFO_TITLE], "");
     //redraw();
-    gui->loop();
+    g->gui->loop();
 }
 
 
@@ -338,8 +338,8 @@ void PageInfo::message(const char * message)
 {
     player->page_change(PAGE_INFO);
     gslc_ElemSetTxtStr(&gslc, g->lines_ref[INFO_FILE], message);
-    gui->redraw();
-    gui->loop();
+    g->gui->redraw();
+    g->gui->loop();
 }
 
 
@@ -496,7 +496,7 @@ void PageInfo::loop2()
         else if (cmp(msg, "Album: ", &p))     album(p);
         else if (cmp(msg, "Title: ", &p))     title(p);
         else if (cmp(msg, "File: ", &p))      file(p);
-        else if (cmp(msg, "Path: ", &p))      path(p, fc->root_path.c_str());
+        else if (cmp(msg, "Path: ", &p))      path(p, player->fc->root_path.c_str());
         else if (cmp(msg, "Index: ", &p))     {index(p); player->update();}
         else return;
         return;

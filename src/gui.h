@@ -29,9 +29,7 @@ class Gui
 };
 
 
-extern gslc_tsGui gslc;
-
-extern Gui * gui;
+//extern Gui * gui;
 
 void check_font();
 

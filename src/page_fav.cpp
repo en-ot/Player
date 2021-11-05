@@ -73,7 +73,7 @@ void PageFav::set_path(int fav_num, const char * path)
 {
     g->set_str(fav_num, path);
     prefs_set_path(fav_num, path);
-    gui->redraw();
+    g->gui->redraw();
 }
 
 

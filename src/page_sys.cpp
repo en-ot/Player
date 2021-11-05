@@ -30,17 +30,32 @@ Sys sys;
 uint32_t step_t0 = 0;
 
 
-void Sys::set_page(PageInfo * page)
+class SysPrivate
 {
-    this->page = page;
+public:
+    PageInfo * page = nullptr;
+    Gui * gui;
+};
+
+
+Sys::Sys()
+{
+    p = new SysPrivate;
+}
+
+
+void Sys::set_page(PageInfo * page, Gui * gui)
+{
+    p->page = page;
+    p->gui = gui;
 }
 
 
 void Sys::step_end(int step_num)
 {
     int32_t t = millis();
-    page->step_progress(step_num, STEPS_TOTAL);
-    gui->loop();
+    p->page->step_progress(step_num, STEPS_TOTAL);
+    p->gui->loop();
     DEBUG("Step %d end (%dms)\n", step_num, (int)(t - step_t0));
 }
 
@@ -48,9 +63,9 @@ void Sys::step_end(int step_num)
 void Sys::step_begin(const char * step_name)
 {
     DEBUG("Init step: %s\n", step_name);
-    if (page)
+    if (p->page)
     {
-        page->step_begin(step_name);
+        p->page->step_begin(step_name);
     }
     step_t0 = millis();
 }
@@ -58,25 +73,25 @@ void Sys::step_begin(const char * step_name)
 
 void Sys::step_progress(uint32_t pos, uint32_t total)
 {
-    page->step_progress(pos, total);
+    p->page->step_progress(pos, total);
 }
 
 
 void Sys::error(const char * err_text)
 {
-    page->error(err_text);
+    p->page->error(err_text);
 }
 
 
 void Sys::message(const char * message)
 {
-    page->message(message);
+    p->page->message(message);
 }
 
 
 void Sys::net(int mode)
 {
-    page->net(mode);
+    p->page->net(mode);
     player->update();
 }
 

@@ -170,9 +170,9 @@ void prefs_loop()
     if (need_save_current_file)
     {
         need_save_current_file = false;
-        prefs.putInt(prefs_key_curfile, fc->curfile);
+        prefs.putInt(prefs_key_curfile, player->fc->curfile);
         prefs.putInt(prefs_key_filepos, player->filepos);
-        DEBUG("File %i:%i saved\n", fc->curfile, player->filepos);
+        DEBUG("File %i:%i saved\n", player->fc->curfile, player->filepos);
     }
 
     if (need_save_repeat)
