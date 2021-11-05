@@ -146,6 +146,7 @@ void ota_onError(int error, const char * errtxt)
 }
 #endif
 
+
 //###############################################################
 #ifdef HTTP_UPDATER
 
@@ -375,11 +376,10 @@ void services_loop()
 #endif
 }
 
-
 #endif
+
+
 //###############################################################
-
-
 void network_init()
 {
 #ifdef NETWORK_ENABLED

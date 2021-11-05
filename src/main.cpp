@@ -23,22 +23,7 @@
 #include "page_sys.h"
 
 #include "player.h"
-
-//###############################################################
-// global objects
-//###############################################################
-
 Player * player;
-
-
-
-//###############################################################
-// Init steps
-//###############################################################
-bool player_input(PlayerInputType type, int key)
-{
-    return player->input(type, key);
-}
 
 
 //###############################################################
@@ -54,6 +39,7 @@ void setup()
     DEBUG("\n");
 
     player = new Player();
+
 
     sys.step_begin("gui");
     auto gui = new Gui();
@@ -78,6 +64,7 @@ void setup()
     player->page_change(PAGE_INFO);
     sys.step_end(0);
 
+
     sys.step_begin("queue");
     QueueHandle_t tag_queue = xQueueCreate(QUEUE_DEPTH, QUEUE_MSG_SIZE);
     page_info->set_queue(tag_queue);
@@ -87,9 +74,11 @@ void setup()
     sound_setup(tag_queue);
     sys.step_end(2);
 
+
     sys.step_begin("controls");
-    controls_init(&player_input);
+    controls_init([](PlayerInputType type, int key){return player->input(type, key);});
     sys.step_end(3);
+
 
     sys.step_begin("prefs");
     if (controls_defaults())
@@ -100,6 +89,7 @@ void setup()
     //prefs_open_fav(cur_fav_num);
     //Serial.printf("cur:%d prev:%d\n", cur_fav_num, prev_fav_num);
     sys.step_end(4);
+
 
     sys.step_begin("sdcard");
     if (!SD.begin()) 
@@ -114,21 +104,26 @@ void setup()
     }
     sys.step_end(5);
 
+
     sys.step_begin("fav");
     page_fav->box();
     sys.step_end(6);
+
 
     sys.step_begin("filectrl");
     player->fc = new Playlist(DIRECT_ACCESS);
     sys.step_end(7);
  
+
     sys.step_begin("Playlist");
     player->pl = new Playlist(SAFE_ACCESS);
     sys.step_end(8);
 
+
     sys.step_begin("network");
     network_init();
     sys.step_end(9);
+
 
     sys.step_begin("start");
     player->fav_switch(player->cur_fav_num, true);
