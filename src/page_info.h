@@ -10,8 +10,8 @@ class PageInfo : public Page
 public:
     void init();
 
-    class FilesPrivate * g;
-    class CtrlPageFiles * c;
+    class InfoPrivate * g;
+    class CtrlPageInfo * c;
 };
 
 extern PageInfo page_info;

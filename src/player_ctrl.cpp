@@ -52,24 +52,6 @@ bool process_key(int key)
 }
 
 
-class CtrlPageInfo : public CtrlPage
-{
-public:
-    void b1_short()         {       player->next_page();}
-    bool vol(int change)    {return player->change_volume(change);}
-    void vol_short()        {       player->play_file_next();}
-    void vol_long()         {       player->play_file_prev();}
-    bool seek(int by)       {return player->file_seek(by);}
-    void seek_short()       {       player->toggle_pause();}
-    void seek_long()        {       player->play_root_next();}
-    void b1_long()          {       player->play_file_down();}
-    void b2_long()          {       player->toggle_shuffle();}
-    void b2_short()         {       player->play_dir_prev();}
-    void b3_long()          {       player->toggle_repeat();}
-    void b3_short()         {       player->play_dir_next();}
-} ctrl_page_info;
-
-
 bool CtrlPage::input(PlayerInputType type, int key)
 {
     if (type == I_SEEK1)
@@ -104,16 +86,6 @@ bool CtrlPage::input(PlayerInputType type, int key)
 
 CtrlPage * ctrl_pages[PAGE_MAX];
  
-void player_ctrl_init()
-{
-    ctrl_pages[PAGE_INFO]  = &ctrl_page_info;
-//    ctrl_pages[PAGE_FAV]   = &ctrl_page_fav;
-//    ctrl_pages[PAGE_FILES] = &ctrl_page_files;
-//    ctrl_pages[PAGE_DIRS]  = page_dirs.ctrl();
-//    ctrl_pages[PAGE_SYS]   = ctrl_page_sys;
-}
-
-
 bool player_ctrl_input(int ui_page, PlayerInputType type, int key)
 {
     //DEBUG_DUMP32(ctrl_pages, 5, 5);

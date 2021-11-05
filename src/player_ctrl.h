@@ -28,7 +28,6 @@ public:
 };
 
 
-void player_ctrl_init();
 bool player_ctrl_input(int ui_page, PlayerInputType type, int key);
 
 
