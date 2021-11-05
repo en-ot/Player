@@ -144,7 +144,7 @@ Gui::Gui()
 void Gui::loop()
 {
     gslc_Update(&gslc);
-    scroll();
+    page_info.scroll();
 }
 
 
@@ -161,7 +161,7 @@ void Gui::set_page(int page_n)
     static gslc_tsColor page_back_col[] = {INFO_BACK_COL, FILES_BACK_COL, /*PIC_BACK_COL,*/ FAV_BACK_COL, DIRS_BACK_COL};
     gslc_SetPageCur(&gslc, page_n);
     gslc_SetBkgndColor(&gslc, page_back_col[page_n]);
-    scroll_reset();
+    page_info.scroll_reset();
 }
 
 

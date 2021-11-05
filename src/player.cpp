@@ -9,6 +9,7 @@
 #include "strcache.h"
 
 #include "page_fav.h"
+#include "page_info.h"
 
 #include "player.h"
 
@@ -140,7 +141,7 @@ void Player::play_root_prev()
 void Player::toggle_shuffle()
 {
     shuffle = !shuffle;
-    gui->shuffle(shuffle);
+    page_info.shuffle(shuffle);
     prefs_save_delayed(need_save_shuffle);
 }
 
@@ -148,7 +149,7 @@ void Player::toggle_shuffle()
 void Player::toggle_repeat()
 {
     repeat = !repeat;
-    gui->repeat(repeat);
+    page_info.repeat(repeat);
     prefs_save_delayed(need_save_repeat);
 }
 
@@ -214,8 +215,8 @@ bool Player::change_volume(int change)
         return false;
 
     volume = new_volume;
-    gui->volume(volume);
-    gui->gain(true);
+    page_info.volume(volume);
+    page_info.gain(true);
     prefs_save_delayed(need_save_volume);
     return true;
 }

@@ -15,6 +15,7 @@
 class InfoPrivate
 {
 public:
+
 };
 
 
@@ -187,7 +188,7 @@ void PageInfo::init()
 int scroll_rounds[INFO_LINES] = {0};
 uint32_t scroll_t0[INFO_LINES];
 
-void Gui::scroll_reset()
+void PageInfo::scroll_reset()
 {
     int i;
     for (i = 0; i < INFO_LINES; i++)
@@ -205,7 +206,7 @@ void Gui::scroll_reset()
 }
 
 
-void Gui::scroll()
+void PageInfo::scroll()
 {
     uint32_t t = millis();
 
@@ -248,7 +249,20 @@ void Gui::scroll()
 
 
 //###############################################################
-void Gui::fav(int fav_num)
+void PageInfo::update()
+{
+    fav(player->cur_fav_num);
+    shuffle(player->shuffle);
+    repeat(player->repeat);
+    volume(player->volume);
+    alive(false);
+    gain(false);
+    index("");
+    gui->redraw();
+}
+
+
+void PageInfo::fav(int fav_num)
 {
     char t[10] = "";
     sprintf(t, "%i", fav_num);
@@ -256,13 +270,13 @@ void Gui::fav(int fav_num)
 }
 
 
-void Gui::index(const char * text)
+void PageInfo::index(const char * text)
 {
     gslc_ElemSetTxtStr(&gslc, info_index_ref, text);
 }
 
 
-void Gui::step_progress(uint32_t pos, uint32_t total)
+void PageInfo::step_progress(uint32_t pos, uint32_t total)
 {
     char t[10] = "";
 
@@ -277,9 +291,9 @@ void Gui::step_progress(uint32_t pos, uint32_t total)
 }
 
 
-void Gui::step_begin(const char * text)
+void PageInfo::step_begin(const char * text)
 {
-    set_page(PAGE_INFO);
+    player->set_page(PAGE_INFO);
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_PATH], text);
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], "");
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_BAND], "");
@@ -287,27 +301,27 @@ void Gui::step_begin(const char * text)
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_ALBUM], "");
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_TITLE], "");
     //redraw();
-    loop();
+    gui->loop();
 }
 
 
-void Gui::message(const char * message)
+void PageInfo::message(const char * message)
 {
-    set_page(PAGE_INFO);
+    player->set_page(PAGE_INFO);
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], message);
-    redraw();
-    loop();
+    gui->redraw();
+    gui->loop();
 }
 
 
-void Gui::error(const char * errtxt)
+void PageInfo::error(const char * errtxt)
 {
     DEBUG("Error: %s\n", errtxt);
     message(errtxt);
 }
 
 
-void Gui::time_progress(uint32_t pos, uint32_t total)
+void PageInfo::time_progress(uint32_t pos, uint32_t total)
 {
     char t[15] = "";
 
@@ -322,37 +336,37 @@ void Gui::time_progress(uint32_t pos, uint32_t total)
 }
 
 
-void Gui::band(const char * text)
+void PageInfo::band(const char * text)
 {
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_BAND], text);
 }
 
 
-void Gui::artist(const char * text)
+void PageInfo::artist(const char * text)
 {
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_ARTIST], text);
 }
 
 
-void Gui::album(const char * text)
+void PageInfo::album(const char * text)
 {
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_ALBUM], text);
 }
 
 
-void Gui::title(const char * text)
+void PageInfo::title(const char * text)
 {
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_TITLE], text);
 }
 
 
-void Gui::file(const char * text)
+void PageInfo::file(const char * text)
 {
     gslc_ElemSetTxtStr(&gslc, info_lines_ref[INFO_FILE], text);
 }
 
 
-void Gui::path(const char * text, const char * root)
+void PageInfo::path(const char * text, const char * root)
 {
     scroll_reset();
     UNUSED(root);
@@ -360,13 +374,13 @@ void Gui::path(const char * text, const char * root)
 }
 
 
-void Gui::gain(bool gain)
+void PageInfo::gain(bool gain)
 {
     gslc_ElemSetGlow(&gslc, info_mode_icons_ref[INFO_VOLUME_ICON], gain);
 }
 
 
-void Gui::volume(int volume)
+void PageInfo::volume(int volume)
 {
     char t[20];
     sprintf(t, "%2i", volume);
@@ -374,19 +388,19 @@ void Gui::volume(int volume)
 }
 
 
-void Gui::repeat(bool val)
+void PageInfo::repeat(bool val)
 {
     gslc_ElemSetGlow(&gslc, info_mode_icons_ref[INFO_REPEAT_ICON], val);
 }
 
 
-void Gui::shuffle(bool val)
+void PageInfo::shuffle(bool val)
 {
     gslc_ElemSetGlow(&gslc, info_mode_icons_ref[INFO_SHUFFLE_ICON], val);
 }
 
 
-void Gui::alive(bool running)
+void PageInfo::alive(bool running)
 {
     static int index = ICON_PAUSE;
     if (running)
@@ -407,7 +421,7 @@ void Gui::alive(bool running)
 }
 
 
-void Gui::net(int mode)
+void PageInfo::net(int mode)
 {
     int index = ICON_WIFI_OFF + mode;
     gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
@@ -415,7 +429,7 @@ void Gui::net(int mode)
 }
 
 
-void Gui::bluetooth(bool enabled)
+void PageInfo::bluetooth(bool enabled)
 {
 
 }

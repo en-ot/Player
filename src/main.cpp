@@ -16,7 +16,7 @@
 #include "network.h"
 #include "firmware.h"
 
-//#include "page_info.h"
+#include "page_info.h"
 #include "page_files.h"
 #include "page_dirs.h"
 #include "page_fav.h"
@@ -91,14 +91,7 @@ bool fav_switch(int fav_num, bool init)
 
     DEBUG("dircnt: %d\n", pl->dircnt);
 
-    gui->fav(fav_num);
-    gui->shuffle(player->shuffle);
-    gui->repeat(player->repeat);
-    gui->volume(player->volume);
-    gui->alive(false);
-    gui->gain(false);
-    gui->index("");
-    gui->redraw();
+    page_info.update();
 
     playstack_init();
     start_file(player->next_file, FAIL_NEXT);
@@ -125,7 +118,7 @@ void begin(const char * step_name)
     DEBUG("Init step: %s\n", step_name);
     if (gui)
     {
-        gui->step_begin(step_name);
+        page_info.step_begin(step_name);
     }
     step_t0 = millis();
 };
@@ -134,7 +127,7 @@ void begin(const char * step_name)
 void end(int curstep)
 {
     int32_t t = millis();
-    gui->step_progress(curstep, STEPS_TOTAL);
+    page_info.step_progress(curstep, STEPS_TOTAL);
     gui->loop();
     DEBUG("Step %d end (%dms)\n", curstep, (int)(t - step_t0));
 }
@@ -198,7 +191,7 @@ void setup()
     begin("sdcard");
     if (!SD.begin()) 
     {
-        gui->error("SDcard init error");
+        page_info.error("SDcard init error");
         SD.initErrorHalt(); // SdFat-lib helper function
     }
     if (!sys.sd_free_mb)
@@ -260,7 +253,7 @@ void display_loop()
     {
         t1 = t;
         old_pos = pos;
-        gui->time_progress(pos, sound_duration());
+        page_info.time_progress(pos, sound_duration());
         return;
     }
 
@@ -274,13 +267,13 @@ void display_loop()
 //        DEBUG("\n");
 
         char * p;
-             if (cmp(msg, "Artist: ", &p))    gui->artist(p);
-        else if (cmp(msg, "Band: ", &p))      gui->band(p);
-        else if (cmp(msg, "Album: ", &p))     gui->album(p);
-        else if (cmp(msg, "Title: ", &p))     gui->title(p);
-        else if (cmp(msg, "File: ", &p))      gui->file(p);
-        else if (cmp(msg, "Path: ", &p))      gui->path(p, fc->root_path.c_str());
-        else if (cmp(msg, "Index: ", &p))     gui->index(p);
+             if (cmp(msg, "Artist: ", &p))    page_info.artist(p);
+        else if (cmp(msg, "Band: ", &p))      page_info.band(p);
+        else if (cmp(msg, "Album: ", &p))     page_info.album(p);
+        else if (cmp(msg, "Title: ", &p))     page_info.title(p);
+        else if (cmp(msg, "File: ", &p))      page_info.file(p);
+        else if (cmp(msg, "Path: ", &p))      page_info.path(p, fc->root_path.c_str());
+        else if (cmp(msg, "Index: ", &p))     page_info.index(p);
         return;
     }
 
@@ -288,8 +281,8 @@ void display_loop()
     if ((int32_t)(t - t0) > 100)
     {
         t0 = t;
-        gui->alive(sound_is_playing());
-        gui->gain(sound_is_gain());
+        page_info.alive(sound_is_playing());
+        page_info.gain(sound_is_gain());
         return;
     }
 }
