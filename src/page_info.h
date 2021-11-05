@@ -36,7 +36,7 @@ public:
     void scroll();
     void scroll_reset();
 
-    class InfoPrivate * g;
+    class PageInfoPrivate * g;
     class CtrlPageInfo * c;
 };
 
