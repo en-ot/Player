@@ -170,8 +170,8 @@ void playctrl_loop()
     {
         player->need_play_next_dir = false;
         audio.stopSong();
-        player->set_playing_dir(player->next_dir);
-        player->next_file = player->cur_playing_file();
+        player->set_dir(PLAYING, player->next_dir);
+        player->next_file = player->cur_file(PLAYING);
         player->need_play_next_file = true;
     }
 
@@ -270,7 +270,7 @@ int start_file(int num, int updown)
 {
     if (!player->filecnt())
     {
-        return player->cur_playing_file();
+        return player->cur_file(PLAYING);
     }
 
     sound_stop();
@@ -298,22 +298,22 @@ int start_file(int num, int updown)
         int level = playstack_is_instack(num);
         if ((player->filecnt() <= PLAYSTACK_LEVELS) || (level == PLAYSTACK_NOT_IN_STACK) || (updown != FAIL_RANDOM))
         {
-            if (!player->set_playing_file(num))
+            if (!player->set_file(PLAYING, num))
             {
                 snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
                 xQueueSend(queue, tmp, 0);
                 DEBUG("no file %d\n", num);
-                return player->cur_playing_file();
+                return player->cur_file(PLAYING);
             }
             
             //DEBUG("Dir %d, File %d\n", playing->curdir, num);
 
-            if (!player->playing_file_is_dir(num))
+            if (!player->file_is_dir(PLAYING, num))
             {
-                player->playing_file_name(num, filename, sizeof(filename));
+                player->file_name(PLAYING, num, filename, sizeof(filename));
                 //DEBUG("%s\n", filename);
 
-                int x = player->playing_dir_name(num, dirname, sizeof(dirname));
+                int x = player->dir_name(PLAYING, num, dirname, sizeof(dirname));
                 //DEBUG("%s\n", dirname);
 
                 strlcpy(filepath, dirname, sizeof(filepath));
@@ -360,7 +360,7 @@ int start_file(int num, int updown)
     snprintf(tmp, sizeof(tmp)-1, "File: %s", filename);
     xQueueSend(queue, tmp, 0);
     
-    return player->cur_playing_file();
+    return player->cur_file(PLAYING);
 }
 
 

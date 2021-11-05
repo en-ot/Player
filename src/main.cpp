@@ -111,12 +111,12 @@ void setup()
 
 
     sys.step_begin("filectrl");
-    player->set_playlist_playing(new Playlist(DIRECT_ACCESS));
+    player->set_playlist(PLAYING, new Playlist(DIRECT_ACCESS));
     sys.step_end(7);
  
 
     sys.step_begin("Playlist");
-    player->set_playlist_list(new Playlist(SAFE_ACCESS));
+    player->set_playlist(LIST, new Playlist(SAFE_ACCESS));
     sys.step_end(8);
 
 

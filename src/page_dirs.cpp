@@ -74,18 +74,18 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
-        if (!player->set_list_dir(dirnum))
+        if (!player->set_dir(LIST, dirnum))
             return false;
 
-        int filenum = player->cur_list_file();
+        int filenum = player->cur_file(LIST);
 
         char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
 
         int disp = 0;
-        dir_level = player->cur_list_level() + 1;
+        dir_level = player->cur_level(LIST) + 1;
         disp = dir_level*2-2;
 
-        player->list_file_name(player->cur_list_file(), &buf[disp], sizeof(buf)-disp);
+        player->file_name(LIST, player->cur_file(LIST), &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
         g->cache->put(dirnum, buf, dir_level | (filenum << 16));
@@ -98,7 +98,7 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, g->cache->lines[index].txt);
     }
 
-    int type = (dirnum == player->cur_playing_dir()) ? 1 : 0;
+    int type = (dirnum == player->cur_dir(PLAYING)) ? 1 : 0;
     g->highlight(pvGui, pvElem, type);
 
     return true;
@@ -196,7 +196,7 @@ bool PageDirsPrivate::seek(int by)
 
 void PageDirs::goto_cur()
 {
-    g->select(player->cur_playing_dir(), true);
+    g->select(player->cur_dir(PLAYING), true);
 }
 
 
@@ -207,7 +207,7 @@ void PageDirsPrivate::set_fav()
         return;
 
     char path[PATHNAME_MAX_LEN];
-    player->list_dir_name(file_num, path, sizeof(path));
+    player->dir_name(LIST, file_num, path, sizeof(path));
 
     player->fav_set(path);
     player->page_change(PAGE_FAV);

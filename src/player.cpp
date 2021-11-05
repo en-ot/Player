@@ -19,13 +19,6 @@
 
 
 //###############################################################
-int Player::file_random()
-{
-    return random(1, playing->filecnt+1);
-}
-
-
-//###############################################################
 class PlayerPrivate
 {
 public:
@@ -36,7 +29,8 @@ public:
     PageSys * sys;
 
     Gui * gui = nullptr;
-//    Page * pages[PAGE_MAX] = {0};
+
+    Playlist * list[2];   //list[0] for file playing, list[1] for display
 };
 
 
@@ -85,15 +79,9 @@ void Player::set_gui(Gui * gui)
 }
 
 
-void Player::set_playlist_playing(void * playlist)
+void Player::set_playlist(PlaylistType pl, void * playlist)
 {
-    playing = (Playlist *)playlist;
-}
-
-
-void Player::set_playlist_list(void * playlist)
-{
-    list = (Playlist *)playlist;
+    p->list[pl] = (Playlist *)playlist;
 }
 
 
@@ -146,13 +134,13 @@ bool Player::fav_switch(int fav_num, bool init)
     prefs_load_data(fav_num, fav_path, sizeof(fav_path));
     DEBUG("fav path: %s\n", fav_path);
     
-    playing->set_root(fav_path);
-    list->copy_from(playing);
+    p->list[PLAYING]->set_root(fav_path);
+    p->list[LIST]->copy_from(p->list[PLAYING]);
 
-    p->files->box(list->filecnt);
-    p->dirs->box(list->dircnt);
+    p->files->box(p->list[LIST]->filecnt);
+    p->dirs->box(p->list[LIST]->dircnt);
 
-    DEBUG("dircnt: %d\n", list->dircnt);
+    DEBUG("dircnt: %d\n", p->list[LIST]->dircnt);
 
     p->info->update();
     p->info->alive(false);
@@ -207,110 +195,74 @@ void Player::restart()
 
 const char * Player::cur_fav_path()
 {
-    return playing->root_path.c_str();
+    return p->list[PLAYING]->root_path.c_str();
 }
 
 
-int Player::cur_playing_dir()
+int Player::cur_dir(PlaylistType pl)
 {
-    return playing->curdir;
+    return p->list[pl]->curdir;
 }
 
 
-int Player::cur_list_dir()
+int Player::cur_file(PlaylistType pl)
 {
-    return list->curdir;
+    return p->list[pl]->curfile;
 }
 
 
-int Player::cur_playing_file()
+int Player::cur_level(PlaylistType pl)
 {
-    return playing->curfile;
+    return p->list[pl]->level;
 }
 
 
-int Player::cur_list_file()
+int Player::file_random()
 {
-    return list->curfile;
-}
-
-
-int Player::cur_list_level()
-{
-    return list->level;
+    return random(1, p->list[PLAYING]->filecnt+1);
 }
 
 
 int Player::filecnt()
 {
-    return playing->filecnt;
+    return p->list[PLAYING]->filecnt;
 }
 
 
-bool Player::set_playing_dir(int dir_num)
+bool Player::set_dir(PlaylistType pl, int dir_num)
 {
-    return playing->find_dir(dir_num);
+    return p->list[pl]->find_dir(dir_num);
 }
 
 
-bool Player::set_list_dir(int dir_num)
+bool Player::set_file(PlaylistType pl, int file_num)
 {
-    return list->find_dir(dir_num);
+    return p->list[pl]->find_file(file_num);
 }
 
 
-bool Player::set_playing_file(int file_num)
+bool Player::file_is_dir(PlaylistType pl, int file_num)
 {
-    return playing->find_file(file_num);
+    return p->list[pl]->file_is_dir(file_num);
 }
 
 
-bool Player::set_list_file(int file_num)
+size_t Player::file_name(PlaylistType pl, int file_num, char * dst, int len)
 {
-    return list->find_file(file_num);
+    return p->list[pl]->file_name(file_num, dst, len);
 }
 
 
-bool Player::playing_file_is_dir(int file_num)
+size_t Player::dir_name(PlaylistType pl, int file_num, char * dst, int len)
 {
-    return playing->file_is_dir(file_num);
-}
-
-
-bool Player::list_file_is_dir(int file_num)
-{
-    return list->file_is_dir(file_num);
-}
-
-
-size_t Player::playing_file_name(int file_num, char * dst, int len)
-{
-    return playing->file_name(file_num, dst, len);
-}
-
-
-size_t Player::list_file_name(int file_num, char * dst, int len)
-{
-    return list->file_name(file_num, dst, len);
-}
-
-
-size_t Player::playing_dir_name(int file_num, char * dst, int len)
-{
-    return playing->file_dirname(file_num, dst, len);
-}
-
-
-size_t Player::list_dir_name(int file_num, char * dst, int len)
-{
-    return list->file_dirname(file_num, dst, len);
+    return p->list[pl]->file_dirname(file_num, dst, len);
 }
 
 
 //###############################################################
 void Player::play_file_num(int num, int updown)
 {
-    num = clamp1(num, playing->filecnt);
+    num = clamp1(num, p->list[PLAYING]->filecnt);
     next_file = num;
     next_updown = updown;
     need_play_next_file = true;
@@ -319,20 +271,20 @@ void Player::play_file_num(int num, int updown)
 
 void Player::play_file_up()
 {
-    play_file_num(playing->curfile - 1, FAIL_PREV);
+    play_file_num(p->list[PLAYING]->curfile - 1, FAIL_PREV);
 }
 
 
 void Player::play_file_down()
 {
-    play_file_num(playing->curfile + 1, FAIL_NEXT);
+    play_file_num(p->list[PLAYING]->curfile + 1, FAIL_NEXT);
 }
 
 
 void Player::play_file_random()
 {
     int n = file_random();
-    while (n == playing->curfile && playing->filecnt > 1)
+    while (n == p->list[PLAYING]->curfile && p->list[PLAYING]->filecnt > 1)
     {
         n = file_random();
     }
@@ -356,7 +308,7 @@ void Player::play_file_prev()
     {
         int n = playstack_pop();
         if (n == 0)
-            n = playing->curfile;
+            n = p->list[PLAYING]->curfile;
         play_file_num(n, FAIL_RANDOM);
     }
     else
@@ -368,7 +320,7 @@ void Player::play_file_prev()
 
 void Player::play_dir_next()
 {
-    next_dir = playing->curdir + 1;
+    next_dir = p->list[PLAYING]->curdir + 1;
     next_updown = FAIL_NEXT;
     need_play_next_dir = true;
 }
@@ -376,7 +328,7 @@ void Player::play_dir_next()
 
 void Player::play_dir_prev()
 {
-    next_dir = playing->curdir - 1;
+    next_dir = p->list[PLAYING]->curdir - 1;
     next_updown = FAIL_NEXT;
     need_play_next_dir = true;
 }

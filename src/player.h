@@ -12,6 +12,13 @@
 #include "playlist.h"
 
 
+enum PlaylistType
+{
+    PLAYING = 0,
+    LIST = 1,
+};
+
+
 class Page
 {
 public:
@@ -34,8 +41,7 @@ public:
 
     void set_gui(Gui * gui);
     void set_page(int page_num, Page * page);
-    void set_playlist_playing(void * playlist);
-    void set_playlist_list(void * playlist);
+    void set_playlist(PlaylistType pl, void * playlist);
 
     int ui_page = -1;
     Page ** page_ptr(int page_num);
@@ -59,22 +65,14 @@ public:
     int file_random();
     int filecnt();
 
-    int cur_playing_dir();
-    int cur_playing_file();
-    bool set_playing_dir(int dir_num);
-    bool set_playing_file(int file_num);
-    bool playing_file_is_dir(int file_num);
-    size_t playing_file_name(int file_num, char * dst, int len);
-    size_t playing_dir_name(int file_num, char * dst, int len);
-
-    int cur_list_dir();
-    int cur_list_file();
-    bool set_list_dir(int dir_num);
-    int cur_list_level();
-    bool set_list_file(int file_num);
-    bool list_file_is_dir(int file_num);
-    size_t list_file_name(int file_num, char * dst, int len);
-    size_t list_dir_name(int file_num, char * dst, int len);
+    int cur_dir(PlaylistType pl);
+    int cur_file(PlaylistType pl);
+    bool set_dir(PlaylistType pl, int dir_num);
+    bool set_file(PlaylistType pl, int file_num);
+    bool file_is_dir(PlaylistType pl, int file_num);
+    size_t file_name(PlaylistType pl, int file_num, char * dst, int len);
+    size_t dir_name(PlaylistType pl, int file_num, char * dst, int len);
+    int cur_level(PlaylistType pl);
 
     int8_t volume;
     int8_t volume_old;
@@ -109,8 +107,6 @@ public:
 
 private:
     class PlayerPrivate * p = nullptr;
-    Playlist * playing;   //playlist for file playing
-    Playlist * list;   //playlist for display
 };
 
 extern Player * player;
