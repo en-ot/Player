@@ -74,18 +74,18 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
-        if (!player->list->find_dir(dirnum))
+        if (!player->set_list_dir(dirnum))
             return false;
 
-        int filenum = player->list->curfile;
+        int filenum = player->cur_list_file();
 
         char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
 
         int disp = 0;
-        dir_level = player->list->level + 1;
+        dir_level = player->cur_list_level() + 1;
         disp = dir_level*2-2;
 
-        player->list->file_name(player->list->curfile, &buf[disp], sizeof(buf)-disp);
+        player->list_file_name(player->cur_list_file(), &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
         g->cache->put(dirnum, buf, dir_level | (filenum << 16));
@@ -207,7 +207,7 @@ void PageDirsPrivate::set_fav()
         return;
 
     char path[PATHNAME_MAX_LEN];
-    player->list->file_dirname(file_num, path, sizeof(path));
+    player->list_dir_name(file_num, path, sizeof(path));
 
     player->fav_set(path);
     player->page_change(PAGE_FAV);

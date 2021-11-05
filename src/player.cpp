@@ -91,6 +91,12 @@ void Player::set_playlist_playing(void * playlist)
 }
 
 
+void Player::set_playlist_list(void * playlist)
+{
+    list = (Playlist *)playlist;
+}
+
+
 bool Player::input(PlayerInputType type, int key)
 {
     if (ui_page >= PAGE_MAX)
@@ -211,9 +217,27 @@ int Player::cur_playing_dir()
 }
 
 
+int Player::cur_list_dir()
+{
+    return list->curdir;
+}
+
+
 int Player::cur_playing_file()
 {
     return playing->curfile;
+}
+
+
+int Player::cur_list_file()
+{
+    return list->curfile;
+}
+
+
+int Player::cur_list_level()
+{
+    return list->level;
 }
 
 
@@ -223,9 +247,15 @@ int Player::filecnt()
 }
 
 
-void Player::set_playing_dir(int dir_num)
+bool Player::set_playing_dir(int dir_num)
 {
-    playing->find_dir(dir_num);
+    return playing->find_dir(dir_num);
+}
+
+
+bool Player::set_list_dir(int dir_num)
+{
+    return list->find_dir(dir_num);
 }
 
 
@@ -235,9 +265,21 @@ bool Player::set_playing_file(int file_num)
 }
 
 
+bool Player::set_list_file(int file_num)
+{
+    return list->find_file(file_num);
+}
+
+
 bool Player::playing_file_is_dir(int file_num)
 {
     return playing->file_is_dir(file_num);
+}
+
+
+bool Player::list_file_is_dir(int file_num)
+{
+    return list->file_is_dir(file_num);
 }
 
 
@@ -247,9 +289,21 @@ size_t Player::playing_file_name(int file_num, char * dst, int len)
 }
 
 
+size_t Player::list_file_name(int file_num, char * dst, int len)
+{
+    return list->file_name(file_num, dst, len);
+}
+
+
 size_t Player::playing_dir_name(int file_num, char * dst, int len)
 {
     return playing->file_dirname(file_num, dst, len);
+}
+
+
+size_t Player::list_dir_name(int file_num, char * dst, int len)
+{
+    return list->file_dirname(file_num, dst, len);
 }
 
 

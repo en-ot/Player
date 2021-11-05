@@ -116,7 +116,7 @@ void setup()
  
 
     sys.step_begin("Playlist");
-    player->list = new Playlist(SAFE_ACCESS);
+    player->set_playlist_list(new Playlist(SAFE_ACCESS));
     sys.step_end(8);
 
 
