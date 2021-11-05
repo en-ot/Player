@@ -57,7 +57,6 @@ public:
     void seek_short()       {       g->play_sel();}
 
     DirsPrivate * g;
-    friend class PageDirs;
     PageDirs * p;
 };
 
@@ -195,7 +194,7 @@ void DirsPrivate::set_fav()
     pl->file_dirname(file_num, path, sizeof(path));
 
     int fav_num = page_fav.sel();
-    fav_set_path(fav_num, path);
+    page_fav.set_path(fav_num, path);
 
     player->set_page(PAGE_FAV);
 }

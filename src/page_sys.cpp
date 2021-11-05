@@ -52,6 +52,7 @@ PageSys page_sys;
 
 class CtrlPageSys : public CtrlPage
 {
+public:
     void b1_short()         {       player->next_page();}
     bool vol(int change)    {return g->vol(change);}
     void vol_short()        {       g->vol_short();}
@@ -59,8 +60,8 @@ class CtrlPageSys : public CtrlPage
     void b2_short()         {       g->b2_short();}
     void b3_short()         {       g->b3_short();}
 
-    friend class PageSys;
     SysPrivate * g;
+    PageSys * p;
 };
 
 
@@ -133,6 +134,7 @@ void PageSys::init()
     g = new SysPrivate;
     c = new CtrlPageSys;
     c->g = g;
+    c->p = this;
     player->set_ctrl(PAGE_SYS, c);
 
     gslc_PageAdd(&gslc, PAGE_SYS, g->elem, SYS_ELEM_MAX, g->ref, SYS_ELEM_MAX);

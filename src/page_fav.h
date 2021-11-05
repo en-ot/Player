@@ -14,6 +14,8 @@ public:
     void goto_cur();
 
     int sel();
+    void set_path(int fav_num, const char * path);
+    void reset();
 
     class FavPrivate * g;
     class CtrlPageFav * c;
