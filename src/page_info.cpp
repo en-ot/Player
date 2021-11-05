@@ -54,7 +54,7 @@ public:
 PageInfo page_info;
 
 
-class CtrlPageInfo : public CtrlPage
+class PageInfoCtrl : public CtrlPage
 {
 public:
     void b1_short()         {       player->next_page();}
@@ -112,7 +112,7 @@ gslc_tsElemRef* create_text(int elem_id, gslc_tsRect rect, char * str, int strsi
 void PageInfo::init()
 {
     g = new PageInfoPrivate;
-    c = new CtrlPageInfo;
+    c = new PageInfoCtrl;
     c->g = g;
     c->p = this;
     player->set_ctrl(PAGE_INFO, c);

@@ -37,7 +37,7 @@ public:
     void scroll_reset();
 
     class PageInfoPrivate * g;
-    class CtrlPageInfo * c;
+    class PageInfoCtrl * c;
 };
 
 extern PageInfo page_info;

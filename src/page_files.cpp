@@ -19,7 +19,7 @@
 #define FILES_CACHE_LINES 20
 
 
-class FilesPrivate
+class PageFilesPrivate
 {
 public:
     int sel = 1;
@@ -50,7 +50,7 @@ public:
 PageFiles page_files;
 
 
-class CtrlPageFiles : public CtrlPage
+class PageFilesCtrl : public CtrlPage
 {
 public:
     void b1_short()         {       player->next_page();}
@@ -62,20 +62,20 @@ public:
     void b2_short()         {       g->dir_prev();}
     void b3_short()         {       g->dir_next();}
 
-    FilesPrivate * g;
+    PageFilesPrivate * g;
     PageFiles * p;
 };
 
 
 
 //###############################################################
-void FilesPrivate::select(int curfile, bool center)
+void PageFilesPrivate::select(int curfile, bool center)
 {
     sel = box_goto(box_ref, slider_ref, curfile-1, center) + 1;
 }
 
 
-bool FilesPrivate::seek(int by)
+bool PageFilesPrivate::seek(int by)
 {
     if (!by) 
         return false;
@@ -84,7 +84,7 @@ bool FilesPrivate::seek(int by)
 }
 
 
-bool FilesPrivate::pgupdn(int by)
+bool PageFilesPrivate::pgupdn(int by)
 {
     if (!by)
         return false;
@@ -93,7 +93,7 @@ bool FilesPrivate::pgupdn(int by)
 }
 
 
-void FilesPrivate::dir_prev()
+void PageFilesPrivate::dir_prev()
 {
     pl->find_file(sel);
     pl->find_dir(pl->curdir-1);
@@ -102,7 +102,7 @@ void FilesPrivate::dir_prev()
 }
 
 
-void FilesPrivate::dir_next()
+void PageFilesPrivate::dir_next()
 {
     pl->find_file(sel);
     pl->find_dir(pl->curdir+1);
@@ -117,14 +117,14 @@ void PageFiles::goto_cur()
 }
 
 
-void FilesPrivate::play_sel()
+void PageFilesPrivate::play_sel()
 {
     player->set_page(PAGE_INFO);
     player->play_file_num(sel, FAIL_NEXT);
 }
 
 
-void FilesPrivate::set_fav()
+void PageFilesPrivate::set_fav()
 {
     if (!pl->file_is_dir(sel))
         return;
@@ -190,7 +190,7 @@ void PageFiles::box(int cnt)
 }
 
 
-void FilesPrivate::box(int cnt)
+void PageFilesPrivate::box(int cnt)
 {
     box_elem.pfuncXGet = files_get_item;
     box_elem.nItemCnt = cnt;
@@ -207,8 +207,8 @@ void FilesPrivate::box(int cnt)
 
 void PageFiles::init()
 {
-    g = new FilesPrivate;
-    c = new CtrlPageFiles;
+    g = new PageFilesPrivate;
+    c = new PageFilesCtrl;
     c->g = g;
     c->p = this;
     player->set_ctrl(PAGE_FILES, c);
@@ -219,7 +219,7 @@ void PageFiles::init()
 }
 
 
-void FilesPrivate::highlight(void *gslc, void *pElemRef, int type)
+void PageFilesPrivate::highlight(void *gslc, void *pElemRef, int type)
 {
     static gslc_tsColor colors_b[] = {FILES_COL_NORMAL_B, FILES_COL_DIR_B, FILES_COL_PLAY_B};
     static gslc_tsColor colors_f[] = {FILES_COL_NORMAL_F, FILES_COL_DIR_F, FILES_COL_PLAY_F};

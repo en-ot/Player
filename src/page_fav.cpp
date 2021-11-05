@@ -16,7 +16,7 @@
 #include "page_fav.h"
 
 
-class FavPrivate
+class PageFavPrivate
 {
 public:
     int sel = 1;
@@ -44,7 +44,7 @@ public:
 PageFav page_fav;
 
 
-class CtrlPageFav : public CtrlPage
+class PageFavCtrl : public CtrlPage
 {
 public:
     void b1_short()         {       player->next_page();}
@@ -55,13 +55,13 @@ public:
     void seek_long()        {       p->reset();}
     void seek_short()       {       g->set_num();}
 
-    FavPrivate * g;
+    PageFavPrivate * g;
     PageFav * p;
 };
 
 
 //###############################################################
-void FavPrivate::set_str(int fav_num, const char * path)
+void PageFavPrivate::set_str(int fav_num, const char * path)
 {
     int nItem = fav_num - 1;
     sprintf(cache[nItem], "%d ", fav_num);
@@ -104,8 +104,8 @@ int PageFav::sel()
 
 void PageFav::init()
 {
-    g = new FavPrivate;
-    c = new CtrlPageFav;
+    g = new PageFavPrivate;
+    c = new PageFavCtrl;
     c->g = g;
     c->p = this;
     player->set_ctrl(PAGE_FAV, c);
@@ -116,13 +116,13 @@ void PageFav::init()
 }
 
 
-void FavPrivate::select(int fav_num, bool center)
+void PageFavPrivate::select(int fav_num, bool center)
 {
     sel = box_goto(box_ref, slider_ref, fav_num-1, center) + 1;
 }
 
 
-bool FavPrivate::seek(int by)
+bool PageFavPrivate::seek(int by)
 {
     if (!by)
         return false;
@@ -131,7 +131,7 @@ bool FavPrivate::seek(int by)
 }
 
 
-bool FavPrivate::pgupdn(int by)
+bool PageFavPrivate::pgupdn(int by)
 {
     if (!by)
         return false;
@@ -140,7 +140,7 @@ bool FavPrivate::pgupdn(int by)
 }
 
 
-void FavPrivate::set_num()
+void PageFavPrivate::set_num()
 {
     fav_switch(sel, false);
     player->set_page(PAGE_INFO);
@@ -159,7 +159,7 @@ void PageFav::box()
 }
 
 
-void FavPrivate::box()
+void PageFavPrivate::box()
 {
     char tmp[XLISTBOX_MAX_STR];
     int fav_num;
@@ -176,7 +176,7 @@ void FavPrivate::box()
 }
 
 
-void FavPrivate::highlight(void *gslc, void *pElemRef, int type)
+void PageFavPrivate::highlight(void *gslc, void *pElemRef, int type)
 {
     static gslc_tsColor colors_b[] = {FAV_COL_NORMAL_B, FAV_COL_PLAY_B};
     static gslc_tsColor colors_f[] = {FAV_COL_NORMAL_F, FAV_COL_PLAY_F};

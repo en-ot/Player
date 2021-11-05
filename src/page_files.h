@@ -12,8 +12,8 @@ public:
     void box(int dircnt);
     void goto_cur();
 
-    class FilesPrivate * g;
-    class CtrlPageFiles * c;
+    class PageFilesPrivate * g;
+    class PageFilesCtrl * c;
 };
 
 extern PageFiles page_files;

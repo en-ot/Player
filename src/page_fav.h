@@ -17,8 +17,8 @@ public:
     void set_path(int fav_num, const char * path);
     void reset();
 
-    class FavPrivate * g;
-    class CtrlPageFav * c;
+    class PageFavPrivate * g;
+    class PageFavCtrl * c;
 };
 
 extern PageFav page_fav;

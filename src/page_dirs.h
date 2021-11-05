@@ -12,8 +12,8 @@ public:
     void box(int dircnt);
     void goto_cur();
 
-    class DirsPrivate * g;
-    class CtrlPageDirs * c;
+    class PageDirsPrivate * g;
+    class PageDirsCtrl * c;
 };
 
 extern PageDirs page_dirs;

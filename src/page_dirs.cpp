@@ -18,7 +18,7 @@
 #define DIRS_CACHE_LINES 20
 
 
-class DirsPrivate
+class PageDirsPrivate
 {
 public:
     int sel = 1;
@@ -46,7 +46,7 @@ public:
 PageDirs page_dirs;
 
 
-class CtrlPageDirs : public CtrlPage
+class PageDirsCtrl : public CtrlPage
 {
 public:
     void b1_short()         {       player->next_page();}
@@ -56,7 +56,7 @@ public:
     void seek_long()        {       g->set_fav();}
     void seek_short()       {       g->play_sel();}
 
-    DirsPrivate * g;
+    PageDirsPrivate * g;
     PageDirs * p;
 };
 
@@ -116,8 +116,8 @@ int dirs_file_num(int dirs_sel)
 
 void PageDirs::init()
 {
-    g = new DirsPrivate;
-    c = new CtrlPageDirs;
+    g = new PageDirsPrivate;
+    c = new PageDirsCtrl;
     c->g = g;
     c->p = this;
     player->set_ctrl(PAGE_DIRS, c);
@@ -143,7 +143,7 @@ void PageDirs::box(int cnt)
 }
 
 
-void DirsPrivate::highlight(void *gslc, void *pElemRef, int type)
+void PageDirsPrivate::highlight(void *gslc, void *pElemRef, int type)
 {
     static gslc_tsColor colors_b[] = {DIRS_COL_NORMAL_B, DIRS_COL_PLAY_B};
     static gslc_tsColor colors_f[] = {DIRS_COL_NORMAL_F, DIRS_COL_PLAY_F};
@@ -154,13 +154,13 @@ void DirsPrivate::highlight(void *gslc, void *pElemRef, int type)
 }
 
 
-void DirsPrivate::select(int dir_num, bool center)
+void PageDirsPrivate::select(int dir_num, bool center)
 {
     sel = box_goto(box_ref, slider_ref, dir_num-1, center) + 1;
 }
 
 
-bool DirsPrivate::pgupdn(int by)
+bool PageDirsPrivate::pgupdn(int by)
 {
     if (!by)
         return false;
@@ -169,7 +169,7 @@ bool DirsPrivate::pgupdn(int by)
 }
 
 
-bool DirsPrivate::seek(int by)
+bool PageDirsPrivate::seek(int by)
 {
     if (!by)
         return false;
@@ -184,7 +184,7 @@ void PageDirs::goto_cur()
 }
 
 
-void DirsPrivate::set_fav()
+void PageDirsPrivate::set_fav()
 {
     int file_num = dirs_file_num(sel);
     if (!file_num)
@@ -200,7 +200,7 @@ void DirsPrivate::set_fav()
 }
 
 
-void DirsPrivate::play_sel()
+void PageDirsPrivate::play_sel()
 {
     int file_num = dirs_file_num(sel);
     if (!file_num)

@@ -25,7 +25,7 @@
 Sys sys;
 
 
-class SysPrivate
+class PageSysPrivate
 {
 public:
     int sel = 1;
@@ -50,7 +50,7 @@ public:
 PageSys page_sys;
 
 
-class CtrlPageSys : public CtrlPage
+class PageSysCtrl : public CtrlPage
 {
 public:
     void b1_short()         {       player->next_page();}
@@ -60,7 +60,7 @@ public:
     void b2_short()         {       g->b2_short();}
     void b3_short()         {       g->b3_short();}
 
-    SysPrivate * g;
+    PageSysPrivate * g;
     PageSys * p;
 };
 
@@ -131,8 +131,8 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
 
 void PageSys::init()
 {
-    g = new SysPrivate;
-    c = new CtrlPageSys;
+    g = new PageSysPrivate;
+    c = new PageSysCtrl;
     c->g = g;
     c->p = this;
     player->set_ctrl(PAGE_SYS, c);
@@ -151,7 +151,7 @@ void PageSys::update()
 }
 
 
-void SysPrivate::box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb)
+void PageSysPrivate::box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb)
 {
     box_elem.pfuncXGet = cb;
     box_elem.nItemCnt = cnt;
@@ -160,7 +160,7 @@ void SysPrivate::box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb)
 }
 
 
-bool SysPrivate::seek(int by)
+bool PageSysPrivate::seek(int by)
 {
     if (!by)
         return false;
@@ -169,7 +169,7 @@ bool SysPrivate::seek(int by)
 }
 
 
-bool SysPrivate::vol(int by)
+bool PageSysPrivate::vol(int by)
 {
     if (!by)
         return false;
@@ -182,7 +182,7 @@ bool SysPrivate::vol(int by)
 }
 
 
-void SysPrivate::vol_short()
+void PageSysPrivate::vol_short()
 {
     if (sel == 7)
     {
@@ -195,7 +195,7 @@ void SysPrivate::vol_short()
 }
 
 
-void SysPrivate::b2_short()
+void PageSysPrivate::b2_short()
 {
     if (sel == 1)
     {
@@ -204,7 +204,7 @@ void SysPrivate::b2_short()
 }
 
 
-void SysPrivate::b3_short()
+void PageSysPrivate::b3_short()
 {
     if (sel == 1)
     {

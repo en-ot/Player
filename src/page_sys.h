@@ -27,8 +27,8 @@ public:
     void update();
     void loop();
 
-    class SysPrivate * g;
-    class CtrlPageSys * c;
+    class PageSysPrivate * g;
+    class PageSysCtrl * c;
 };
 
 extern PageSys page_sys;
