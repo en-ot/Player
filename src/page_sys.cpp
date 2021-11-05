@@ -77,6 +77,7 @@ void Sys::message(const char * message)
 void Sys::net(int mode)
 {
     page->net(mode);
+    player->update();
 }
 
 
@@ -105,8 +106,6 @@ public:
     gslc_tsXSlider              slider_elem;
     gslc_tsElemRef*             slider_ref  = NULL;
 };
-
-PageSys page_sys;
 
 
 class PageSysCtrl : public CtrlPage
@@ -193,14 +192,13 @@ void PageSys::activate()
 }
 
 
-void PageSys::init()
+PageSys::PageSys(Gui * gui)
 {
     g = new PageSysPrivate;
     auto c = new PageSysCtrl;
     c->g = g;
     c->p = this;
     ctrl = c;
-    player->set_page(PAGE_SYS, this);
 
     gslc_PageAdd(&gslc, PAGE_SYS, g->elem, SYS_ELEM_MAX, g->ref, SYS_ELEM_MAX);
     g->box_ref   = create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &g->box_elem,    SYS_BACK_COL);

@@ -281,9 +281,6 @@ void PageInfo::update()
     shuffle(player->shuffle);
     repeat(player->repeat);
     volume(player->volume);
-    alive(false);
-    gain(false);
-    index("");
     gui->redraw();
 }
 

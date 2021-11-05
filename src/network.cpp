@@ -459,7 +459,6 @@ void network_loop()
     services_begin();
 
     sys.net(WiFi.getMode());
-    page_sys.update();
 #else
     // xxx = (uint8_t*)malloc(100000);
     //xxx[0]++;

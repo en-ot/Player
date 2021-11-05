@@ -139,6 +139,11 @@ bool Player::fav_switch(int fav_num, bool init)
 
     DEBUG("dircnt: %d\n", pl->dircnt);
 
+    p->info->update();
+    p->info->alive(false);
+    p->info->gain(false);
+    p->info->index("");
+    
     playstack_init();
     start_file(next_file, FAIL_NEXT);
 
@@ -148,8 +153,6 @@ bool Player::fav_switch(int fav_num, bool init)
 
     if (filepos)
         need_set_file_pos = true;
-
-    update();
 
     return true;
 }

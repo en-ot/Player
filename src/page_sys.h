@@ -38,7 +38,7 @@ extern Sys sys;
 class PageSys : public Page
 {
 public:
-    void init();
+    PageSys(Gui * gui);
     void update();
     void gui_loop();
     void activate();
@@ -47,8 +47,6 @@ public:
 
     class PageSysPrivate * g;
 };
-
-extern PageSys page_sys;
 
 
 #endif // _PAGE_SYS_H_

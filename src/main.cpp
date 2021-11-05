@@ -76,7 +76,8 @@ void setup()
 
     player->set_page(PAGE_DIRS, new PageDirs(gui));
 
-    page_sys.init();
+    player->set_page(PAGE_SYS, new PageSys(gui));
+
     //page_pic_init();
 
     player->page_change(PAGE_INFO);
