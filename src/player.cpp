@@ -21,7 +21,7 @@
 //###############################################################
 int Player::file_random()
 {
-    return random(1, fc->filecnt+1);
+    return random(1, playing->filecnt+1);
 }
 
 
@@ -134,13 +134,13 @@ bool Player::fav_switch(int fav_num, bool init)
     prefs_load_data(fav_num, fav_path, sizeof(fav_path));
     DEBUG("fav path: %s\n", fav_path);
     
-    fc->set_root(fav_path);
-    pl->copy_from(fc);
+    playing->set_root(fav_path);
+    list->copy_from(playing);
 
-    p->files->box(pl->filecnt);
-    p->dirs->box(pl->dircnt);
+    p->files->box(list->filecnt);
+    p->dirs->box(list->dircnt);
 
-    DEBUG("dircnt: %d\n", pl->dircnt);
+    DEBUG("dircnt: %d\n", list->dircnt);
 
     p->info->update();
     p->info->alive(false);
@@ -203,7 +203,7 @@ void Player::restart()
 //###############################################################
 void Player::play_file_num(int num, int updown)
 {
-    num = clamp1(num, fc->filecnt);
+    num = clamp1(num, playing->filecnt);
     next_file = num;
     next_updown = updown;
     need_play_next_file = true;
@@ -212,20 +212,20 @@ void Player::play_file_num(int num, int updown)
 
 void Player::play_file_up()
 {
-    play_file_num(fc->curfile - 1, FAIL_PREV);
+    play_file_num(playing->curfile - 1, FAIL_PREV);
 }
 
 
 void Player::play_file_down()
 {
-    play_file_num(fc->curfile + 1, FAIL_NEXT);
+    play_file_num(playing->curfile + 1, FAIL_NEXT);
 }
 
 
 void Player::play_file_random()
 {
     int n = file_random();
-    while (n == fc->curfile && fc->filecnt > 1)
+    while (n == playing->curfile && playing->filecnt > 1)
     {
         n = file_random();
     }
@@ -249,7 +249,7 @@ void Player::play_file_prev()
     {
         int n = playstack_pop();
         if (n == 0)
-            n = fc->curfile;
+            n = playing->curfile;
         play_file_num(n, FAIL_RANDOM);
     }
     else
@@ -261,7 +261,7 @@ void Player::play_file_prev()
 
 void Player::play_dir_next()
 {
-    next_dir = fc->curdir + 1;
+    next_dir = playing->curdir + 1;
     next_updown = FAIL_NEXT;
     need_play_next_dir = true;
 }
@@ -269,7 +269,7 @@ void Player::play_dir_next()
 
 void Player::play_dir_prev()
 {
-    next_dir = fc->curdir - 1;
+    next_dir = playing->curdir - 1;
     next_updown = FAIL_NEXT;
     need_play_next_dir = true;
 }

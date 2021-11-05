@@ -496,7 +496,7 @@ void PageInfo::loop2()
         else if (cmp(msg, "Album: ", &p))     album(p);
         else if (cmp(msg, "Title: ", &p))     title(p);
         else if (cmp(msg, "File: ", &p))      file(p);
-        else if (cmp(msg, "Path: ", &p))      path(p, player->fc->root_path.c_str());
+        else if (cmp(msg, "Path: ", &p))      path(p, player->playing->root_path.c_str());
         else if (cmp(msg, "Index: ", &p))     {index(p); player->update();}
         else return;
         return;

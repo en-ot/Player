@@ -86,8 +86,8 @@ public:
     void play_dir_next();
     void play_dir_prev();
 
-    Playlist * fc;   //playlist for file playing
-    Playlist * pl;   //playlist for display
+    Playlist * playing;   //playlist for file playing
+    Playlist * list;   //playlist for display
 
 private:
     class PlayerPrivate * p = nullptr;

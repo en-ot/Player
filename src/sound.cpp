@@ -166,16 +166,16 @@ void playctrl_loop()
         //audio.loop();
     }
 
-    if (player->need_play_next_dir && player->fc->filecnt)
+    if (player->need_play_next_dir && player->playing->filecnt)
     {
         player->need_play_next_dir = false;
         audio.stopSong();
-        player->fc->find_dir(player->next_dir);
-        player->next_file = player->fc->curfile;
+        player->playing->find_dir(player->next_dir);
+        player->next_file = player->playing->curfile;
         player->need_play_next_file = true;
     }
 
-    if (player->need_play_next_file && player->fc->filecnt)
+    if (player->need_play_next_file && player->playing->filecnt)
     {
         player->need_play_next_file = false;
         start_file(player->next_file, player->next_updown);
@@ -268,14 +268,14 @@ void audio_id3image(File& file, const size_t pos, const size_t size)
 //###############################################################
 int start_file(int num, int updown)
 {
-    if (!player->fc->filecnt)
+    if (!player->playing->filecnt)
     {
-        return player->fc->curfile;
+        return player->playing->curfile;
     }
 
     sound_stop();
 
-    num = clamp1(num, player->fc->filecnt);
+    num = clamp1(num, player->playing->filecnt);
 
     xQueueSend(queue, "Path: ", 0);
     xQueueSend(queue, "File: ", 0);
@@ -289,31 +289,31 @@ int start_file(int num, int updown)
     char dirname[PATHNAME_MAX_LEN] = "";
     char filepath[PATHNAME_MAX_LEN] = "";
 
-    int retry = player->fc->filecnt;
+    int retry = player->playing->filecnt;
     while (retry)
     {
-        num = clamp1(num, player->fc->filecnt);
+        num = clamp1(num, player->playing->filecnt);
         DEBUG("Trying to play %d...\n", num);
 
         int level = playstack_is_instack(num);
-        if ((player->fc->filecnt <= PLAYSTACK_LEVELS) || (level == PLAYSTACK_NOT_IN_STACK) || (updown != FAIL_RANDOM))
+        if ((player->playing->filecnt <= PLAYSTACK_LEVELS) || (level == PLAYSTACK_NOT_IN_STACK) || (updown != FAIL_RANDOM))
         {
-            if (!player->fc->find_file(num))
+            if (!player->playing->find_file(num))
             {
                 snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
                 xQueueSend(queue, tmp, 0);
                 DEBUG("no file %d\n", num);
-                return player->fc->curfile;
+                return player->playing->curfile;
             }
             
-            //DEBUG("Dir %d, File %d\n", fc->curdir, num);
+            //DEBUG("Dir %d, File %d\n", playing->curdir, num);
 
-            if (!player->fc->file_is_dir(num))
+            if (!player->playing->file_is_dir(num))
             {
-                player->fc->file_name(num, filename, sizeof(filename));
+                player->playing->file_name(num, filename, sizeof(filename));
                 //DEBUG("%s\n", filename);
 
-                int x = player->fc->file_dirname(num, dirname, sizeof(dirname));
+                int x = player->playing->file_dirname(num, dirname, sizeof(dirname));
                 //DEBUG("%s\n", dirname);
 
                 strlcpy(filepath, dirname, sizeof(filepath));
@@ -351,7 +351,7 @@ int start_file(int num, int updown)
     
     playstack_push(num);
 
-    snprintf(tmp, sizeof(tmp)-1, "Index: %i", num);//, fc->filecnt);
+    snprintf(tmp, sizeof(tmp)-1, "Index: %i", num);//, playing->filecnt);
     xQueueSend(queue, tmp, 0);
     
     snprintf(tmp, sizeof(tmp)-1, "Path: %s", dirname);
@@ -360,7 +360,7 @@ int start_file(int num, int updown)
     snprintf(tmp, sizeof(tmp)-1, "File: %s", filename);
     xQueueSend(queue, tmp, 0);
     
-    return player->fc->curfile;
+    return player->playing->curfile;
 }
 
 

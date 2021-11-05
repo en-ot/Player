@@ -113,25 +113,25 @@ bool PageFilesPrivate::pgupdn(int by)
 
 void PageFilesPrivate::dir_prev()
 {
-    player->pl->find_file(sel);
-    player->pl->find_dir(player->pl->curdir-1);
-    //DEBUG("goto %d\n", pl->curfile);
-    select(player->pl->curfile, true);
+    player->list->find_file(sel);
+    player->list->find_dir(player->list->curdir-1);
+    //DEBUG("goto %d\n", list->curfile);
+    select(player->list->curfile, true);
 }
 
 
 void PageFilesPrivate::dir_next()
 {
-    player->pl->find_file(sel);
-    player->pl->find_dir(player->pl->curdir+1);
-    //DEBUG("goto %d\n", pl->curfile);
-    select(player->pl->curfile, true);
+    player->list->find_file(sel);
+    player->list->find_dir(player->list->curdir+1);
+    //DEBUG("goto %d\n", list->curfile);
+    select(player->list->curfile, true);
 }
 
 
 void PageFiles::goto_cur()
 {
-    g->select(player->fc->curfile, true);
+    g->select(player->playing->curfile, true);
 }
 
 
@@ -144,11 +144,11 @@ void PageFilesPrivate::play_sel()
 
 void PageFilesPrivate::set_fav()
 {
-    if (!player->pl->file_is_dir(sel))
+    if (!player->list->file_is_dir(sel))
         return;
 
     char path[PATHNAME_MAX_LEN];
-    player->pl->file_dirname(sel, path, sizeof(path));
+    player->list->file_dirname(sel, path, sizeof(path));
 
     player->fav_set(path);
     player->page_change(PAGE_FAV);
@@ -165,19 +165,19 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
     int dir_level = 0;
     if (index == CACHE_MISS)
     {
-        if (!player->pl->find_file(filenum))
+        if (!player->list->find_file(filenum))
             return false;
 
         char buf[XLISTBOX_MAX_STR] = "# # # # # # # # # # # # # # # ";  // >= DIR_DEPTH*2
 
         int disp = 0;
-        if (player->pl->file_is_dir(filenum))
+        if (player->list->file_is_dir(filenum))
         {
-            dir_level = player->pl->level + 1;
+            dir_level = player->list->level + 1;
             disp = dir_level*2-2;
         }
 
-        player->pl->file_name(filenum, &buf[disp], sizeof(buf)-disp);
+        player->list->file_name(filenum, &buf[disp], sizeof(buf)-disp);
         snprintf(pStrItem, nStrItemLen, "%d-%s", filenum, buf);
 
         g->cache->put(filenum, buf, dir_level);
@@ -190,11 +190,11 @@ bool files_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, ui
     if (nItem == 0)
     {
         int p = strlen(pStrItem);
-        snprintf(&pStrItem[p], nStrItemLen-p, " [%d]", player->pl->filecnt);
+        snprintf(&pStrItem[p], nStrItemLen-p, " [%d]", player->list->filecnt);
     }
 
     int type = 0;
-    if (filenum == player->fc->curfile) type = 2;
+    if (filenum == player->playing->curfile) type = 2;
     else if (dir_level)         type = 1;
     g->highlight(pvGui, pvElem, type);
 
