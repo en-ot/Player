@@ -31,6 +31,8 @@ public:
     void set_fav();
     void play_sel();
 
+    int dir_file_num(int dirs_sel);
+
     gslc_tsElem                 elem[DIRS_ELEM_MAX];
     gslc_tsElemRef              ref[DIRS_ELEM_MAX];
 
@@ -103,7 +105,7 @@ bool dirs_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem, uin
 }
 
 
-int dirs_file_num(int dirs_sel)
+int PageDirsPrivate::dir_file_num(int dirs_sel)
 {
     int dirnum = dirs_sel;
     int index = page_dirs.g->cache->get(dirnum);
@@ -186,7 +188,7 @@ void PageDirs::goto_cur()
 
 void PageDirsPrivate::set_fav()
 {
-    int file_num = dirs_file_num(sel);
+    int file_num = dir_file_num(sel);
     if (!file_num)
         return;
 
@@ -202,7 +204,7 @@ void PageDirsPrivate::set_fav()
 
 void PageDirsPrivate::play_sel()
 {
-    int file_num = dirs_file_num(sel);
+    int file_num = dir_file_num(sel);
     if (!file_num)
         return;
 

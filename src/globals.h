@@ -33,13 +33,4 @@ extern Playlist * pl;   //list
 #define QUEUE_MSG_SIZE 250
 extern QueueHandle_t tag_queue;
 
-
-//###############################################################
-
-int dirs_file_num(int dirs_sel);
-
-
-//###############################################################
-
-
 #endif // _GLOBALS_H_
