@@ -142,7 +142,7 @@ bool PageFavPrivate::pgupdn(int by)
 
 void PageFavPrivate::set_num()
 {
-    fav_switch(sel, false);
+    player->fav_switch(sel, false);
     player->set_page(PAGE_INFO);
 }
 

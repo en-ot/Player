@@ -36,8 +36,6 @@ extern QueueHandle_t tag_queue;
 
 //###############################################################
 
-bool fav_switch(int fav_num, bool init);
-
 int dirs_file_num(int dirs_sel);
 
 void main_restart();

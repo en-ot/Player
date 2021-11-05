@@ -10,6 +10,9 @@
 
 #include "page_fav.h"
 #include "page_info.h"
+#include "page_files.h"
+#include "page_dirs.h"
+#include "page_sys.h"
 
 #include "player.h"
 
@@ -52,6 +55,55 @@ bool Player::input(PlayerInputType type, int key)
 }
 
 
+//###############################################################
+bool Player::fav_switch(int fav_num, bool init)
+{
+    DEBUG("switch to fav %d, %d\n", fav_num, init);
+
+    if (!init)
+    {
+        if (sound_is_playing())
+            filepos = sound_current_time();
+
+        sound_stop();
+
+        prefs_save_now(need_save_current_file);
+
+        prev_fav_num = cur_fav_num;
+        prefs_save_main(fav_num, prev_fav_num, sys.sd_free_mb);
+    }
+
+    fav_num = clamp1(fav_num, FAV_MAX);
+    cur_fav_num = fav_num;
+
+    char fav_path[PATHNAME_MAX_LEN] = {0};
+    prefs_load_data(fav_num, fav_path, sizeof(fav_path));
+    DEBUG("fav path: %s\n", fav_path);
+    
+    fc->set_root(fav_path);
+    pl->set_root(fav_path);
+    page_files.box(pl->filecnt);
+    page_dirs.box(pl->dircnt);
+
+    DEBUG("dircnt: %d\n", pl->dircnt);
+
+    page_info.update();
+
+    playstack_init();
+    start_file(next_file, FAIL_NEXT);
+
+    page_fav.goto_cur();
+    page_dirs.goto_cur();
+    page_files.goto_cur();
+
+    if (filepos)
+        need_set_file_pos = true;
+
+    return true;
+}
+
+
+//###############################################################
 void Player::play_file_num(int num, int updown)
 {
     num = clamp1(num, fc->filecnt);
@@ -126,13 +178,13 @@ void Player::play_dir_prev()
 }
 
 
-void Player::play_root_next()
+void Player::fav_next()
 {
     fav_switch(prev_fav_num, false);
 }
 
 
-void Player::play_root_prev()
+void Player::fav_prev()
 {
     fav_switch(prev_fav_num, false);
 }

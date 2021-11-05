@@ -63,7 +63,7 @@ public:
     void vol_long()         {       player->play_file_prev();}
     bool seek(int by)       {return player->file_seek(by);}
     void seek_short()       {       player->toggle_pause();}
-    void seek_long()        {       player->play_root_next();}
+    void seek_long()        {       player->fav_next();}
     void b1_long()          {       player->play_file_down();}
     void b2_long()          {       player->toggle_shuffle();}
     void b2_short()         {       player->play_dir_prev();}

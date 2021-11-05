@@ -19,7 +19,7 @@ bool process_key(int key)
     case 'd':   player->play_dir_next();    break;
     case 'a':   player->play_dir_prev();    break;
     case 'e':   player->toggle_pause();     break;
-    case 'q':   player->play_root_prev();   break;
+    case 'q':   player->fav_prev();   break;
 
     case 'f':   player->reset_to_defaults();    break;
     // case 'c':   controls_calibrate(1);          break;

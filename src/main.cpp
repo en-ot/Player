@@ -57,56 +57,6 @@ bool need_save_file_pos = false;
 QueueHandle_t tag_queue;
 
 
-
-
-//###############################################################
-bool fav_switch(int fav_num, bool init)
-{
-    DEBUG("switch to fav %d, %d\n", fav_num, init);
-
-    if (!init)
-    {
-        if (sound_is_playing())
-            player->filepos = sound_current_time();
-
-        sound_stop();
-
-        prefs_save_now(need_save_current_file);
-
-        player->prev_fav_num = player->cur_fav_num;
-        prefs_save_main(fav_num, player->prev_fav_num, sys.sd_free_mb);
-    }
-
-    fav_num = clamp1(fav_num, FAV_MAX);
-    player->cur_fav_num = fav_num;
-
-    char fav_path[PATHNAME_MAX_LEN] = {0};
-    prefs_load_data(fav_num, fav_path, sizeof(fav_path));
-    DEBUG("fav path: %s\n", fav_path);
-    
-    fc->set_root(fav_path);
-    pl->set_root(fav_path);
-    page_files.box(pl->filecnt);
-    page_dirs.box(pl->dircnt);
-
-    DEBUG("dircnt: %d\n", pl->dircnt);
-
-    page_info.update();
-
-    playstack_init();
-    start_file(player->next_file, FAIL_NEXT);
-
-    page_fav.goto_cur();
-    page_dirs.goto_cur();
-    page_files.goto_cur();
-
-    if (player->filepos)
-        need_set_file_pos = true;
-
-    return true;
-}
-
-
 //###############################################################
 // Init steps
 //###############################################################
@@ -219,7 +169,7 @@ void setup()
     end(9);
 
     begin("start");
-    fav_switch(player->cur_fav_num, true);
+    player->fav_switch(player->cur_fav_num, true);
     end(10);
 }
 
@@ -347,7 +297,7 @@ void main_pause()
 
 void main_restart()
 {
-    fav_switch(player->cur_fav_num, false);
+    player->fav_switch(player->cur_fav_num, false);
 }
 
 

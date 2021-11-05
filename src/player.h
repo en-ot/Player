@@ -21,18 +21,35 @@ public:
 
     void reset_to_defaults();
 
+    int cur_fav_num;
+    int prev_fav_num;
+    bool fav_switch(int fav_num, bool init);
+    void fav_next();
+    void fav_prev();
+
     bool input(PlayerInputType type, int key);
 
+    int ui_page = PAGE_INFO;
     void set_page(int page);
     void next_page();
 
+    int8_t volume;
+    int8_t volume_old;
     bool change_volume(int change);
+
+    bool shuffle;
     void toggle_shuffle();
+
+    bool repeat;
     void toggle_repeat();
     void toggle_pause();
-    
+
+    uint32_t filepos;
+    int file_seek_by;
     bool file_seek(int by);
 
+    int next_file;
+    int next_updown = FAIL_NEXT;
     void play_file_num(int num, int updown);
     void play_file_up();
     void play_file_down();
@@ -40,28 +57,9 @@ public:
     void play_file_prev();
     void play_file_random();
 
+    int next_dir;
     void play_dir_next();
     void play_dir_prev();
-
-    void play_root_next();
-    void play_root_prev();
-
-    bool shuffle;
-    bool repeat;
-    int8_t volume;
-    int8_t volume_old;
-
-    int next_file;
-    int next_updown = FAIL_NEXT;
-    int next_dir;
-
-    uint32_t filepos;
-    int file_seek_by;
-
-    int cur_fav_num;
-    int prev_fav_num;
-
-    int ui_page = PAGE_INFO;
 
 private:
     Gui * _gui = nullptr;
