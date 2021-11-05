@@ -64,16 +64,11 @@ public:
 
     FilesPrivate * g;
     PageFiles * p;
-} ctrl_page_files;
+};
 
 
 
 //###############################################################
-// int PageFiles::sel()
-// {
-//     return g->sel;
-// }
-
 void FilesPrivate::select(int curfile, bool center)
 {
     sel = box_goto(box_ref, slider_ref, curfile-1, center) + 1;

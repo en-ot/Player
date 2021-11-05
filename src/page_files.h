@@ -12,8 +12,6 @@ public:
     void box(int dircnt);
     void goto_cur();
 
-    // int sel();
-
     class FilesPrivate * g;
     class CtrlPageFiles * c;
 };
