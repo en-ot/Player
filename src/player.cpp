@@ -85,6 +85,12 @@ void Player::set_gui(Gui * gui)
 }
 
 
+void Player::set_playlist_playing(void * playlist)
+{
+    playing = (Playlist *)playlist;
+}
+
+
 bool Player::input(PlayerInputType type, int key)
 {
     if (ui_page >= PAGE_MAX)

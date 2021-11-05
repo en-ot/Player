@@ -53,6 +53,7 @@ public:
     void fav_set(const char * path);
 
     const char * cur_fav_path();
+    void set_playlist_playing(void * playlist);
     int cur_playing_dir();
     int cur_playing_file();
     int file_random();
@@ -94,11 +95,11 @@ public:
     void play_dir_next();
     void play_dir_prev();
 
-    Playlist * playing;   //playlist for file playing
     Playlist * list;   //playlist for display
 
 private:
     class PlayerPrivate * p = nullptr;
+    Playlist * playing;   //playlist for file playing
 };
 
 extern Player * player;
