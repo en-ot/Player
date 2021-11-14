@@ -532,13 +532,13 @@ void PageInfo::gui_loop()
     static uint32_t old_pos = 0;
 
 //    uint32_t pos = sound_is_playing() ? sound_current_time() : old_pos;
-    uint32_t pos = sound_current_time();
+    uint32_t pos = sound->current_time();
 
     if (((int32_t)(t - t1) > 2000) || (pos != old_pos))
     {
         t1 = t;
         old_pos = pos;
-        time_progress(pos, sound_duration());
+        time_progress(pos, sound->duration());
         return;
     }
 
@@ -546,8 +546,8 @@ void PageInfo::gui_loop()
     if ((int32_t)(t - t0) > 100)
     {
         t0 = t;
-        alive(sound_is_playing());
-        gain(sound_is_gain());
+        alive(sound->is_playing());
+        gain(sound->is_gain());
         return;
     }
 }

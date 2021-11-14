@@ -36,6 +36,7 @@ public:
     PageSys * psys;
 
     Gui * gui = nullptr;
+    Sound * sound = nullptr;
 
     Playlist * list[2];   //list[0] for file playing, list[1] for display
 
@@ -89,6 +90,12 @@ void Player::set_gui(Gui * gui)
 }
 
 
+void Player::set_sound(Sound * sound)
+{
+    p->sound = sound;
+}
+
+
 void Player::set_playlist(PlaylistType pl, void * playlist)
 {
     p->list[pl] = (Playlist *)playlist;
@@ -107,14 +114,14 @@ bool Player::input(PlayerInputType type, int key)
 
 void Player::freeze()
 {
-    sound_pause();
+    sound->pause();
 //    controls_pause();
 }
 
 
 void Player::unfreeze()
 {
-    sound_resume();
+    sound->resume();
 //    controls_resume();
 }
 
@@ -126,11 +133,11 @@ bool Player::fav_switch(int fav_num, bool init)
 
     if (!init)
     {
-        if (sound_is_playing())
-            filepos = sound_current_time();
+        if (sound->is_playing())
+            filepos = sound->current_time();
 
-        sound_stop_cmd();
-        sound_wait();
+        sound->stop_cmd();
+        sound->wait();
 
         prefs_save_now(need_save_current_file);
 
@@ -319,17 +326,17 @@ void PlayerPrivate::loop()
     if (!player->need_play_next_dir && !player->need_play_next_file)
         return;
 
-    if (sound_state == SOUND_STARTING)
+    if (sound->state == SOUND_STARTING)
         return;
 
     if (player->need_play_next_file != NEED_CONT)
     {
-        if (sound_state == SOUND_PLAYING || sound_state == SOUND_PAUSED)
+        if (sound->state == SOUND_PLAYING || sound->state == SOUND_PAUSED)
         {
             // DEBUG("-clear\n");
             info->clear();
-            sound_stop_cmd();
-            sound_wait();
+            sound->stop_cmd();
+            sound->wait();
         }
     }
 
@@ -352,7 +359,7 @@ void PlayerPrivate::loop()
     }
     else
     {
-        if (sound_state == SOUND_PLAYING)
+        if (sound->state == SOUND_PLAYING)
         {
             // DEBUG("-playing\n");
             playstack_push(num);
@@ -363,7 +370,7 @@ void PlayerPrivate::loop()
         num = (updown == FAIL_RANDOM) ? player->file_random() : num + updown;
     }
 
-    if (sound_state == SOUND_ERROR)
+    if (sound->state == SOUND_ERROR)
     {
         // DEBUG("-error\n");
         sound_errors += 1;
@@ -424,7 +431,7 @@ void PlayerPrivate::loop()
     
     player->filepos = 0;
     prefs_save_delayed(need_save_current_file);
-    sound_play_cmd(filepath);
+    sound->play_cmd(filepath);
 }
 
 
@@ -464,7 +471,7 @@ void Player::play_dir_next()
 void Player::play_dir_prev()
 {
     next_dir = p->list[PLAYING]->curdir - 1;
-    next_updown = FAIL_NEXT;
+    next_updown = FAIL_PREV;
     need_play_next_dir = true;
 }
 
@@ -514,22 +521,22 @@ bool Player::file_seek(int by)
 
 void Player::reset_to_defaults()
 {
-    sound_stop_cmd();
-    sound_wait();
+    sound->stop_cmd();
+    sound->wait();
     prefs_erase_all();
 }
 
 
 void Player::toggle_pause()
 {
-    if (!sound_is_playing())
+    if (!sound->is_playing())
     {
-        sound_resume();
+        sound->resume();
         return;
     }
         
-    sound_pause();
-    filepos = sound_current_time();
+    sound->pause();
+    filepos = sound->current_time();
     prefs_save_now(need_save_current_file);
 }
 

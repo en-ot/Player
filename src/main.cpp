@@ -73,7 +73,8 @@ void setup()
 
 
     sys.step_begin("sound");
-    sound_setup(tag_queue);
+    sound = new Sound(tag_queue);
+    player->set_sound(sound);
     sys.step_end(2);
 
 

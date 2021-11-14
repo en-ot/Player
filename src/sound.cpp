@@ -6,11 +6,11 @@
 #include "pinout.h"
 
 #include "globals.h"
-#include "prefs.h"
-#include "playstack.h"
+//#include "prefs.h"
+//#include "playstack.h"
 
 #include "page_sys.h"   //temp
-#include "player.h"
+//#include "player.h"
 
 #include "sound.h"
 
@@ -18,27 +18,26 @@ Audio audio;
 
 static QueueHandle_t queue;
 
+Sound * sound = nullptr;
 
-static int gain_index = 0;
-static bool is_gain = false;
 #define GAIN_TXT1 "UserDefinedText: "
 #define GAIN_TXT2 "replaygain_track_gain"
 
 static char sound_filename[PATHNAME_MAX_LEN] = "";
-static bool need_play_file = false;
-bool need_stop = false;
-bool need_wait = false;
 
 bool sound_start(char * filepath);
 void sound_stop();
 
 
-SoundState sound_state = SOUND_STOPPED;
-
 //###############################################################
 // Audio wrapper
 //###############################################################
-void playctrl_loop();
+
+class SoundPrivate
+{
+
+};
+
 
 TaskHandle_t audio_task_handle;
 static void sound_task(void * pvParameters)
@@ -46,13 +45,13 @@ static void sound_task(void * pvParameters)
     while (true)
     {
         audio.loop();
-        playctrl_loop();
+        sound->loop();
         vTaskDelay(1);      //5 ok, 7 bad
     }
 }
 
 
-void sound_setup(QueueHandle_t tag_queue)
+Sound::Sound(QueueHandle_t tag_queue)
 {
     queue = tag_queue;
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
@@ -60,62 +59,62 @@ void sound_setup(QueueHandle_t tag_queue)
 }
 
 
-bool sound_is_gain()
+bool Sound::is_gain()
 {
-    return is_gain;
+    return _is_gain;
 }
 
 
-bool sound_is_playing()
+bool Sound::is_playing()
 {
     return audio.isRunning();
 }
 
 
-uint32_t sound_current_time()
+uint32_t Sound::current_time()
 {
     return audio.getAudioCurrentTime();
 }
 
 
-uint32_t sound_duration()
+uint32_t Sound::duration()
 {
     return audio.getAudioFileDuration();
 }
 
 
-void sound_pause_resume()
+void Sound::pause_resume()
 {
     audio.pauseResume();
-    sound_state = sound_is_playing() ? SOUND_PLAYING : SOUND_PAUSED;
+    state = is_playing() ? SOUND_PLAYING : SOUND_PAUSED;
 }
 
 
-void sound_pause()
+void Sound::pause()
 {
-    if (sound_is_playing())
-        sound_pause_resume();
+    if (is_playing())
+        pause_resume();
 }
 
 
-void sound_resume()
+void Sound::resume()
 {
-    if (!sound_is_playing())
-        sound_pause_resume();
+    if (!is_playing())
+        pause_resume();
 }
 
 
-void sound_stop()
+void Sound::stop()
 {
     audio.stopSong();
-    sound_state = SOUND_STOPPED;
+    state = SOUND_STOPPED;
 }
 
 
-bool sound_start(char * filepath)
+bool Sound::start(char * filepath)
 {
     bool result = audio.connecttoSD(filepath);
-    sound_state = result ? SOUND_PLAYING : SOUND_ERROR;
+    state = result ? SOUND_PLAYING : SOUND_ERROR;
     return result;
 }
 
@@ -123,25 +122,25 @@ bool sound_start(char * filepath)
 //###############################################################
 // called from other thread
 //###############################################################
-void sound_play_cmd(const char * filename)
+void Sound::play_cmd(const char * filename)
 {
-    gain_index = 0;
-    is_gain = false;
+    _gain_index = 0;
+    _is_gain = false;
     audio.setReplayGain(1.0);
 
-    sound_state = SOUND_STARTING;
+    state = SOUND_STARTING;
     strncpy(sound_filename, filename, sizeof(sound_filename));
     need_play_file = true;
 }
 
 
-void sound_stop_cmd()
+void Sound::stop_cmd()
 {
     need_stop = true;
 }
 
 
-void sound_wait()
+void Sound::wait()
 {
     need_wait = true;
     while(need_wait)
@@ -159,7 +158,7 @@ uint32_t t_fileseek = 0;
 #define T_FILESEEK_DELAY 500
 uint32_t old_duration = 0; 
 
-void playctrl_loop()
+void Sound::loop()
 {
     int duration = audio.getAudioFileDuration();
     uint32_t t = millis();
@@ -218,14 +217,14 @@ void playctrl_loop()
     if (need_play_file)
     {
         need_play_file = false;
-        sound_start(sound_filename);
+        start(sound_filename);
     }
 
     if (need_stop)
     {
         need_stop = false;
-        if (sound_is_playing())
-            sound_stop();
+        if (is_playing())
+            stop();
     }
 
     if (need_wait)
@@ -257,6 +256,12 @@ void audio_info(const char *info)
 
 void audio_id3data(const char *info)  //id3 metadata
 {
+    sound->id3data(info);
+}
+
+
+void Sound::id3data(const char *info)
+{
     //UserDefinedText: replaygain_track_gain
     //DEBUG("id3 \"%s\"\n", info);
     int l1 = sizeof(GAIN_TXT1)-1;
@@ -269,9 +274,9 @@ void audio_id3data(const char *info)  //id3 metadata
         if (!strncmp(&info[l1], GAIN_TXT2, l2))
         {
             i = l1+l2;
-            gain_index = 2;
+            _gain_index = 2;
         }
-        else if (gain_index == 2)
+        else if (_gain_index == 2)
         {
             i = l1;
         }
@@ -286,14 +291,14 @@ void audio_id3data(const char *info)  //id3 metadata
                 gain = pow10f(-0.05*gain);
                 DEBUG("Replay gain %f\n", gain);
                 audio.setReplayGain(gain);
-                is_gain = true;
+                _is_gain = true;
             }
             else
             {
                 //DEBUG("!sscanf\n");
             }
         }
-        gain_index++;
+        _gain_index++;
     }
     xQueueSend(queue, info, 0);
 }
@@ -303,5 +308,5 @@ void audio_id3image(File& file, const size_t pos, const size_t size)
 {
     char filename[PATHNAME_MAX_LEN] = "";
     file.getName(filename, sizeof(filename)-1);
-    DEBUG("Image %s %d %d\n", filename, pos, size);
+    DEBUG("Image %s %d [%d]\n", filename, pos, size);
 }

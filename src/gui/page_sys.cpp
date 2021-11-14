@@ -275,8 +275,8 @@ void PageSysPrivate::vol_short()
     if (sel == 7)
     {
         //sd_free_mb = 0;
-        sound_stop_cmd();
-        sound_wait();
+        sound->stop_cmd();
+        sound->wait();
         calc_sd_free_size();
         prefs_save_main(player->cur_fav_num, player->prev_fav_num, sys.sd_free_mb);
         prefs_open_fav(player->cur_fav_num);

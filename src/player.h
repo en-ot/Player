@@ -1,13 +1,14 @@
-// Player must contain all business logic, but no depenencies on components... maybe later...
-
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
+
+// Player must contain all business logic, but no depenencies on components... maybe later...
 
 #include "globals.h"
 
 #include "gui.h"
 #include "player_input.h"
 #include "player_ctrl.h"
+#include "sound.h"
 
 
 int clamp1(int num, int cnt);   // from playlist.cpp
@@ -43,6 +44,7 @@ public:
     void set_gui(Gui * gui);
     void set_page(int page_num, Page * page);
     void set_playlist(PlaylistType pl, void * playlist);
+    void set_sound(Sound * sound);
 
     int ui_page = -1;
     Page ** page_ptr(int page_num);
