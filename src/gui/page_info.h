@@ -16,6 +16,7 @@ public:
 
     void loop2();
     void set_queue(QueueHandle_t tag_queue);
+    void clear();
 
     void index(const char * text);
     void fav(int fav_num);

@@ -4,7 +4,19 @@
 
 #include <stdint.h>
 
-int start_file(int num, int updown);
+typedef enum
+{
+    SOUND_STOPPED = 0,
+    SOUND_ERROR,
+    SOUND_STARTING,
+    SOUND_PAUSED,
+    SOUND_PLAYING,
+} SoundState;
+extern SoundState sound_state;
+
+void sound_play_cmd(const char * filename);
+void sound_stop_cmd();
+void sound_wait();
 
 void sound_setup(QueueHandle_t tag_queue);
 
@@ -16,8 +28,6 @@ uint32_t sound_current_time();
 uint32_t sound_duration();
 void sound_pause();
 void sound_resume();
-void sound_stop();
-bool sound_start(char * filepath);
 
 
 #endif // _SOUND_H_

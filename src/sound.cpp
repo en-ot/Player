@@ -16,21 +16,29 @@
 
 Audio audio;
 
+static QueueHandle_t queue;
+
 
 static int gain_index = 0;
 static bool is_gain = false;
 #define GAIN_TXT1 "UserDefinedText: "
 #define GAIN_TXT2 "replaygain_track_gain"
 
-int sound_errors=0;
+static char sound_filename[PATHNAME_MAX_LEN] = "";
+static bool need_play_file = false;
+bool need_stop = false;
+bool need_wait = false;
+
+bool sound_start(char * filepath);
+void sound_stop();
+
+
+SoundState sound_state = SOUND_STOPPED;
 
 //###############################################################
 // Audio wrapper
 //###############################################################
 void playctrl_loop();
-
-static QueueHandle_t queue;
-
 
 TaskHandle_t audio_task_handle;
 static void sound_task(void * pvParameters)
@@ -79,6 +87,7 @@ uint32_t sound_duration()
 void sound_pause_resume()
 {
     audio.pauseResume();
+    sound_state = sound_is_playing() ? SOUND_PLAYING : SOUND_PAUSED;
 }
 
 
@@ -99,14 +108,47 @@ void sound_resume()
 void sound_stop()
 {
     audio.stopSong();
+    sound_state = SOUND_STOPPED;
 }
 
 
 bool sound_start(char * filepath)
 {
-    return audio.connecttoSD(filepath);
+    bool result = audio.connecttoSD(filepath);
+    sound_state = result ? SOUND_PLAYING : SOUND_ERROR;
+    return result;
 }
 
+
+//###############################################################
+// called from other thread
+//###############################################################
+void sound_play_cmd(const char * filename)
+{
+    gain_index = 0;
+    is_gain = false;
+    audio.setReplayGain(1.0);
+
+    sound_state = SOUND_STARTING;
+    strncpy(sound_filename, filename, sizeof(sound_filename));
+    need_play_file = true;
+}
+
+
+void sound_stop_cmd()
+{
+    need_stop = true;
+}
+
+
+void sound_wait()
+{
+    need_wait = true;
+    while(need_wait)
+    {
+        yield();
+    }
+}
 
 //###############################################################
 // Play Control : audio task
@@ -166,30 +208,30 @@ void playctrl_loop()
         //audio.loop();
     }
 
-    if (player->need_play_next_dir && player->filecnt())
-    {
-        player->need_play_next_dir = false;
-        audio.stopSong();
-        player->set_dir(PLAYING, player->next_dir);
-        player->next_file = player->cur_file(PLAYING);
-        player->need_play_next_file = true;
-    }
-
-    if (player->need_play_next_file && player->filecnt())
-    {
-        player->need_play_next_file = false;
-        start_file(player->next_file, player->next_updown);
-        player->filepos = 0;
-        prefs_save_delayed(need_save_current_file);
-        return;
-    }
-
     if (player->volume != player->volume_old)
     {
         player->volume_old = player->volume;
         audio.setVolume(player->volume);
         return;
     } 
+
+    if (need_play_file)
+    {
+        need_play_file = false;
+        sound_start(sound_filename);
+    }
+
+    if (need_stop)
+    {
+        need_stop = false;
+        if (sound_is_playing())
+            sound_stop();
+    }
+
+    if (need_wait)
+    {
+        need_wait = false;
+    }
 }
 
 
@@ -263,105 +305,3 @@ void audio_id3image(File& file, const size_t pos, const size_t size)
     file.getName(filename, sizeof(filename)-1);
     DEBUG("Image %s %d %d\n", filename, pos, size);
 }
-
-
-//###############################################################
-int start_file(int num, int updown)
-{
-    if (!player->filecnt())
-    {
-        return player->cur_file(PLAYING);
-    }
-
-    sound_stop();
-
-    num = clamp1(num, player->filecnt());
-
-    xQueueSend(queue, "Path: ", 0);
-    xQueueSend(queue, "File: ", 0);
-    xQueueSend(queue, "Band: ", 0);
-    xQueueSend(queue, "Artist: ", 0);
-    xQueueSend(queue, "Album: ", 0);
-    xQueueSend(queue, "Title: ", 0);
-
-    char tmp[QUEUE_MSG_SIZE];
-    char filename[PATHNAME_MAX_LEN] = "";
-    char dirname[PATHNAME_MAX_LEN] = "";
-    char filepath[PATHNAME_MAX_LEN] = "";
-
-    int retry = player->filecnt();
-    while (retry)
-    {
-        num = clamp1(num, player->filecnt());
-        DEBUG("Trying to play %d...\n", num);
-
-        int level = playstack_is_instack(num);
-        if ((player->filecnt() <= PLAYSTACK_LEVELS) || (level == PLAYSTACK_NOT_IN_STACK) || (updown != FAIL_RANDOM))
-        {
-            if (!player->set_file(PLAYING, num))
-            {
-                snprintf(tmp, sizeof(tmp)-1, "File: File %d not found", num);
-                xQueueSend(queue, tmp, 0);
-                DEBUG("no file %d\n", num);
-                return player->cur_file(PLAYING);
-            }
-            
-            //DEBUG("Dir %d, File %d\n", playing->curdir, num);
-
-            if (!player->file_is_dir(PLAYING, num))
-            {
-                player->file_name(PLAYING, num, filename, sizeof(filename));
-                //DEBUG("%s\n", filename);
-
-                int x = player->dir_name(PLAYING, num, dirname, sizeof(dirname));
-                //DEBUG("%s\n", dirname);
-
-                strlcpy(filepath, dirname, sizeof(filepath));
-                filepath[x++] = '/';
-                strlcpy(&filepath[x], filename, sizeof(filepath)-x);
-                //DEBUG("%s\n", filepath);
-                
-                gain_index = 0;
-                is_gain = false;
-                audio.setReplayGain(1.);
-                if (sound_start(filepath))
-                    break;
-            }
-        }
-        else
-        {
-            DEBUG("File is in stack %d\n", level);
-        }
- 
-        sound_errors += 1;
-        retry--;
-        if (updown == FAIL_RANDOM)
-            num = player->file_random();
-        else
-            num += updown;
-    }
-
-    if (!retry)
-    {
-        snprintf(tmp, sizeof(tmp)-1, "File: retry count 0");
-        xQueueSend(queue, tmp, 0);
-        DEBUG("retry count\n");
-        return 0;
-    }
-    
-    playstack_push(num);
-
-    snprintf(tmp, sizeof(tmp)-1, "Index: %i", num);//, playing->filecnt);
-    xQueueSend(queue, tmp, 0);
-    
-    snprintf(tmp, sizeof(tmp)-1, "Path: %s", dirname);
-    xQueueSend(queue, tmp, 0);
-
-    snprintf(tmp, sizeof(tmp)-1, "File: %s", filename);
-    xQueueSend(queue, tmp, 0);
-    
-    return player->cur_file(PLAYING);
-}
-
-
-

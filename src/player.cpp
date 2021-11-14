@@ -17,6 +17,13 @@
 
 #include "player.h"
 
+typedef enum
+{
+    NEED_NOT = 0,
+    NEED_START = 1,
+    NEED_CONT = 2,
+} NeedPlay;
+
 
 //###############################################################
 class PlayerPrivate
@@ -26,11 +33,13 @@ public:
     PageDirs * dirs;
     PageFiles * files;
     PageFav * fav;
-    PageSys * sys;
+    PageSys * psys;
 
     Gui * gui = nullptr;
 
     Playlist * list[2];   //list[0] for file playing, list[1] for display
+
+    void loop();
 };
 
 
@@ -42,8 +51,9 @@ Player::Player()
 
 void Player::loop()
 {
-    p->sys->loop2();
+    p->psys->loop2();
     p->info->loop2();
+    p->loop();
 
     auto page = *page_ptr(ui_page);
     page->gui_loop();
@@ -57,7 +67,7 @@ Page ** Player::page_ptr(int page_num)
     switch (page_num)
     {
     case PAGE_INFO:     return (Page**)&p->info;
-    case PAGE_SYS:      return (Page**)&p->sys;
+    case PAGE_SYS:      return (Page**)&p->psys;
     case PAGE_DIRS:     return (Page**)&p->dirs;
     case PAGE_FILES:    return (Page**)&p->files;
     case PAGE_FAV:      return (Page**)&p->fav;
@@ -119,7 +129,8 @@ bool Player::fav_switch(int fav_num, bool init)
         if (sound_is_playing())
             filepos = sound_current_time();
 
-        sound_stop();
+        sound_stop_cmd();
+        sound_wait();
 
         prefs_save_now(need_save_current_file);
 
@@ -148,7 +159,7 @@ bool Player::fav_switch(int fav_num, bool init)
     p->info->index("");
     
     playstack_init();
-    start_file(next_file, FAIL_NEXT);
+    play_file_num(next_file, FAIL_NEXT);
 
     p->fav->goto_cur();
     p->dirs->goto_cur();
@@ -265,7 +276,7 @@ void Player::play_file_num(int num, int updown)
     num = clamp1(num, p->list[PLAYING]->filecnt);
     next_file = num;
     next_updown = updown;
-    need_play_next_file = true;
+    need_play_next_file = NEED_START;
 }
 
 
@@ -290,6 +301,130 @@ void Player::play_file_random()
     }
 
     play_file_num(n, FAIL_RANDOM);
+}
+
+
+int sound_errors = 0;
+//todo: remove player, move to PlayerPrivate fields
+void PlayerPrivate::loop()
+{
+    static int retry = 0;
+    static int num = 0;
+    static int updown = FAIL_NEXT;
+    char tmp[QUEUE_MSG_SIZE];
+
+    if (!player->filecnt())
+        return;
+
+    if (!player->need_play_next_dir && !player->need_play_next_file)
+        return;
+
+    if (sound_state == SOUND_STARTING)
+        return;
+
+    if (player->need_play_next_file != NEED_CONT)
+    {
+        if (sound_state == SOUND_PLAYING || sound_state == SOUND_PAUSED)
+        {
+            // DEBUG("-clear\n");
+            info->clear();
+            sound_stop_cmd();
+            sound_wait();
+        }
+    }
+
+    if (player->need_play_next_dir)
+    {
+        // DEBUG("-next dir\n");
+        player->need_play_next_dir = false;
+        player->set_dir(PLAYING, player->next_dir);
+        player->next_file = player->cur_file(PLAYING);
+        player->need_play_next_file = NEED_START;
+    }
+
+    if (player->need_play_next_file == NEED_START)
+    {
+        // DEBUG("-need start\n");
+        retry = player->filecnt();
+        num = player->next_file;
+        updown = player->next_updown;
+        player->need_play_next_file = NEED_CONT;
+    }
+    else
+    {
+        if (sound_state == SOUND_PLAYING)
+        {
+            // DEBUG("-playing\n");
+            playstack_push(num);
+            player->need_play_next_file = NEED_NOT;
+            return;
+        }
+
+        num = (updown == FAIL_RANDOM) ? player->file_random() : num + updown;
+    }
+
+    if (sound_state == SOUND_ERROR)
+    {
+        // DEBUG("-error\n");
+        sound_errors += 1;
+        retry--;
+    }
+
+    if (retry == 0)
+    {
+        sys.error("File retry count=0");
+        player->need_play_next_file = NEED_NOT;
+        return;
+    }
+
+    num = clamp1(num, player->filecnt());
+    DEBUG("Trying to play %d...\n", num);
+    int level = playstack_is_instack(num);
+    if (!((player->filecnt() <= PLAYSTACK_LEVELS) || (level == PLAYSTACK_NOT_IN_STACK) || (updown != FAIL_RANDOM)))
+    {
+        DEBUG("File is in stack %d\n", level);
+        retry--;
+        return;
+    }
+
+    if (!player->set_file(PLAYING, num))
+    {
+        // DEBUG("-not set\n");
+        char tmp[QUEUE_MSG_SIZE];
+        snprintf(tmp, sizeof(tmp)-1, "File %d not found", num);
+        sys.error(tmp);
+        player->need_play_next_file = NEED_NOT;
+        return;
+    }
+
+    if (player->file_is_dir(PLAYING, num))
+    {
+        // DEBUG("-is dir\n");
+        retry--;
+        return;
+    }
+
+    // DEBUG("-ok\n");
+
+    snprintf(tmp, sizeof(tmp)-1, "%i", num);
+    info->index(tmp);
+
+    char dirname[PATHNAME_MAX_LEN] = "";
+    int x = player->dir_name(PLAYING, num, dirname, sizeof(dirname));
+    info->path(dirname, "");    //todo: remove root
+
+    char filename[PATHNAME_MAX_LEN] = "";
+    player->file_name(PLAYING, num, filename, sizeof(filename));
+    info->file(filename);
+
+    char filepath[PATHNAME_MAX_LEN] = "";
+    strlcpy(filepath, dirname, sizeof(filepath));
+    if (x > 1) filepath[x++] = '/';
+    strlcpy(&filepath[x], filename, sizeof(filepath)-x);
+    
+    player->filepos = 0;
+    prefs_save_delayed(need_save_current_file);
+    sound_play_cmd(filepath);
 }
 
 
@@ -379,7 +514,8 @@ bool Player::file_seek(int by)
 
 void Player::reset_to_defaults()
 {
-    sound_stop();
+    sound_stop_cmd();
+    sound_wait();
     prefs_erase_all();
 }
 

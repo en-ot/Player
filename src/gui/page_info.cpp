@@ -148,6 +148,17 @@ PageInfo::PageInfo(Gui * gui)
 }
 
 
+void PageInfo::clear()
+{
+    path("", "");
+    file("");
+    band("");
+    artist("");
+    album("");
+    title("");
+}
+
+
 void PageInfoPrivate::init()
 {
     gslc_PageAdd(s, PAGE_INFO, elem, INFO_ELEM_MAX, ref, INFO_ELEM_MAX);

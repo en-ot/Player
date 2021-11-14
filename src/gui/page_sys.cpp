@@ -80,6 +80,7 @@ void Sys::step_progress(uint32_t pos, uint32_t total)
 void Sys::error(const char * err_text)
 {
     p->page->error(err_text);
+    DEBUG("Error: %s\n", err_text);
 }
 
 
@@ -274,7 +275,8 @@ void PageSysPrivate::vol_short()
     if (sel == 7)
     {
         //sd_free_mb = 0;
-        sound_stop();
+        sound_stop_cmd();
+        sound_wait();
         calc_sd_free_size();
         prefs_save_main(player->cur_fav_num, player->prev_fav_num, sys.sd_free_mb);
         prefs_open_fav(player->cur_fav_num);
