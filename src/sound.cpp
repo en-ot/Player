@@ -48,7 +48,7 @@ void sound_setup(QueueHandle_t tag_queue)
 {
     queue = tag_queue;
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, 1);
+    xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, SOUND_CORE);
 }
 
 

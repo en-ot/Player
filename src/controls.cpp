@@ -4,6 +4,8 @@
 #include "InputButton.h"
 #include "AnalogEncoder.h"
 
+#include "globals.h"
+
 #include "pinout.h"
 #include "player_input.h"
 
@@ -37,7 +39,7 @@ static bool (*_input)(PlayerInputType type, int key) = nullptr;
 void controls_init(bool (*callback)(PlayerInputType type, int key))
 {
     _input = callback;
-    xTaskCreatePinnedToCore(enc_task, "enc_task", 5000, NULL, 2, &enc_task_handle, 0);
+    xTaskCreatePinnedToCore(enc_task, "enc_task", 5000, NULL, 2, &enc_task_handle, CONTROLS_CORE);
 }
 
 

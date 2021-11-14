@@ -11,8 +11,8 @@ const char* host = "player";
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWD;
 
-const char* ap_ssid = "player";
-const char* ap_password = "player_admin";
+const char* ap_ssid = WIFI_AP_SSID;
+const char* ap_password = WIFI_AP_PASSWD;
 #define AP_IP 192,168,1,1
 
 #endif
@@ -36,7 +36,7 @@ FtpServer ftpSrv;
 
 void ftp_init()
 {
-    ftpSrv.begin(SD, "esp32", "esp32"); //username, password for ftp.
+    ftpSrv.begin(SD, FTP_USER, FTP_PASSWORD); //username, password for ftp.
 }
 
 

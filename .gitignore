@@ -15,3 +15,4 @@ lib/ESP32-audioI2S/examples
 ~*.docx
 /src/credentials.h
 /output.map
+/src/network/credentials.h

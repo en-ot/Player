@@ -13,5 +13,8 @@
 #define QUEUE_MSG_SIZE 250
 #define QUEUE_DEPTH 20
 
+#define CONTROLS_CORE 0     // SYSTEM CORE
+#define SOUND_CORE 1        // USER CORE, on CORE 0 (system) sdcard access errors
+
 
 #endif // _GLOBALS_H_
