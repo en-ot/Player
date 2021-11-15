@@ -10,7 +10,7 @@
 #include "controls.h"
 #include "globals.h"
 #include "network.h"
-#include "sound.h"
+//#include "sound.h"
 #include "prefs.h"
 #include "player.h"
 #include "firmware.h"
@@ -275,8 +275,7 @@ void PageSysPrivate::vol_short()
     if (sel == 7)
     {
         //sd_free_mb = 0;
-        sound->stop_cmd();
-        sound->wait();
+        player->stop();
         calc_sd_free_size();
         prefs_save_main(player->cur_fav_num, player->prev_fav_num, sys.sd_free_mb);
         prefs_open_fav(player->cur_fav_num);

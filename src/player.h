@@ -87,6 +87,7 @@ public:
     bool repeat;
     void toggle_repeat();
     void toggle_pause();
+    void stop();
 
     bool need_set_file_pos = false;
     uint32_t filepos;

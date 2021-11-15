@@ -126,6 +126,13 @@ void Player::unfreeze()
 }
 
 
+void Player::stop()
+{
+    sound->stop_cmd();
+    sound->wait();
+}
+
+
 //###############################################################
 bool Player::fav_switch(int fav_num, bool init)
 {
@@ -136,8 +143,7 @@ bool Player::fav_switch(int fav_num, bool init)
         if (sound->is_playing())
             filepos = sound->current_time();
 
-        sound->stop_cmd();
-        sound->wait();
+        stop();
 
         prefs_save_now(need_save_current_file);
 

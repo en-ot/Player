@@ -14,8 +14,7 @@
 
 #include "sound.h"
 
-Audio audio;
-
+static Audio audio;
 static QueueHandle_t queue;
 
 Sound * sound = nullptr;
@@ -35,7 +34,6 @@ void sound_stop();
 
 class SoundPrivate
 {
-
 };
 
 
@@ -53,6 +51,7 @@ static void sound_task(void * pvParameters)
 
 Sound::Sound(QueueHandle_t tag_queue)
 {
+    p = new SoundPrivate;
     queue = tag_queue;
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, SOUND_CORE);
@@ -152,14 +151,14 @@ void Sound::wait()
 //###############################################################
 // Play Control : audio task
 //###############################################################
-uint32_t t_filepos = 0;
-uint32_t t_fileseek = 0;
-#define T_FILEPOS_DELAY 500
-#define T_FILESEEK_DELAY 500
-uint32_t old_duration = 0; 
-
 void Sound::loop()
 {
+    static uint32_t t_filepos = 0;
+    static uint32_t t_fileseek = 0;
+    #define T_FILEPOS_DELAY 500
+    #define T_FILESEEK_DELAY 500
+    static uint32_t old_duration = 0; 
+
     int duration = audio.getAudioFileDuration();
     uint32_t t = millis();
 
@@ -256,7 +255,8 @@ void audio_info(const char *info)
 
 void audio_id3data(const char *info)  //id3 metadata
 {
-    sound->id3data(info);
+    if (sound)
+        sound->id3data(info);
 }
 
 
