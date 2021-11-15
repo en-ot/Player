@@ -1,16 +1,12 @@
 #include <Arduino.h>
+
 #include "debug.h"
-
-#include "Audio.h"
-
 #include "pinout.h"
-
 #include "globals.h"
-//#include "prefs.h"
-//#include "playstack.h"
 
 #include "page_sys.h"   //temp
-//#include "player.h"
+
+#include "Audio.h"
 
 #include "sound.h"
 
@@ -21,11 +17,6 @@ Sound * sound = nullptr;
 
 #define GAIN_TXT1 "UserDefinedText: "
 #define GAIN_TXT2 "replaygain_track_gain"
-
-static char sound_filename[PATHNAME_MAX_LEN] = "";
-
-bool sound_start(char * filepath);
-void sound_stop();
 
 
 //###############################################################
@@ -103,14 +94,14 @@ void Sound::resume()
 }
 
 
-void Sound::stop()
+void Sound::_stop()
 {
     audio.stopSong();
     state = SOUND_STOPPED;
 }
 
 
-bool Sound::start(char * filepath)
+bool Sound::_start(const char * filepath)
 {
     bool result = audio.connecttoSD(filepath);
     state = result ? SOUND_PLAYING : SOUND_ERROR;
@@ -121,28 +112,32 @@ bool Sound::start(char * filepath)
 //###############################################################
 // called from other thread
 //###############################################################
-void Sound::play_cmd(const char * filename)
+void Sound::play(const char * filename)
 {
     _gain_index = 0;
     _is_gain = false;
     audio.setReplayGain(1.0);
 
+    _filename = filename;
     state = SOUND_STARTING;
-    strncpy(sound_filename, filename, sizeof(sound_filename));
-    need_play_file = true;
+    _need_play_file = true;
+
+    _wait();
 }
 
 
-void Sound::stop_cmd()
+void Sound::stop()
 {
-    need_stop = true;
+    _need_stop = true;
+
+    _wait();
 }
 
 
-void Sound::wait()
+void Sound::_wait()
 {
-    need_wait = true;
-    while(need_wait)
+    _need_wait = true;
+    while(_need_wait)
     {
         yield();
     }
@@ -213,22 +208,25 @@ void Sound::loop()
         return;
     } 
 
-    if (need_play_file)
+    bool wait_flag = _need_wait;
+
+    if (_need_play_file)
     {
-        need_play_file = false;
-        start(sound_filename);
+        _need_play_file = false;
+        _start(_filename);
+        _filename = nullptr;
     }
 
-    if (need_stop)
+    if (_need_stop)
     {
-        need_stop = false;
+        _need_stop = false;
         if (is_playing())
-            stop();
+            _stop();
     }
 
-    if (need_wait)
+    if (wait_flag)
     {
-        need_wait = false;
+        _need_wait = false;
     }
 }
 

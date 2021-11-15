@@ -21,9 +21,9 @@ public:
     void loop();
 
     SoundState state = SOUND_STOPPED;
-    void play_cmd(const char * filename);
-    void stop_cmd();
-    void wait();
+    void play(const char * filename);
+    void stop();
+
     bool is_playing();
     bool is_gain();
     uint32_t current_time();
@@ -41,12 +41,15 @@ private:
     int _gain_index = 0;
     bool _is_gain = false;
 
-    void stop();
-    bool start(char * filepath);
+    bool _start(const char * filepath);
+    void _stop();
+    void _wait();
 
-    bool need_play_file = false;
-    bool need_stop = false;
-    bool need_wait = false;
+    bool _need_play_file = false;
+    bool _need_stop = false;
+    bool _need_wait = false;
+
+    const char * _filename;
 };
 
 extern Sound * sound;

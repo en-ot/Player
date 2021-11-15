@@ -128,8 +128,7 @@ void Player::unfreeze()
 
 void Player::stop()
 {
-    sound->stop_cmd();
-    sound->wait();
+    sound->stop();
 }
 
 
@@ -341,8 +340,7 @@ void PlayerPrivate::loop()
         {
             // DEBUG("-clear\n");
             info->clear();
-            sound->stop_cmd();
-            sound->wait();
+            sound->stop();
         }
     }
 
@@ -437,7 +435,7 @@ void PlayerPrivate::loop()
     
     player->filepos = 0;
     prefs_save_delayed(need_save_current_file);
-    sound->play_cmd(filepath);
+    sound->play(filepath);
 }
 
 
@@ -527,8 +525,7 @@ bool Player::file_seek(int by)
 
 void Player::reset_to_defaults()
 {
-    sound->stop_cmd();
-    sound->wait();
+    sound->stop();
     prefs_erase_all();
 }
 
