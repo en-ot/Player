@@ -31,12 +31,14 @@ public:
     uint32_t current_time();
     uint32_t duration();
 
+    TaskHandle_t handle();
+
 private:
     class SoundPrivate * p;
 };
 
 
-extern TaskHandle_t audio_task_handle;
+// extern TaskHandle_t audio_task_handle;
 
 
 #endif // _SOUND_H_

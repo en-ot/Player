@@ -103,9 +103,9 @@ void Player::set_sound(Sound * sound)
 }
 
 
-void Player::set_playlist(PlaylistType pl, void * playlist)
+void Player::set_playlist(PlaylistType pl, class Playlist * playlist)
 {
-    p->list[pl] = (Playlist *)playlist;
+    p->list[pl] = playlist;
 }
 
 

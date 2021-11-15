@@ -10,7 +10,7 @@
 // Playlist Class
 //###############################################################
 
-extern TaskHandle_t audio_task_handle;
+// extern TaskHandle_t audio_task_handle;
 
 
 //###############################################################
@@ -44,6 +44,7 @@ public:
     Ent dirs[DIR_DEPTH];
     File entry;
     int thread;
+    TaskHandle_t audio_task_handle;
 };
 
 
@@ -211,11 +212,12 @@ bool Playlist::find_file0(int file_num)
 }
 
 
-Playlist::Playlist(int thread_id)
+Playlist::Playlist(int thread_id, TaskHandle_t audio_task_handle)
 {
     root_path = "/";
     p = new PlaylistPrivate();
     p->thread = thread_id;
+    p->audio_task_handle = audio_task_handle;
 }
 
 

@@ -3,8 +3,6 @@
 
 // Player must contain all business logic, but no depenencies on components... maybe later...
 
-//#include "globals.h"
-
 int clamp1(int num, int cnt);   // from playlist.cpp
 
 
@@ -37,7 +35,7 @@ public:
 
     void set_gui(class Gui * gui);
     void set_page(int page_num, Page * page);
-    void set_playlist(PlaylistType pl, void * playlist);
+    void set_playlist(PlaylistType pl, class Playlist * playlist);
     void set_sound(class Sound * sound);
 
     int ui_page = -1;

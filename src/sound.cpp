@@ -45,13 +45,14 @@ public:
     void pause_resume();
 
     void id3data(const char *info);
+
+    TaskHandle_t audio_task_handle;
 };
 
 static SoundPrivate * priv = nullptr;
 static Sound * sound;
 
 
-TaskHandle_t audio_task_handle;
 static void sound_task(void * pvParameters)
 {
     while (true)
@@ -72,7 +73,13 @@ Sound::Sound(QueueHandle_t tag_queue)
     queue = tag_queue;
 
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
-    xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, SOUND_CORE);
+    xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &p->audio_task_handle, SOUND_CORE);
+}
+
+
+TaskHandle_t Sound::handle()
+{
+    return p->audio_task_handle;
 }
 
 

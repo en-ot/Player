@@ -20,7 +20,7 @@ class Playlist
     friend class PlaylistPrivate;
 
     public:
-        Playlist(int thread_id);
+        Playlist(int thread_id, TaskHandle_t audio_task_handle = nullptr);
 
         void set_root(String path);
         void copy_from(Playlist * other);

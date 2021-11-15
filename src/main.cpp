@@ -69,7 +69,8 @@ void setup()
 
 
     sys.step_begin("sound");
-    player->set_sound(new Sound(tag_queue));
+    auto sound = new Sound(tag_queue);
+    player->set_sound(sound);
     sys.step_end(2);
 
 
@@ -114,7 +115,8 @@ void setup()
  
 
     sys.step_begin("Playlist");
-    player->set_playlist(LIST, new Playlist(SAFE_ACCESS));
+    player->set_playlist(LIST, new Playlist(SAFE_ACCESS, sound->handle()));
+//    player->set_playlist(LIST, new Playlist(DIRECT_ACCESS));
     sys.step_end(8);
 
 
