@@ -10,9 +10,6 @@
 
 #include "sound.h"
 
-static Audio audio;
-static QueueHandle_t queue;
-
 #define GAIN_TXT1 "UserDefinedText: "
 #define GAIN_TXT2 "replaygain_track_gain"
 
@@ -24,6 +21,8 @@ static QueueHandle_t queue;
 class SoundPrivate
 {
 public:
+    Audio * audio;
+
     void loop();
 
     bool _start(const char * filepath);
@@ -47,6 +46,8 @@ public:
     void id3data(const char *info);
 
     TaskHandle_t audio_task_handle;
+
+    QueueHandle_t queue;
 };
 
 static SoundPrivate * priv = nullptr;
@@ -57,7 +58,7 @@ static void sound_task(void * pvParameters)
 {
     while (true)
     {
-        audio.loop();
+        priv->audio->loop();
         if (sound)
             sound->loop();
         vTaskDelay(1);      //5 ok, 7 bad
@@ -70,9 +71,11 @@ Sound::Sound(QueueHandle_t tag_queue)
     p = new SoundPrivate;
     priv = p;
     sound = this;
-    queue = tag_queue;
+    p->queue = tag_queue;
+    
+    p->audio = new Audio;
+    p->audio->setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
 
-    audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &p->audio_task_handle, SOUND_CORE);
 }
 
@@ -91,20 +94,20 @@ bool Sound::is_gain()
 
 uint32_t Sound::current_time()
 {
-    return audio.getAudioCurrentTime();
+    return p->audio->getAudioCurrentTime();
 }
 
 
 uint32_t Sound::duration()
 {
-    return audio.getAudioFileDuration();
+    return p->audio->getAudioFileDuration();
 }
 
 
 void SoundPrivate::pause_resume()
 {
-    audio.pauseResume();
-    _state = audio.isRunning() ? SOUND_PLAYING : SOUND_PAUSED;
+    audio->pauseResume();
+    _state = audio->isRunning() ? SOUND_PLAYING : SOUND_PAUSED;
 }
 
 
@@ -124,14 +127,14 @@ void Sound::resume()
 
 void SoundPrivate::_stop()
 {
-    audio.stopSong();
+    audio->stopSong();
     _state = SOUND_STOPPED;
 }
 
 
 bool SoundPrivate::_start(const char * filepath)
 {
-    bool result = audio.connecttoSD(filepath);
+    bool result = audio->connecttoSD(filepath);
     _state = result ? SOUND_PLAYING : SOUND_ERROR;
     return result;
 }
@@ -144,7 +147,7 @@ void Sound::play(const char * filename)
 {
     p->_gain_index = 0;
     p->_is_gain = false;
-    audio.setReplayGain(1.0);
+    p->audio->setReplayGain(1.0);
 
     p->_filename = filename;
     p->_state = SOUND_STARTING;
@@ -188,7 +191,7 @@ void Sound::loop()
     #define T_FILESEEK_DELAY 500
     static uint32_t old_duration = 0; 
 
-    int duration = audio.getAudioFileDuration();
+    int duration = p->audio->getAudioFileDuration();
     uint32_t t = millis();
 
     if ((duration != old_duration) || (duration == 0))
@@ -203,7 +206,7 @@ void Sound::loop()
         {
             t_fileseek = t;
 
-            player->filepos = audio.getAudioCurrentTime();
+            player->filepos = p->audio->getAudioCurrentTime();
             DEBUG("seek by %d\n", player->file_seek_by);
             int newpos = player->filepos + player->file_seek_by;
             player->file_seek_by = 0;
@@ -221,24 +224,24 @@ void Sound::loop()
 
     if (player->need_set_file_pos && ((int32_t)(t - t_filepos) > T_FILEPOS_DELAY))
     {
-        bool running = audio.isRunning();
+        bool running = p->audio->isRunning();
         
-        if (running) audio.pauseResume();
+        if (running) p->audio->pauseResume();
         //audio.loop();
 
-        if (audio.setAudioPlayPosition(player->filepos))
+        if (p->audio->setAudioPlayPosition(player->filepos))
         {
             player->need_set_file_pos = false;
         }
         //audio.loop();
-        if (running) audio.pauseResume();
+        if (running) p->audio->pauseResume();
         //audio.loop();
     }
 
     if (player->volume != player->volume_old)
     {
         player->volume_old = player->volume;
-        audio.setVolume(player->volume);
+        p->audio->setVolume(player->volume);
         return;
     } 
 
@@ -327,7 +330,7 @@ void SoundPrivate::id3data(const char *info)
                 //DEBUG("Replay gain %f\n", gain);
                 gain = pow10f(-0.05*gain);
                 DEBUG("Replay gain %f\n", gain);
-                audio.setReplayGain(gain);
+                audio->setReplayGain(gain);
                 _is_gain = true;
             }
             else

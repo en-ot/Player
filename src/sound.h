@@ -38,7 +38,4 @@ private:
 };
 
 
-// extern TaskHandle_t audio_task_handle;
-
-
 #endif // _SOUND_H_
