@@ -122,7 +122,15 @@ PageFav::PageFav(Gui * gui)
     gslc_PageAdd(g->s, PAGE_FAV, g->elem, FAV_ELEM_MAX, g->ref, FAV_ELEM_MAX);
     g->box_ref   = g->p->create_listbox(PAGE_FAV, FAV_BOX_ELEM,    &g->box_elem,    FAV_BACK_COL);
     g->slider_ref = g->p->create_slider(PAGE_FAV, FAV_SLIDER_ELEM, &g->slider_elem, FAV_BACK_COL);
+
+    g->box();
 }
+
+
+// void PageFav::box()
+// {
+//     g->box();
+// }
 
 
 void PageFav::activate()
@@ -165,12 +173,6 @@ void PageFavPrivate::set_num()
 void PageFav::goto_cur()
 {
     g->select(player->cur_fav_num, true);
-}
-
-
-void PageFav::box()
-{
-    g->box();
 }
 
 

@@ -86,8 +86,6 @@ public:
 
     bool repeat;
     void toggle_repeat();
-    void toggle_pause();
-    void stop();
 
     bool need_set_file_pos = false;
     uint32_t filepos;
@@ -103,8 +101,13 @@ public:
     void play_file_next();
     void play_file_prev();
     void play_file_random();
+    
+    void toggle_pause();
+    void stop();
     bool is_playing();
     bool is_gain();
+    uint32_t current_time();
+    uint32_t duration();
 
     int need_play_next_dir = 0;
     int next_dir;

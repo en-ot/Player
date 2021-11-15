@@ -10,7 +10,7 @@ class PageFav : public Page
 {
 public:
     PageFav(Gui * gui);
-    void box();
+    // void box();
     void goto_cur();
     void activate();
 

@@ -114,35 +114,46 @@ bool Player::input(PlayerInputType type, int key)
 
 void Player::freeze()
 {
-    sound->pause();
+    p->sound->pause();
 //    controls_pause();
 }
 
 
 void Player::unfreeze()
 {
-    sound->resume();
+    p->sound->resume();
 //    controls_resume();
 }
 
 
 void Player::stop()
 {
-    sound->stop();
+    p->sound->stop();
 }
 
 
 bool Player::is_playing()
 {
-    return sound->state() == SOUND_PLAYING;
+    return p->sound->state() == SOUND_PLAYING;
 }
 
 
 bool Player::is_gain()
 {
-    return sound->is_gain();
+    return p->sound->is_gain();
 }
 
+
+uint32_t Player::current_time()
+{
+    return p->sound->current_time();
+}
+
+
+uint32_t Player::duration()
+{
+    return p->sound->duration();
+}
 
 
 //###############################################################
@@ -152,8 +163,8 @@ bool Player::fav_switch(int fav_num, bool init)
 
     if (!init)
     {
-        if (sound->state() == SOUND_PLAYING)
-            filepos = sound->current_time();
+        if (p->sound->state() == SOUND_PLAYING)
+            filepos = p->sound->current_time();
 
         stop();
 
@@ -538,7 +549,7 @@ bool Player::file_seek(int by)
 
 void Player::reset_to_defaults()
 {
-    sound->stop();
+    p->sound->stop();
     prefs_erase_all();
 }
 
@@ -547,12 +558,12 @@ void Player::toggle_pause()
 {
     if (!is_playing())
     {
-        sound->resume();
+        p->sound->resume();
         return;
     }
         
-    sound->pause();
-    filepos = sound->current_time();
+    p->sound->pause();
+    filepos = current_time();
     prefs_save_now(need_save_current_file);
 }
 

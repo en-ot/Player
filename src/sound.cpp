@@ -13,7 +13,7 @@
 static Audio audio;
 static QueueHandle_t queue;
 
-Sound * sound = nullptr;
+//Sound * sound = nullptr;
 
 #define GAIN_TXT1 "UserDefinedText: "
 #define GAIN_TXT2 "replaygain_track_gain"
@@ -50,6 +50,7 @@ public:
 };
 
 static SoundPrivate * priv = nullptr;
+static Sound * sound;
 
 
 TaskHandle_t audio_task_handle;
@@ -58,7 +59,8 @@ static void sound_task(void * pvParameters)
     while (true)
     {
         audio.loop();
-        sound->loop();
+        if (sound)
+            sound->loop();
         vTaskDelay(1);      //5 ok, 7 bad
     }
 }
@@ -68,8 +70,9 @@ Sound::Sound(QueueHandle_t tag_queue)
 {
     p = new SoundPrivate;
     priv = p;
-
+    sound = this;
     queue = tag_queue;
+    
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, SOUND_CORE);
 }

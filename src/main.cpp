@@ -52,12 +52,8 @@ void setup()
     sys.set_page(page_info, gui);
 
     player->set_page(PAGE_FILES, new PageFiles(gui));
-    
-    auto page_fav = new PageFav(gui);
-    player->set_page(PAGE_FAV, page_fav);
-
+    player->set_page(PAGE_FAV, new PageFav(gui));
     player->set_page(PAGE_DIRS, new PageDirs(gui));
-
     player->set_page(PAGE_SYS, new PageSys(gui));
 
     //page_pic_init();
@@ -73,7 +69,7 @@ void setup()
 
 
     sys.step_begin("sound");
-    sound = new Sound(tag_queue);
+    auto sound = new Sound(tag_queue);
     player->set_sound(sound);
     sys.step_end(2);
 
@@ -108,9 +104,9 @@ void setup()
     sys.step_end(5);
 
 
-    sys.step_begin("fav");
-    page_fav->box();
-    sys.step_end(6);
+    // sys.step_begin("fav");
+    // page_fav->box();
+    // sys.step_end(6);
 
 
     sys.step_begin("filectrl");
