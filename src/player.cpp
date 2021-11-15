@@ -204,6 +204,9 @@ bool Player::fav_switch(int fav_num, bool init)
     playstack_init();
     play_file_num(next_file, FAIL_NEXT);
 
+    p->list[PLAYING]->find_file(next_file);
+    DEBUG("cur playing %d / %d\n", p->list[PLAYING]->curdir, p->list[PLAYING]->curfile);
+
     p->fav->goto_cur();
     p->dirs->goto_cur();
     p->files->goto_cur();
@@ -316,6 +319,7 @@ size_t Player::dir_name(PlaylistType pl, int file_num, char * dst, int len)
 //###############################################################
 void Player::play_file_num(int num, int updown)
 {
+    DEBUG("play file %d\n", num);
     num = clamp1(num, p->list[PLAYING]->filecnt);
     next_file = num;
     next_updown = updown;

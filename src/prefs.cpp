@@ -107,7 +107,6 @@ int prefs_set_path(int fav_num, const char * path)
 }
 
 
-
 int prefs_load_data(int fav_num, char * path, int len)
 {
     prefs_open_fav(fav_num);
