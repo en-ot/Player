@@ -132,6 +132,19 @@ void Player::stop()
 }
 
 
+bool Player::is_playing()
+{
+    return sound->state() == SOUND_PLAYING;
+}
+
+
+bool Player::is_gain()
+{
+    return sound->is_gain();
+}
+
+
+
 //###############################################################
 bool Player::fav_switch(int fav_num, bool init)
 {
@@ -139,7 +152,7 @@ bool Player::fav_switch(int fav_num, bool init)
 
     if (!init)
     {
-        if (sound->is_playing())
+        if (sound->state() == SOUND_PLAYING)
             filepos = sound->current_time();
 
         stop();
@@ -331,12 +344,12 @@ void PlayerPrivate::loop()
     if (!player->need_play_next_dir && !player->need_play_next_file)
         return;
 
-    if (sound->state == SOUND_STARTING)
+    if (sound->state() == SOUND_STARTING)
         return;
 
     if (player->need_play_next_file != NEED_CONT)
     {
-        if (sound->state == SOUND_PLAYING || sound->state == SOUND_PAUSED)
+        if (sound->state() == SOUND_PLAYING || sound->state() == SOUND_PAUSED)
         {
             // DEBUG("-clear\n");
             info->clear();
@@ -363,7 +376,7 @@ void PlayerPrivate::loop()
     }
     else
     {
-        if (sound->state == SOUND_PLAYING)
+        if (sound->state() == SOUND_PLAYING)
         {
             // DEBUG("-playing\n");
             playstack_push(num);
@@ -374,7 +387,7 @@ void PlayerPrivate::loop()
         num = (updown == FAIL_RANDOM) ? player->file_random() : num + updown;
     }
 
-    if (sound->state == SOUND_ERROR)
+    if (sound->state() == SOUND_ERROR)
     {
         // DEBUG("-error\n");
         sound_errors += 1;
@@ -532,7 +545,7 @@ void Player::reset_to_defaults()
 
 void Player::toggle_pause()
 {
-    if (!sound->is_playing())
+    if (!is_playing())
     {
         sound->resume();
         return;

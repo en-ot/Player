@@ -103,6 +103,8 @@ public:
     void play_file_next();
     void play_file_prev();
     void play_file_random();
+    bool is_playing();
+    bool is_gain();
 
     int need_play_next_dir = 0;
     int next_dir;

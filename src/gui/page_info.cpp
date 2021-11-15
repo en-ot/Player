@@ -546,8 +546,8 @@ void PageInfo::gui_loop()
     if ((int32_t)(t - t0) > 100)
     {
         t0 = t;
-        alive(sound->is_playing());
-        gain(sound->is_gain());
+        alive(player->is_playing());
+        gain(player->is_gain());
         return;
     }
 }

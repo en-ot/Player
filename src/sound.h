@@ -18,38 +18,21 @@ class Sound
 {
 public:
     Sound(QueueHandle_t tag_queue);
+
     void loop();
 
-    SoundState state = SOUND_STOPPED;
+    int state();
     void play(const char * filename);
     void stop();
+    void pause();
+    void resume();
 
-    bool is_playing();
     bool is_gain();
     uint32_t current_time();
     uint32_t duration();
 
-    void pause_resume();
-    void pause();
-    void resume();
-
-    void id3data(const char *info);
-
 private:
     class SoundPrivate * p;
-
-    int _gain_index = 0;
-    bool _is_gain = false;
-
-    bool _start(const char * filepath);
-    void _stop();
-    void _wait();
-
-    bool _need_play_file = false;
-    bool _need_stop = false;
-    bool _need_wait = false;
-
-    const char * _filename;
 };
 
 extern Sound * sound;

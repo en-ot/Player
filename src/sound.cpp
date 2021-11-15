@@ -25,7 +25,31 @@ Sound * sound = nullptr;
 
 class SoundPrivate
 {
+public:
+    void loop();
+
+    bool _start(const char * filepath);
+    void _stop();
+    void _wait();
+
+    bool _need_play_file = false;
+    bool _need_stop = false;
+    bool _need_wait = false;
+
+    const char * _filename;
+
+    SoundState _state = SOUND_STOPPED;
+
+    bool _is_gain = false;
+    int _gain_index = 0;
+    bool is_gain();
+
+    void pause_resume();
+
+    void id3data(const char *info);
 };
+
+static SoundPrivate * priv = nullptr;
 
 
 TaskHandle_t audio_task_handle;
@@ -43,6 +67,8 @@ static void sound_task(void * pvParameters)
 Sound::Sound(QueueHandle_t tag_queue)
 {
     p = new SoundPrivate;
+    priv = p;
+
     queue = tag_queue;
     audio.setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &audio_task_handle, SOUND_CORE);
@@ -51,13 +77,7 @@ Sound::Sound(QueueHandle_t tag_queue)
 
 bool Sound::is_gain()
 {
-    return _is_gain;
-}
-
-
-bool Sound::is_playing()
-{
-    return audio.isRunning();
+    return p->_is_gain;
 }
 
 
@@ -73,38 +93,38 @@ uint32_t Sound::duration()
 }
 
 
-void Sound::pause_resume()
+void SoundPrivate::pause_resume()
 {
     audio.pauseResume();
-    state = is_playing() ? SOUND_PLAYING : SOUND_PAUSED;
+    _state = audio.isRunning() ? SOUND_PLAYING : SOUND_PAUSED;
 }
 
 
 void Sound::pause()
 {
-    if (is_playing())
-        pause_resume();
+    if (p->_state == SOUND_PLAYING)
+        p->pause_resume();
 }
 
 
 void Sound::resume()
 {
-    if (!is_playing())
-        pause_resume();
+    if (p->_state != SOUND_PLAYING)
+        p->pause_resume();
 }
 
 
-void Sound::_stop()
+void SoundPrivate::_stop()
 {
     audio.stopSong();
-    state = SOUND_STOPPED;
+    _state = SOUND_STOPPED;
 }
 
 
-bool Sound::_start(const char * filepath)
+bool SoundPrivate::_start(const char * filepath)
 {
     bool result = audio.connecttoSD(filepath);
-    state = result ? SOUND_PLAYING : SOUND_ERROR;
+    _state = result ? SOUND_PLAYING : SOUND_ERROR;
     return result;
 }
 
@@ -114,27 +134,32 @@ bool Sound::_start(const char * filepath)
 //###############################################################
 void Sound::play(const char * filename)
 {
-    _gain_index = 0;
-    _is_gain = false;
+    p->_gain_index = 0;
+    p->_is_gain = false;
     audio.setReplayGain(1.0);
 
-    _filename = filename;
-    state = SOUND_STARTING;
-    _need_play_file = true;
+    p->_filename = filename;
+    p->_state = SOUND_STARTING;
+    p->_need_play_file = true;
 
-    _wait();
+    p->_wait();
 }
 
 
 void Sound::stop()
 {
-    _need_stop = true;
-
-    _wait();
+    p->_need_stop = true;
+    p->_wait();
 }
 
 
-void Sound::_wait()
+int Sound::state()
+{
+    return p->_state;
+}
+
+
+void SoundPrivate::_wait()
 {
     _need_wait = true;
     while(_need_wait)
@@ -142,6 +167,7 @@ void Sound::_wait()
         yield();
     }
 }
+
 
 //###############################################################
 // Play Control : audio task
@@ -208,6 +234,11 @@ void Sound::loop()
         return;
     } 
 
+    p->loop();
+}
+
+void SoundPrivate::loop()
+{
     bool wait_flag = _need_wait;
 
     if (_need_play_file)
@@ -220,7 +251,7 @@ void Sound::loop()
     if (_need_stop)
     {
         _need_stop = false;
-        if (is_playing())
+        if (_state == SOUND_PLAYING)
             _stop();
     }
 
@@ -253,12 +284,12 @@ void audio_info(const char *info)
 
 void audio_id3data(const char *info)  //id3 metadata
 {
-    if (sound)
-        sound->id3data(info);
+    if (priv)
+        priv->id3data(info);
 }
 
 
-void Sound::id3data(const char *info)
+void SoundPrivate::id3data(const char *info)
 {
     //UserDefinedText: replaygain_track_gain
     //DEBUG("id3 \"%s\"\n", info);
