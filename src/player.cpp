@@ -1,19 +1,24 @@
 #include <Arduino.h>
-#include "debug.h"
 
 #include "globals.h"
+#include "debug.h"
+
 #include "playstack.h"
 #include "prefs.h"
-#include "gui.h"
-#include "sound.h"
 #include "strcache.h"
 #include "playlist.h"
 
+#include "gui.h"
 #include "page_fav.h"
 #include "page_info.h"
 #include "page_files.h"
 #include "page_dirs.h"
 #include "page_sys.h"
+
+#include "sound.h"
+
+#include "player_input.h"
+#include "player_ctrl.h"
 
 #include "player.h"
 
@@ -47,6 +52,8 @@ public:
 Player::Player()
 {
     p = new PlayerPrivate;
+
+    next_updown = FAIL_NEXT;
 }
 
 
@@ -102,13 +109,13 @@ void Player::set_playlist(PlaylistType pl, void * playlist)
 }
 
 
-bool Player::input(PlayerInputType type, int key)
+bool Player::input(int type, int key)
 {
     if (ui_page >= PAGE_MAX)
         return false;
 
     auto ctrl = (*page_ptr(ui_page))->ctrl;
-    return ctrl->input(type, key);
+    return ctrl->input(PlayerInputType(type), key);
 }
 
 

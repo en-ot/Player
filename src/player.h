@@ -3,13 +3,7 @@
 
 // Player must contain all business logic, but no depenencies on components... maybe later...
 
-#include "globals.h"
-
-#include "gui.h"
-#include "player_input.h"
-#include "player_ctrl.h"
-#include "sound.h"
-
+//#include "globals.h"
 
 int clamp1(int num, int cnt);   // from playlist.cpp
 
@@ -29,7 +23,7 @@ public:
     virtual void update()   {};
     virtual void activate() {};
 
-    CtrlPage * ctrl = nullptr;
+    class CtrlPage * ctrl = nullptr;
 };
 
 
@@ -39,12 +33,12 @@ public:
     Player();
     void loop();
     void update();
-    bool input(PlayerInputType type, int key);
+    bool input(int type, int key);
 
-    void set_gui(Gui * gui);
+    void set_gui(class Gui * gui);
     void set_page(int page_num, Page * page);
     void set_playlist(PlaylistType pl, void * playlist);
-    void set_sound(Sound * sound);
+    void set_sound(class Sound * sound);
 
     int ui_page = -1;
     Page ** page_ptr(int page_num);
@@ -94,7 +88,7 @@ public:
 
     int need_play_next_file = 0;
     int next_file;
-    int next_updown = FAIL_NEXT;
+    int next_updown;
     void play_file_num(int num, int updown);
     void play_file_up();
     void play_file_down();

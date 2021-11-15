@@ -35,7 +35,6 @@ private:
     class SoundPrivate * p;
 };
 
-//extern Sound * sound;
 
 extern TaskHandle_t audio_task_handle;
 

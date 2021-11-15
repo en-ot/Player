@@ -3,6 +3,8 @@
 //###############################################################
 
 #include <Arduino.h>
+
+#include "globals.h"
 #include "debug.h"
 
 #include "elem/XProgress.h"
