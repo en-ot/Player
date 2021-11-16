@@ -66,6 +66,8 @@ static void sound_task(void * pvParameters)
 }
 
 
+static Audio audio1;
+
 Sound::Sound(QueueHandle_t tag_queue)
 {
     p = new SoundPrivate;
@@ -73,7 +75,8 @@ Sound::Sound(QueueHandle_t tag_queue)
     sound = this;
     p->queue = tag_queue;
     
-    p->audio = new Audio;
+    //p->audio = new Audio;
+    p->audio = &audio1;
     p->audio->setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
 
     xTaskCreatePinnedToCore(sound_task, "sound_task", 5000, NULL, 2, &p->audio_task_handle, SOUND_CORE);
