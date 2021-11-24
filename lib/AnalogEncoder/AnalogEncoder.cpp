@@ -8,13 +8,8 @@ AnalogEncoder::AnalogEncoder(int pin)
 {
     this->pin = pin;
     pinMode(pin, ANALOG);
-    dir = 0;
-    last_code = 4;
-    pass = false;
     short_flag = false;
     long_flag = 0;
-    cnt = 0;
-    cnt_old = 0;
 }
 
 //            000 001   010   011   100   101   110  111
@@ -26,65 +21,7 @@ AnalogEncoder::AnalogEncoder(int pin)
 //0, 1163, 1926, 2309, 2506, 2717, 2897, 3024,  //+0C ch2
 
 
-void AnalogEncoder::process_button(bool new_state)
-{
-    uint32_t t = millis();
-    if (button_raw != new_state)
-    {
-        button_raw = new_state;
-        debounce_time = t;
-        long_time = t;
-        return;
-    }
-
-    if ((int32_t)(t - debounce_time) < AE_DEBOUNCE_DELAY_MS)
-        return;
-
-    if (button_debounced != button_raw)
-    {
-        button_debounced = button_raw;
-        if (button_debounced)
-        {
-            long_flag = 0;
-        }
-        else if (long_flag == 0)
-        {
-            short_flag = true;
-        }
-    }
-
-    if (((int32_t)(t - long_time) > AE_PRESS_DELAY_LONG_MS) && button_debounced && (long_flag == 0))
-    {
-        long_flag = 1;
-        //Serial.print(".");
-    }
-}
-
-
-void AnalogEncoder::process_position(int code)
-{
-    switch(code)
-    {
-    case 3:
-        pass = true;
-        break;
-    case 1:
-        dir = 1;
-        break;
-    case 2:
-        dir = -1;
-        break;
-    case 0:
-        if (!pass)
-            return;
-        portENTER_CRITICAL(&timer_mux);
-        cnt += dir;
-        portEXIT_CRITICAL(&timer_mux);
-        pass = false;
-        break;
-    }
-}
-
+int xx;
 
 void AnalogEncoder::process()
 {
@@ -92,9 +29,10 @@ void AnalogEncoder::process()
         return;
 
     int x1 = analogRead(pin);
-    int d1 = 5000;
+    xx = x1;
+    int d1 = abs(aencv[0] - x1);
     int code = 0;
-    for (int i = 0; i < AE_ADC_STEPS; i++)
+    for (int i = 1; i < AE_ADC_STEPS; i++)
     {
         int delta = abs(aencv[i] - x1);
         if (delta < d1)
@@ -117,16 +55,85 @@ void AnalogEncoder::process()
     last_code = code;
 
     process_button((code & 0x04) != 0);
-    process_position(code & 0x03);
+    process_position(pos, code);
+}
+
+
+void AnalogEncoder::process_button(bool new_state)
+{
+    uint32_t t = millis();
+    if (button_raw != new_state)
+    {
+        button_raw = new_state;
+        debounce_time = t;
+        long_time = t;
+//        Serial.printf("!%d\n", xx);
+        return;
+    }
+
+    if ((int32_t)(t - debounce_time) < AE_DEBOUNCE_DELAY_MS)
+        return;
+
+    if (button_debounced != button_raw)
+    {
+        // Serial.print("#");
+        button_debounced = button_raw;
+        if (button_debounced)
+        {
+            long_flag = 0;
+            // Serial.print(":");
+        }
+        else if (long_flag == 0)
+        {
+            short_flag = true;
+            // Serial.print("*");
+        }
+    }
+
+    if (button_debounced)
+    {
+        if ((int32_t)(t - long_time) > AE_PRESS_DELAY_LONG_MS) 
+        {
+            // Serial.printf("? %d ", long_flag);
+            if (long_flag == 0)
+            {
+                long_flag = 1;
+                // Serial.print(".");
+            }
+        }
+    }
+   
+}
+
+
+void AnalogEncoder::process_position(EncoderPosition & pos, int code)
+{
+    if (code & 0x04)
+        return;
+
+    code &= 0x03;
+    if ((pos.codes & 0x03) == code)
+        return;
+
+    pos.codes = ((pos.codes << 4) | code) & 0xFFF;
+    if ((pos.codes & 0xF0F) != 0x300)
+        return;
+
+    int dir = ((pos.codes & 0x0F0) == 0x010) ? 1 : -1;
+
+    //Serial.printf("%03X %d\n", pos.codes, xx);
+    portENTER_CRITICAL(&timer_mux);
+    pos.cnt += dir;
+    portEXIT_CRITICAL(&timer_mux);
 }
 
 
 int AnalogEncoder::get_cnt()
 {
     portENTER_CRITICAL(&timer_mux);
-    int cnt1 = cnt;
+    int cnt1 = pos.cnt;
     portEXIT_CRITICAL(&timer_mux);
-    cnt_old = cnt1;
+    pos.cnt_old = cnt1;
     return cnt1;
 }
 
@@ -134,10 +141,10 @@ int AnalogEncoder::get_cnt()
 int AnalogEncoder::get_move()
 {
     portENTER_CRITICAL(&timer_mux);
-    int cnt1 = cnt;
+    int cnt1 = pos.cnt;
     portEXIT_CRITICAL(&timer_mux);
-    int delta = cnt1 - cnt_old;
-    cnt_old = cnt1;
+    int delta = cnt1 - pos.cnt_old;
+    pos.cnt_old = cnt1;
     return delta;
 }
 

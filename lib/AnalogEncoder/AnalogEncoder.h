@@ -12,43 +12,51 @@
 
 extern __attribute__((weak)) void ae_calibrate_callback(int step);
 
+
+class EncoderPosition
+{
+public:
+    int codes = 0;            // previous codes store
+    int cnt = 0;            // current position
+    int cnt_old = 0;        // previous cnt
+};
+
+
 class AnalogEncoder
 {
-    public:
-        AnalogEncoder(int pin);         // init
+public:
+    AnalogEncoder(int pin);         // init
 
-        void process();                 // process encoder
-        int get_cnt();                  // get count value
-        int get_move();                 // get count difference
-        bool is_pressed();              // button is now pressed
-        bool long_press();              // released after long press
-        bool short_press();             // released after short press
-        bool press_and_repeat();        // repeating
+    void process();                 // process encoder
+    int get_cnt();                  // get count value
+    int get_move();                 // get count difference
+    bool is_pressed();              // button is now pressed
+    bool long_press();              // released after long press
+    bool short_press();             // released after short press
+    bool press_and_repeat();        // repeating
 
-        void calibrate();
-        uint16_t aencv[AE_ADC_STEPS] = {0, 1174, 1940, 2330, 2540, 2750, 2930, 3056};
+    void calibrate();
+    uint16_t aencv[AE_ADC_STEPS] = {0, 1174, 1940, 2330, 2540, 2750, 2930, 3056};
 
-    private:
-        int pin;
+private:
+    int pin;
 
-        uint32_t debounce_time;    // last raw change time
-        uint32_t long_time;        // last debounced change time;
-        int button_raw;                 // raw value
-        int button_debounced;           // debounced value
-        bool short_flag;                // short pressed flag
-        int long_flag;                 // long pressed flag
-        void process_button(bool new_state);
+    int last_code = -1;         // previus code for filtering
 
-        int dir;                // direction store
-        int last_code;          // previus code for filtering
-        bool pass;              // zero-pass-detect
-        int cnt;                // current position
-        int cnt_old;            // previous cnt;
-        void process_position(int code);
+    uint32_t debounce_time;    // last raw change time
+    uint32_t long_time;        // last debounced change time;
+    int button_raw;                 // raw value
+    int button_debounced;           // debounced value
+    bool short_flag;                // short pressed flag
+    int long_flag;                 // long pressed flag
+    void process_button(bool new_state);
 
-        portMUX_TYPE timer_mux = portMUX_INITIALIZER_UNLOCKED;
+    EncoderPosition pos;
+    void process_position(EncoderPosition & pos, int code);
 
-        bool calibrate_mode = false;
+    portMUX_TYPE timer_mux = portMUX_INITIALIZER_UNLOCKED;
+
+    bool calibrate_mode = false;
 };
 
 

@@ -69,11 +69,11 @@ class PageInfoCtrl : public CtrlPage
 public:
     void b1_short()         {       player->page_next();}
     bool vol(int change)    {return player->change_volume(change);}
-    void vol_short()        {       player->play_file_next();}
-    void vol_long()         {       player->play_file_prev();}
+    void vol_short()        {       player->toggle_pause();}
+    void vol_long()         {       player->fav_next();}
     bool seek(int by)       {return player->file_seek(by);}
-    void seek_short()       {       player->toggle_pause();}
-    void seek_long()        {       player->fav_next();}
+    void seek_short()       {       player->play_file_next();}
+    void seek_long()        {       player->play_file_prev();}
     void b1_long()          {       player->play_file_down();}
     void b2_long()          {       player->toggle_shuffle();}
     void b2_short()         {       player->play_dir_prev();}

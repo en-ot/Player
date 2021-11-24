@@ -155,6 +155,8 @@ void prefs_save_main(int curfav, int prevfav, uint32_t sd_free)
     prefs.putBytes(prefs_key_controls, arr, sizeof(arr));
 
     prefs.end();
+
+    DEBUG("prefs saved\n");
 }
 
 
