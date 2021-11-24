@@ -232,10 +232,14 @@ void Sound::loop()
         if (running) p->audio->pauseResume();
         //audio.loop();
 
+        DEBUG("trying to set file pos %d...", player->filepos);
         if (p->audio->setAudioPlayPosition(player->filepos))
         {
+            DEBUG("OK");
             player->need_set_file_pos = false;
         }
+        DEBUG("\n");
+        
         //audio.loop();
         if (running) p->audio->pauseResume();
         //audio.loop();

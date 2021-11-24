@@ -20,19 +20,19 @@ static Preferences prefs;
 #define NO_FAV 0
 static int curfav = NO_FAV;
 
-static const char *prefs_file_main = "main";
-static const char *prefs_key_curfav = "curfav";
-static const char *prefs_key_prevfav = "prevfav";
+static const char *prefs_file_main    = "main";
+static const char *prefs_key_curfav   = "curfav";
+static const char *prefs_key_prevfav  = "prevfav";
 static const char *prefs_key_controls = "controls";
-static const char *prefs_key_sd_free = "sd_free";
+static const char *prefs_key_sd_free  = "sd_free";
 
-static const char *prefs_file_dir = "fav";
-static const char *prefs_key_path   = "path";
-static const char *prefs_key_volume = "volume";
+static const char *prefs_file_dir    = "fav";
+static const char *prefs_key_path    = "path";
+static const char *prefs_key_volume  = "volume";
 static const char *prefs_key_curfile = "curfile";
 static const char *prefs_key_filepos = "filepos";
 static const char *prefs_key_shuffle = "shuffle";
-static const char *prefs_key_repeat = "repeat";
+static const char *prefs_key_repeat  = "repeat";
 
 //flags
 uint32_t save_time;
@@ -40,7 +40,7 @@ bool need_save_current_file = false;
 bool need_save_volume = false;
 bool need_save_repeat = false;
 bool need_save_shuffle = false;
-bool need_save_file_pos = false;
+//bool need_save_file_pos = false;
 
 
 //###############################################################
@@ -111,11 +111,11 @@ int prefs_load_data(int fav_num, char * path, int len)
 {
     prefs_open_fav(fav_num);
 
-    player->volume = prefs.getInt(prefs_key_volume, 1);
-    player->next_file = prefs.getInt(prefs_key_curfile, 1);
-    player->shuffle = prefs.getBool(prefs_key_shuffle, false);
-    player->repeat = prefs.getBool(prefs_key_repeat, false);
-    player->filepos = prefs.getInt(prefs_key_filepos, 0);
+    player->volume    = prefs.getInt (prefs_key_volume, 1);
+    player->next_file = prefs.getInt (prefs_key_curfile, 1);
+    player->shuffle   = prefs.getBool(prefs_key_shuffle, false);
+    player->repeat    = prefs.getBool(prefs_key_repeat, false);
+    player->filepos   = prefs.getInt (prefs_key_filepos, 0);
     int size = prefs_get_path(fav_num, path, len);
 
     DEBUG("Fav:%i Dir:%s File:%i Pos:%i Vol:%i Sh:%i Rep:%i\n", fav_num, path, player->next_file, player->filepos, player->volume, player->shuffle, player->repeat);

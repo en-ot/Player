@@ -22,6 +22,7 @@
 
 #include "player.h"
 
+
 typedef enum
 {
     NEED_NOT = 0,
@@ -29,6 +30,8 @@ typedef enum
     NEED_CONT = 2,
 } NeedPlay;
 
+
+int sound_errors = 0;
 
 //###############################################################
 class PlayerPrivate
@@ -119,47 +122,47 @@ bool Player::input(int type, int key)
 }
 
 
-void Player::freeze()
+//###############################################################
+uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
+
+
+void Player::page_change(int page_num)
 {
-    p->sound->pause();
-//    controls_pause();
+    if (ui_page == page_num)
+        return;
+
+    ui_page = page_num;
+    p->gui->set_page(ui_page);
+
+    p->info->scroll_reset();
+
+    auto page = *page_ptr(ui_page);
+    page->activate();
 }
 
 
-void Player::unfreeze()
+void Player::page_next()
 {
-    p->sound->resume();
-//    controls_resume();
+    int i;
+    for (i = 0; i < sizeof(page_order); i++)
+    {
+        if (page_order[i] == ui_page)
+        {
+            i++;
+            break;
+        }
+    }
+    if (i >= sizeof(page_order)) 
+        i = 0;
+
+    page_change(page_order[i]);
 }
 
 
-void Player::stop()
+void Player::update()
 {
-    p->sound->stop();
-}
-
-
-bool Player::is_playing()
-{
-    return p->sound->state() == SOUND_PLAYING;
-}
-
-
-bool Player::is_gain()
-{
-    return p->sound->is_gain();
-}
-
-
-uint32_t Player::current_time()
-{
-    return p->sound->current_time();
-}
-
-
-uint32_t Player::duration()
-{
-    return p->sound->duration();
+    auto page = *page_ptr(ui_page);
+    page->update();
 }
 
 
@@ -196,6 +199,7 @@ bool Player::fav_switch(int fav_num, bool init)
 
     DEBUG("dircnt: %d\n", p->list[LIST]->dircnt);
 
+    p->info->clear();
     p->info->update();
     p->info->alive(false);
     p->info->gain(false);
@@ -205,7 +209,7 @@ bool Player::fav_switch(int fav_num, bool init)
     play_file_num(next_file, FAIL_NEXT);
 
     p->list[PLAYING]->find_file(next_file);
-    DEBUG("cur playing %d / %d\n", p->list[PLAYING]->curdir, p->list[PLAYING]->curfile);
+    DEBUG("cur playing %d / %d:%d\n", p->list[PLAYING]->curdir, p->list[PLAYING]->curfile, filepos);
 
     p->fav->goto_cur();
     p->dirs->goto_cur();
@@ -215,13 +219,6 @@ bool Player::fav_switch(int fav_num, bool init)
         need_set_file_pos = true;
 
     return true;
-}
-
-
-void Player::update()
-{
-    auto page = *page_ptr(ui_page);
-    page->update();
 }
 
 
@@ -250,6 +247,14 @@ void Player::restart()
 }
 
 
+void Player::reset_to_defaults()
+{
+    p->sound->stop();
+    prefs_erase_all();
+}
+
+
+//###############################################################
 const char * Player::cur_fav_path()
 {
     return p->list[PLAYING]->root_path.c_str();
@@ -317,16 +322,6 @@ size_t Player::dir_name(PlaylistType pl, int file_num, char * dst, int len)
 
 
 //###############################################################
-void Player::play_file_num(int num, int updown)
-{
-    DEBUG("play file %d\n", num);
-    num = clamp1(num, p->list[PLAYING]->filecnt);
-    next_file = num;
-    next_updown = updown;
-    need_play_next_file = NEED_START;
-}
-
-
 void Player::play_file_up()
 {
     play_file_num(p->list[PLAYING]->curfile - 1, FAIL_PREV);
@@ -351,7 +346,16 @@ void Player::play_file_random()
 }
 
 
-int sound_errors = 0;
+void Player::play_file_num(int num, int updown)
+{
+    DEBUG("play file %d\n", num);
+    num = clamp1(num, p->list[PLAYING]->filecnt);
+    next_file = num;
+    next_updown = updown;
+    need_play_next_file = NEED_START;
+}
+
+
 //todo: remove player, move to PlayerPrivate fields
 void PlayerPrivate::loop()
 {
@@ -403,9 +407,12 @@ void PlayerPrivate::loop()
             // DEBUG("-playing\n");
             playstack_push(num);
             player->need_play_next_file = NEED_NOT;
+            prefs_save_delayed(need_save_current_file);
             return;
         }
 
+        player->filepos = 0;
+        player->need_set_file_pos = false;
         num = (updown == FAIL_RANDOM) ? player->file_random() : num + updown;
     }
 
@@ -465,17 +472,64 @@ void PlayerPrivate::loop()
 
     char filepath[PATHNAME_MAX_LEN] = "";
     strlcpy(filepath, dirname, sizeof(filepath));
-    if (x > 1) filepath[x++] = '/';
+    if (x > 1) 
+        filepath[x++] = '/';
     strlcpy(&filepath[x], filename, sizeof(filepath)-x);
     
-    player->filepos = 0;
-    prefs_save_delayed(need_save_current_file);
     sound->play(filepath);
 }
 
 
+//###############################################################
+void Player::freeze()
+{
+    p->sound->pause();
+//    controls_pause();
+}
+
+
+void Player::unfreeze()
+{
+    p->sound->resume();
+//    controls_resume();
+}
+
+
+void Player::stop()
+{
+    p->sound->stop();
+}
+
+
+bool Player::is_playing()
+{
+    return p->sound->state() == SOUND_PLAYING;
+}
+
+
+bool Player::is_gain()
+{
+    return p->sound->is_gain();
+}
+
+
+uint32_t Player::current_time()
+{
+    return p->sound->current_time();
+}
+
+
+uint32_t Player::duration()
+{
+    return p->sound->duration();
+}
+
+
+//###############################################################
 void Player::play_file_next()
 {
+    filepos = 0;
+    need_set_file_pos = false;
     if (shuffle)
         play_file_random();
     else
@@ -558,13 +612,6 @@ bool Player::file_seek(int by)
 }
 
 
-void Player::reset_to_defaults()
-{
-    p->sound->stop();
-    prefs_erase_all();
-}
-
-
 void Player::toggle_pause()
 {
     if (!is_playing())
@@ -597,41 +644,3 @@ bool Player::change_volume(int change)
     prefs_save_delayed(need_save_volume);
     return true;
 }
-
-
-//###############################################################
-uint8_t page_order[] = {PAGE_INFO, PAGE_FAV, PAGE_FILES, PAGE_DIRS};
-
-
-void Player::page_change(int page_num)
-{
-    if (ui_page == page_num)
-        return;
-
-    ui_page = page_num;
-    p->gui->set_page(ui_page);
-
-    p->info->scroll_reset();
-
-    auto page = *page_ptr(ui_page);
-    page->activate();
-}
-
-
-void Player::page_next()
-{
-    int i;
-    for (i = 0; i < sizeof(page_order); i++)
-    {
-        if (page_order[i] == ui_page)
-        {
-            i++;
-            break;
-        }
-    }
-    if (i >= sizeof(page_order)) 
-        i = 0;
-
-    page_change(page_order[i]);
-}
-

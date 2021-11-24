@@ -47,8 +47,8 @@ public:
     void freeze();
     void unfreeze();
 
-    int cur_fav_num;
-    int prev_fav_num;
+    int cur_fav_num = 1;
+    int prev_fav_num = 1;
     bool fav_switch(int fav_num, bool init);
     void fav_next();
     void fav_prev();
@@ -69,24 +69,24 @@ public:
     size_t dir_name(PlaylistType pl, int file_num, char * dst, int len);
     int cur_level(PlaylistType pl);
 
-    int8_t volume;
-    int8_t volume_old;
+    int8_t volume = 1;
+    int8_t volume_old = 1;
     bool change_volume(int change);
 
-    bool shuffle;
+    bool shuffle = false;
     void toggle_shuffle();
 
-    bool repeat;
+    bool repeat = false;
     void toggle_repeat();
 
     bool need_set_file_pos = false;
-    uint32_t filepos;
-    int file_seek_by;
+    uint32_t filepos = 0;
+    int file_seek_by = 0;
     bool file_seek(int by);
 
     int need_play_next_file = 0;
-    int next_file;
-    int next_updown;
+    int next_file = 1;
+    int next_updown = 0;
     void play_file_num(int num, int updown);
     void play_file_up();
     void play_file_down();
@@ -102,7 +102,7 @@ public:
     uint32_t duration();
 
     int need_play_next_dir = 0;
-    int next_dir;
+    int next_dir = 1;
     void play_dir_next();
     void play_dir_prev();
 

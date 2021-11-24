@@ -52,9 +52,9 @@ void setup()
     sys.set_page(page_info, gui);
 
     player->set_page(PAGE_FILES, new PageFiles(gui));
-    player->set_page(PAGE_FAV, new PageFav(gui));
-    player->set_page(PAGE_DIRS, new PageDirs(gui));
-    player->set_page(PAGE_SYS, new PageSys(gui));
+    player->set_page(PAGE_FAV,   new PageFav(gui));
+    player->set_page(PAGE_DIRS,  new PageDirs(gui));
+    player->set_page(PAGE_SYS,   new PageSys(gui));
 
     //page_pic_init();
 
