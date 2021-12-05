@@ -3,7 +3,7 @@
  * libhelix_HMP3DECODER
  *
  *  Created on: 26.10.2018
- *  Updated on: 10.04.2021
+ *  Updated on: 27.11.2021
  */
 #include "mp3_decoder.h"
 
@@ -1351,6 +1351,7 @@ int MP3Decode( unsigned char *inbuf, int *bytesLeft, short *outbuf, int useSize)
             m_MP3DecInfo->freeBitrateSlots=MP3FindFreeSync(inbuf, inbuf - fhBytes - siBytes, *bytesLeft);
             if(m_MP3DecInfo->freeBitrateSlots < 0){
                 MP3ClearBadFrame(outbuf);
+                m_MP3DecInfo->freeBitrateFlag = 0;
                 return ERR_MP3_FREE_BITRATE_SYNC;
             }
             freeFrameBytes=m_MP3DecInfo->freeBitrateSlots + fhBytes + siBytes;
@@ -3442,7 +3443,7 @@ int IMDCT( int gr, int ch) {
         /* all long transforms */
         int x=(m_HuffmanInfo->nonZeroBound[ch] + 7) / 18 + 1;
         bc.nBlocksLong=(x<32 ? x : 32);
-        //bc.nBlocksLong = MIN((hi->nonZeroBound[ch] + 7) / 18 + 1, 32);
+        //bc.nBlocksLong = min((hi->nonZeroBound[ch] + 7) / 18 + 1, 32);
         nBfly = bc.nBlocksLong - 1;
     } else if (m_SideInfoSub[gr][ch].blockType == 2 && m_SideInfoSub[gr][ch].mixedBlock) {
         /* mixed block - long transforms until cutoff, then short transforms */
@@ -3748,7 +3749,7 @@ void PolyphaseMono(short *pcm, int *vbuf, const uint32_t *coefBase){
     int vLo, vHi, c1, c2;
     uint64_t sum1L, sum2L, rndVal;
 
-    rndVal = (uint64_t)( 1ULL << ((m_DQ_FRACBITS_OUT - 2 - 2 - 1) - 1 + (32 - m_CSHIFT)) );
+    rndVal = (uint64_t)( 1ULL << ((m_DQ_FRACBITS_OUT - 2 - 2 - 15) - 1 + (32 - m_CSHIFT)) );
 
     /* special case, output sample 0 */
     coef = coefBase;

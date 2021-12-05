@@ -4,7 +4,7 @@
  * adapted to ESP32
  *
  * Created on: Jul 03,2020
- * Updated on: Apr 27,2021
+ * Updated on: Jul 03,2021
  *
  * Author: Wolle
  *
@@ -78,7 +78,7 @@ uint32_t readUint(uint8_t nBits){
         uint8_t temp = *(m_inptr + m_rIndex);
         m_rIndex++;
         m_bytesAvail--;
-        if(m_bytesAvail < 0) log_i("error in bitreader");
+        if(m_bytesAvail < 0) { log_i("error in bitreader"); }
         m_bitBuffer = (m_bitBuffer << 8) | temp;
         m_bitBufferLen += 8;
     }
@@ -162,8 +162,10 @@ int FLACFindOggSyncWord(unsigned char *buf, int nBytes){
 int FLACparseOggHeader(unsigned char *buf){
     uint8_t i = 0;
     uint8_t ssv = *(buf + i);                  // stream_structure_version
+    (void)ssv;
     i++;
     uint8_t htf = *(buf + i);                  // header_type_flag
+    (void)htf;
     i++;
     uint32_t tmp = 0;                         // absolute granule position
     for (int j = 0; j < 4; j++) {
@@ -345,7 +347,7 @@ int8_t FLACDecode(uint8_t *inbuf, int *bytesLeft, short *outbuf){
 
         if(offset != m_blockSize) return GIVE_NEXT_LOOP;
         offset = 0;
-        if(offset > m_blockSize) log_e("offset has a wrong value");
+        if(offset > m_blockSize) { log_e("offset has a wrong value"); }
     }
 
     alignToByte();
