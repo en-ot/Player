@@ -19,6 +19,8 @@ InputButton btn_3(BTN_3, true, ACTIVE_LOW);
 AnalogEncoder enc1(AENC1);
 AnalogEncoder enc2(AENC2);
 
+static bool (*_input)(PlayerInputType type, int key) = nullptr;
+
 
 //###############################################################
 // Input controls
@@ -32,14 +34,6 @@ static void enc_task(void * pvParameters)
         enc2.process();
         vTaskDelay(1);
     }
-}
-
-static bool (*_input)(PlayerInputType type, int key) = nullptr;
-
-void controls_init(bool (*callback)(PlayerInputType type, int key))
-{
-    _input = callback;
-    xTaskCreatePinnedToCore(enc_task, "enc_task", 5000, NULL, 2, &enc_task_handle, CONTROLS_CORE);
 }
 
 
@@ -130,3 +124,30 @@ void controls_get_prefs(uint8_t * dst)
     dst += sizeof(enc1.aencv);
     memcpy(dst, enc2.aencv, sizeof(enc2.aencv));
 }
+
+
+//###############################################################
+bool dummy_input(PlayerInputType type, int key)
+{
+    static int cnt = 0;
+    if ((type == I_SEEK1 || type == I_SEEK2) && (key == 0))
+        return false;
+    cnt++;
+    DEBUG("UNEXPECTED INPUT %d %d\n", type, key);
+    debug_val = (cnt << 24) | (type << 16) | (key & 0xFFFF);
+    return false;
+}
+
+
+void controls_init(bool (*callback)(PlayerInputType type, int key))
+{
+    Serial.flush();
+
+    _input = dummy_input;
+    controls_loop();    //flush input
+    
+    _input = callback;
+    xTaskCreatePinnedToCore(enc_task, "enc_task", 5000, NULL, 2, &enc_task_handle, CONTROLS_CORE);
+}
+
+

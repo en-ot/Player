@@ -29,6 +29,7 @@ Sys sys;
 #define STEPS_TOTAL 10
 uint32_t step_t0 = 0;
 
+#define PAGE_SYS_LINES 8
 
 class SysPrivate
 {
@@ -202,6 +203,12 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
         case 7:
             snprintf(pStrItem, nStrItemLen, "microSD free: %u MB", sys.sd_free_mb);
             break;
+
+        case 8:
+            snprintf(pStrItem, nStrItemLen, "debug: %08X", debug_val);
+            break;
+
+        //PAGE_SYS_LINES
     }
     return true;
 }
@@ -226,9 +233,9 @@ PageSys::PageSys(Gui * gui)
     ctrl = c;
 
     gslc_PageAdd(g->s, PAGE_SYS, g->elem, SYS_ELEM_MAX, g->ref, SYS_ELEM_MAX);
-    g->box_ref    = g->p->create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &g->box_elem,    SYS_BACK_COL);
+    g->box_ref    = g->p->create_listbox(PAGE_SYS, SYS_BOX_ELEM,    &g->box_elem,   SYS_BACK_COL);
     g->slider_ref = g->p->create_slider(PAGE_SYS, SYS_SLIDER_ELEM, &g->slider_elem, SYS_BACK_COL);
-    g->box(7, page_sys_get_item, 0);
+    g->box(PAGE_SYS_LINES, page_sys_get_item, 0);
 }
 
 

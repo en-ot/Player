@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "debug.h"
 
+uint32_t debug_val = 0;
+
 void DEBUG_DUMP8(const void * addr, int len, int wdt)
 {
     uint8_t *ptr = (uint8_t *)addr;
