@@ -117,7 +117,7 @@ private:
     uint8_t getDateTime(uint16_t *pyear, uint8_t *pmonth, uint8_t *pday, uint8_t *phour, uint8_t *pminute, uint8_t *second);
     char* makeDateTimeStr(char *tstr, uint16_t date, uint16_t time);
     char* makeDateTimeStr2(char *tstr, uint16_t date, uint16_t time);
-    int8_t readChar();
+    int16_t readChar();
 
     void log(int event, const char * text);
 
