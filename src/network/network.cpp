@@ -55,7 +55,7 @@ bool writeflag = false;
 
 void ftp_callback(int event, const char* text)
 {
-    Serial.printf("ftpdebug: %s\n", text);
+    Serial.printf("ftpdebug %d: %s\n", event, text);
 
     switch(event)
     {

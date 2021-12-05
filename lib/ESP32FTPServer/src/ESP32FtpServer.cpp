@@ -28,6 +28,12 @@ WiFiServer ftpServer( FTP_CTRL_PORT );
 WiFiServer dataServer( FTP_DATA_PORT_PASV );
 
 
+#define FTP_LINE_RECEIVED 1
+#define FTP_LINE_EMPTY 0
+#define FTP_LINE_INCOMPLETE -1
+#define FTP_SYNTAX_ERROR -2
+
+
 //----------------------------------------------------------------------------------------------------------------------
 FtpServer::FtpServer() 
 {
@@ -169,7 +175,7 @@ int FtpServer::handleFTP()
         }
     }
 
-    else if (readChar() > 0) 
+    else if (readChar() == FTP_LINE_RECEIVED) 
     {         // got response
         if (cmdStatus == 3) 
         {            // Ftp server waiting for user identity
@@ -998,71 +1004,57 @@ void FtpServer::abortTransfer()
 //  update cmdLine and command buffers, iCL and parameters pointers
 //
 //  return:
-//    -2 if buffer cmdLine is full
-//    -1 if line not completed
-//     0 if empty line received
-//    length of cmdLine (positive) if no empty line received
-
+//    error/status code:
 int16_t FtpServer::readChar() 
 {
-    int16_t rc = -1;
-    if(client.available()) {
-        char c = client.read();
-        if(c == '\\') {
-            c = '/';
-        }
-        if(c != '\r') {
-            if(c != '\n') {
-                if(iCL < FTP_CMD_SIZE) {
-                    cmdLine[iCL++] = c;
-                }
-                else
-                    rc = -2; //  Line too long
-            }
-            else {
-                cmdLine[iCL] = 0;
-                command[0] = 0;
-                parameters = NULL;
-                // empty line?
-                if(iCL == 0)
-                    rc = 0;
-                else {
-                    rc = iCL;
-                    // search for space between command and parameters
-                    parameters = strchr(cmdLine, ' ');
-                    if(parameters != NULL) {
-                        if(parameters - cmdLine > 4) {
-                            rc = -2; // Syntax error
-                        }
-                        else {
-                            strncpy(command, cmdLine, parameters - cmdLine);
-                            command[parameters - cmdLine] = 0;
-                            while(*(++parameters) == ' ') {;}
+    int16_t rc;
+    int cmdlen;
 
-                            //sprintf(chbuf, "command = %s, parameters = s", command, parameters);
-                            //if(ftp_debug) ftp_debug(chbuf);
+    if(!client.available())
+        return FTP_LINE_INCOMPLETE;
 
-                        }
-                    }
-                    else if(strlen(cmdLine) > 4)
-                        rc = -2; // Syntax error.
-                    else
-                        strcpy(command, cmdLine);
-                    iCL = 0;
-                }
-            }
-        }
-        if(rc > 0) {
-            for(uint8_t i = 0; i < strlen(command); i++) {
-                command[i] = toupper(command[i]);
-            }
-        }
-        if(rc == -2) {
-            iCL = 0;
-            client.println("500 Syntax error");
-        }
+    char c = client.read();
+
+    if(c == '\r')
+        return FTP_LINE_INCOMPLETE;
+
+    if(c != '\n') 
+    {
+        if (iCL >= FTP_CMD_SIZE) 
+            goto syntax_error;
+
+        cmdLine[iCL++] = c == '\\' ? '/' : c;
+        return FTP_LINE_INCOMPLETE;
     }
-    return rc;
+
+    if (iCL == 0)
+        return FTP_LINE_EMPTY;
+
+    cmdLine[iCL] = 0;
+    // Serial.println(cmdLine);
+    // log(FTPSERV_COMMAND, cmdLine);
+
+    // search for space between command and parameters
+    parameters = strchr(cmdLine, ' ');
+    cmdlen = parameters ? parameters - cmdLine : iCL;
+    if (cmdlen > 4)
+        goto syntax_error;
+
+    if (parameters)
+        while (*(++parameters) == ' ');
+
+    for(int i = 0; i < cmdlen; i++)
+        command[i] = toupper(cmdLine[i]);
+    command[cmdlen] = 0;
+
+    iCL = 0;
+    return FTP_LINE_RECEIVED;
+
+syntax_error:
+    iCL = 0;
+    client.println("500 Syntax error");
+    log(FTPSERV_ERROR, "syntax error");
+    return FTP_SYNTAX_ERROR;
 }
 
 
