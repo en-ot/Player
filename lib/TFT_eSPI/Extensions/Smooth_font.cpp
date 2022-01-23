@@ -39,6 +39,7 @@ void TFT_eSPI::loadFont(const char * partitionName, esp_partition_subtype_t subt
     uint32_t gCount;
     spi_flash_read(font_raw, &gCount, sizeof(gCount));
     uint metrics_size = 24 + gCount * 7 * sizeof(uint32_t);
+    Serial.printf("Font address: %08X, glyphs: %d\n", (uint32_t)font_raw, gCount);
 
 //  esp_err_t err = spi_flash_mmap(font_raw, metrics_size, SPI_FLASH_MMAP_INST, (const void **)&fontPtr, &font_handle);
    esp_err_t err = spi_flash_mmap(font_raw, metrics_size, SPI_FLASH_MMAP_DATA, (const void **)&fontPtr, &font_handle);
@@ -49,7 +50,7 @@ void TFT_eSPI::loadFont(const char * partitionName, esp_partition_subtype_t subt
      return;
    }
 
-  Serial.printf("Font metrics mapped to: %08X, glyphs: %d\n", (uint32_t)fontPtr, gCount);
+  Serial.printf("Font metrics mapped to: %08X\n", (uint32_t)fontPtr);
 
   loadFont("", false);
 }

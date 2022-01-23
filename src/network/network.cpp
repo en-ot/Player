@@ -144,7 +144,7 @@ void ota_onError(int error, const char * errtxt)
     player->loop();
     player->restart();
 }
-#endif
+#endif // NETWORK_ENABLED
 
 
 //###############################################################
