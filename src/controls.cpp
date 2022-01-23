@@ -83,6 +83,23 @@ bool input_loop()
 
 
 //###############################################################
+void serial_flush()
+{
+    Serial.flush();
+    int cnt = 0;
+
+    while (Serial.available())
+    {
+        char r;
+        Serial.read(&r, 1);
+
+        cnt++;
+        DEBUG("UNEXPECTED INPUT %d\n", r);
+        debug_val = (cnt << 24) | (r & 0xFF);
+    }
+}
+
+
 void serial_loop()
 {
     if (!Serial.available()) 
@@ -139,13 +156,16 @@ bool dummy_input(PlayerInputType type, int key)
 }
 
 
+void controls_flush()
+{
+    serial_flush();
+}
+
+
 void controls_init(bool (*callback)(PlayerInputType type, int key))
 {
-    Serial.flush();
+    controls_flush();
 
-    _input = dummy_input;
-    controls_loop();    //flush input
-    
     _input = callback;
     xTaskCreatePinnedToCore(enc_task, "enc_task", 5000, NULL, 2, &enc_task_handle, CONTROLS_CORE);
 }

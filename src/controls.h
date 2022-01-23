@@ -9,6 +9,7 @@ void controls_get_prefs(uint8_t * dst);
 void controls_calibrate(int n);
 
 void controls_init(bool (*callback)(PlayerInputType type, int key));
+void controls_flush();
 void controls_loop();
 bool controls_defaults();
 void controls_pause();

@@ -128,6 +128,8 @@ void setup()
     sys.step_begin("start");
     player->fav_switch(player->cur_fav_num, true);
     sys.step_end(10);
+
+    controls_flush();
 }
 
 
