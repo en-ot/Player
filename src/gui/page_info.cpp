@@ -33,6 +33,7 @@ public:
     char                        mode_str[20] = "";
     gslc_tsElemRef*             mode_ref = NULL;
     gslc_tsElemRef*             mode_icons_ref[INFO_MODE_ICONS] = {0};
+    int                         net_mode = -1;
 
     char                        fav_str[10] = "";
     gslc_tsElemRef*             fav_ref = NULL;
@@ -470,11 +471,17 @@ void PageInfo::alive(bool running)
 }
 
 
-void PageInfo::net(int mode)
+bool PageInfo::net(int mode)
 {
+    if (mode == g->net_mode)
+        return false;
+    g->net_mode = mode;
+
+    Serial.printf("net mode: %d\n", mode);
     int index = ICON_WIFI_OFF + mode;
     gslc_tsImgRef imgref = gslc_GetImageFromProg((const unsigned char*)icons[index], GSLC_IMGREF_FMT_BMP24);
     gslc_ElemSetImage(g->s, g->mode_icons_ref[INFO_WIFI_ICON], imgref, imgref);
+    return true;
 }
 
 

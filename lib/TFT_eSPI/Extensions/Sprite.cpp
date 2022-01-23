@@ -2223,7 +2223,9 @@ int16_t TFT_eSprite::drawChar(uint16_t uniCode, int32_t x, int32_t y, uint8_t fo
   int32_t pX      = 0;
   int32_t pY      = y;
   uint8_t line = 0;
+#ifdef LOAD_RLE
   bool clip = xd < _vpX || xd + width  * textsize >= _vpW || yd < _vpY || yd + height * textsize >= _vpH;
+#endif
 
 #ifdef LOAD_FONT2 // chop out code if we do not need it
   if (font == 2) {

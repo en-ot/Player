@@ -93,8 +93,8 @@ void Sys::message(const char * message)
 
 void Sys::net(int mode)
 {
-    p->page->net(mode);
-    player->update();
+    if (p->page->net(mode))
+        player->update();
 }
 
 

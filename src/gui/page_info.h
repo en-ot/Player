@@ -32,7 +32,7 @@ public:
     void shuffle(bool val);
     void repeat(bool val);
     void alive(bool running);
-    void net(int mode);
+    bool net(int mode);             // true = redraw
     void bluetooth(bool enabled);
 
     void message(const char * message);

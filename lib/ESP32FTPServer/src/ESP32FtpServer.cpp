@@ -945,8 +945,8 @@ boolean FtpServer::doStore()
         if (nb > 0) 
         {
             nb = data.readBytes((uint8_t*) buf, nb);
-            // sprintf(chbuf, "received %d bytes", nb);
-            // log(FTPSERV_RECEIVING, chbuf);
+            sprintf(chbuf, "received %d bytes", nb);
+            log(FTPSERV_RECEIVING, chbuf);
             size_t written = file.write((uint8_t*) buf, nb);
             UNUSED(written);
             bytesTransfered += nb;

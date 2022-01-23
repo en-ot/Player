@@ -49,6 +49,8 @@ void TFT_eSPI::loadFont(const char * partitionName, esp_partition_subtype_t subt
      return;
    }
 
+  Serial.printf("Font metrics mapped to: %08X, glyphs: %d\n", (uint32_t)fontPtr, gCount);
+
   loadFont("", false);
 }
 
@@ -320,6 +322,7 @@ bool TFT_eSPI::getUnicodeIndex(uint16_t unicode, uint16_t *index)
 void * memcpy_I(void * dst, const void * src, int len)
 {
     spi_flash_read((size_t)src, dst, len);
+    return dst;
 }
 
 
