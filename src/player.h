@@ -49,7 +49,7 @@ public:
 
     int cur_fav_num = 1;
     int prev_fav_num = 1;
-    bool fav_switch(int fav_num, bool init);
+    bool fav_switch(int fav_num);
     void fav_next();
     void fav_prev();
     void restart();

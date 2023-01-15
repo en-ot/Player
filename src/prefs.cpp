@@ -40,6 +40,7 @@ bool need_save_current_file = false;
 bool need_save_volume = false;
 bool need_save_repeat = false;
 bool need_save_shuffle = false;
+bool initialized = false;
 //bool need_save_file_pos = false;
 
 
@@ -201,6 +202,7 @@ void prefs_loop()
 
 void prefs_save_delayed(bool &flag)
 {
+//    DEBUG("Save delayed\n");
     const int save_delay_ms = 5000;
     flag = true;
     save_time = millis() + save_delay_ms;
@@ -209,6 +211,7 @@ void prefs_save_delayed(bool &flag)
 
 void prefs_save_now(bool &flag)
 {
+//    DEBUG("Save now\n");
     flag = true;
     save_time = millis();
     prefs_loop();

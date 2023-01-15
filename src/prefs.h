@@ -25,6 +25,7 @@ extern bool need_save_volume;
 extern bool need_save_repeat;
 extern bool need_save_shuffle;
 //extern bool need_save_file_pos;
+extern bool initialized;
 
 //###############################################################
 

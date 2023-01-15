@@ -41,7 +41,6 @@ void setup()
 
     player = new Player();
 
-
     sys.step_begin("gui");
     auto gui = new Gui();
     player->set_gui(gui);
@@ -126,7 +125,7 @@ void setup()
 
 
     sys.step_begin("start");
-    player->fav_switch(player->cur_fav_num, true);
+    player->fav_switch(player->cur_fav_num);
     sys.step_end(10);
 
     controls_flush();

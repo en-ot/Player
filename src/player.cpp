@@ -167,11 +167,11 @@ void Player::update()
 
 
 //###############################################################
-bool Player::fav_switch(int fav_num, bool init)
+bool Player::fav_switch(int fav_num)
 {
     DEBUG("switch to fav %d, %d\n", fav_num, init);
 
-    if (!init)
+    if (initialized)
     {
         if (p->sound->state() == SOUND_PLAYING)
             filepos = p->sound->current_time();
@@ -183,6 +183,7 @@ bool Player::fav_switch(int fav_num, bool init)
         prev_fav_num = cur_fav_num;
         prefs_save_main(fav_num, prev_fav_num, sys.sd_free_mb);
     }
+    initialized = false;
 
     fav_num = clamp1(fav_num, FAV_MAX);
     cur_fav_num = fav_num;
@@ -207,6 +208,7 @@ bool Player::fav_switch(int fav_num, bool init)
     
     playstack_init();
     play_file_num(next_file, FAIL_NEXT);
+    need_save_current_file = false;
 
     p->list[PLAYING]->find_file(next_file);
     DEBUG("cur playing %d / %d:%d\n", p->list[PLAYING]->curdir, p->list[PLAYING]->curfile, filepos);
@@ -224,13 +226,13 @@ bool Player::fav_switch(int fav_num, bool init)
 
 void Player::fav_next()
 {
-    fav_switch(prev_fav_num, false);
+    fav_switch(prev_fav_num);
 }
 
 
 void Player::fav_prev()
 {
-    fav_switch(prev_fav_num, false);
+    fav_switch(prev_fav_num);
 }
 
 
@@ -243,7 +245,7 @@ void Player::fav_set(const char * path)
 
 void Player::restart()
 {
-    fav_switch(cur_fav_num, false);
+    fav_switch(cur_fav_num);
 }
 
 
@@ -407,7 +409,10 @@ void PlayerPrivate::loop()
             // DEBUG("-playing\n");
             playstack_push(num);
             player->need_play_next_file = NEED_NOT;
-            prefs_save_delayed(need_save_current_file);
+            if (initialized)
+                prefs_save_delayed(need_save_current_file);
+            else
+                initialized = true;
             return;
         }
 
