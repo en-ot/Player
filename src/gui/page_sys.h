@@ -47,6 +47,8 @@ public:
 
     void loop2();
 
+    void show_ftp();
+
     class PageSysPrivate * g;
 };
 

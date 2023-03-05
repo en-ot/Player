@@ -29,7 +29,17 @@ Sys sys;
 #define STEPS_TOTAL 10
 uint32_t step_t0 = 0;
 
-#define PAGE_SYS_LINES 8
+#define PAGE_SYS_LINES  9
+#define LINE_VERSION    1
+#define LINE_DATE       2
+#define LINE_IP         3
+#define LINE_FREEPREFS  4
+#define LINE_FREEHEAP   5
+#define LINE_MINHEAP    6
+#define LINE_FREESD     7
+#define LINE_DEBUG      8
+#define LINE_FTP        9
+
 
 class SysPrivate
 {
@@ -101,12 +111,12 @@ void Sys::net(int mode)
 
 
 //#####################################################################################################
-
 class PageSysPrivate
 {
 public:
-    int sel = 1;
+    int sel = LINE_VERSION;
     void box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick_cb);
+    int go_to(int line);
 
     bool seek(int by);
     bool vol(int by);
@@ -167,16 +177,16 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
 
     switch (line)
     {
-        case 1:
+        case LINE_VERSION:
             snprintf(pStrItem, nStrItemLen, "Version: %s", firmware_version());
             break;
         
-        case 2:
+        case LINE_DATE:
             pos = strlcpy(pStrItem, "Date: ", nStrItemLen);
             firmware_datetime(&pStrItem[pos], nStrItemLen-pos);
             break;
         
-        case 3:
+        case LINE_IP:
             pos = strlcpy(pStrItem, "IP: ", nStrItemLen);
             if ((network_connected()))
             {
@@ -188,24 +198,29 @@ bool page_sys_get_item(void* pvGui, void* pvElem, int16_t nItem, char* pStrItem,
             }
             break;
 
-        case 4:
+        case LINE_FREEPREFS:
             snprintf(pStrItem, nStrItemLen, "Free Prefs: %d", prefs_free());
             break;
         
-        case 5:
+        case LINE_FREEHEAP:
             snprintf(pStrItem, nStrItemLen, "Free Heap: %d", sys.freeheap);
             break;
 
-        case 6:
+        case LINE_MINHEAP:
             snprintf(pStrItem, nStrItemLen, "Min Free Heap: %d", sys.minheap);
             break;
 
-        case 7:
+        case LINE_FREESD:
             snprintf(pStrItem, nStrItemLen, "microSD free: %u MB", sys.sd_free_mb);
             break;
 
-        case 8:
+        case LINE_DEBUG:
             snprintf(pStrItem, nStrItemLen, "debug: %08X", debug_val);
+            break;
+
+        case LINE_FTP:
+            extern uint32_t ftp_val;
+            snprintf(pStrItem, nStrItemLen, "ftp: %d", ftp_val);
             break;
 
         //PAGE_SYS_LINES
@@ -218,14 +233,12 @@ void PageSys::activate()
     gslc_SetBkgndColor(g->s, SYS_BACK_COL);
 }
 
-
 PageSys::PageSys(Gui * gui)
 {
     g = new PageSysPrivate;
     g->gui = gui;
     g->p = gui->p;
     g->s = &gui->p->gslc;
-
 
     auto c = new PageSysCtrl;
     c->g = g;
@@ -255,11 +268,23 @@ void PageSysPrivate::box(int cnt, GSLC_CB_XLISTBOX_GETITEM cb, GSLC_CB_TICK tick
 }
 
 
+void PageSys::show_ftp()
+{
+    g->go_to(LINE_FTP);
+}
+
+
+int PageSysPrivate::go_to(int line)
+{
+    return p->box_goto(box_ref, slider_ref, line-1, false) + 1;
+}
+
+
 bool PageSysPrivate::seek(int by)
 {
     if (!by)
         return false;
-    sel = p->box_goto(box_ref, slider_ref, sel-1-by, false) + 1;
+    sel = go_to(sel-by);
     return true;
 }
 
@@ -269,7 +294,7 @@ bool PageSysPrivate::vol(int by)
     if (!by)
         return false;
 
-    if (sel == 3)
+    if (sel == LINE_IP)
     {
         network_reconnect(by > 0 ? WIFI_MODE_HOME : WIFI_MODE_PHONE);
     }
@@ -279,7 +304,7 @@ bool PageSysPrivate::vol(int by)
 
 void PageSysPrivate::vol_short()
 {
-    if (sel == 7)
+    if (sel == LINE_FREESD)
     {
         //sd_free_mb = 0;
         player->stop();
@@ -288,7 +313,7 @@ void PageSysPrivate::vol_short()
         prefs_open_fav(player->cur_fav_num);
     }
 
-    if (sel == 3)
+    if (sel == LINE_IP)
     {
         network_reconnect(WIFI_MODE_STA0);
     }
@@ -297,7 +322,7 @@ void PageSysPrivate::vol_short()
 
 void PageSysPrivate::b2_short()
 {
-    if (sel == 1)
+    if (sel == LINE_VERSION)
     {
         controls_calibrate(1);
     }
@@ -306,7 +331,7 @@ void PageSysPrivate::b2_short()
 
 void PageSysPrivate::b3_short()
 {
-    if (sel == 1)
+    if (sel == LINE_VERSION)
     {
         controls_calibrate(2);
     }

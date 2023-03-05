@@ -33,6 +33,7 @@ WiFiServer dataServer( FTP_DATA_PORT_PASV );
 #define FTP_LINE_INCOMPLETE -1
 #define FTP_SYNTAX_ERROR -2
 
+uint32_t ftp_val = -1;
 
 //----------------------------------------------------------------------------------------------------------------------
 FtpServer::FtpServer() 
@@ -215,6 +216,7 @@ int FtpServer::handleFTP()
     {
         cmdStatus = 1;
         log(FTPSERV_CLIENT_DISCONNECTED, "Client disconnected");
+        ftp_val = -1;
     }
 
     if (transferStatus == 1) 
@@ -321,7 +323,8 @@ uint8_t FtpServer::isConnected()
 //----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::processCommand() 
 {
-
+    ftp_val++;
+    
     // ACCESS CONTROL COMMANDS
     log(FTPSERV_COMMAND, command);
 //    if(ftp_debug) ftp_debug(parameters);
@@ -358,6 +361,11 @@ boolean FtpServer::processCommand()
         log(FTPSERV_DIR, chbuf);
     }
 
+    else if (!strcmp(command, "PWD")) 
+    {  //  PWD - Print Directory
+        client.println("257 \"" + String(cwdName) + "\" is your current directory");
+    }
+
     else if (!strcmp(command, "CWD")) 
     {  //  CWD - Change Working Directory
         if (strcmp(parameters, ".") == 0)
@@ -372,30 +380,21 @@ boolean FtpServer::processCommand()
             sprintf(chbuf, "CWD P=%s, CWD=%s", parameters, cwdName);
             log(FTPSERV_DIR, chbuf);
 
-            String dir;
-            if      (parameters[0] == '/')  dir = parameters;
-            else if (!strcmp(cwdName, "/")) dir = String("/") + parameters;      // avoid "\\newdir"
-            else                            dir = String(cwdName) + "/" + parameters;
-
-            if (_fs->exists(dir)) 
+            char path[FTP_CWD_SIZE];
+            if (makePath(path) && _fs->exists(path))
             {
-                strcpy(cwdName, dir.c_str());
-                client.println("250 CWD Ok. Current directory is \"" + String(dir) + "\"");
-                sprintf(chbuf, "Current directory is \"%s\"", dir.c_str());
+                strcpy(cwdName, path);
+                client.println(String("250 CWD Ok. Current directory is \"") + String(path) + "\"");
+                sprintf(chbuf, "Current directory is \"%s\"", path);
                 log(FTPSERV_DIR, chbuf);
             }
             else 
             {
-                client.println("550 directory or file does not exist \"" + String(parameters) + "\"");
+                client.println(String("550 directory or file does not exist \"") + String(parameters) + "\"");
                 sprintf(chbuf, "Directory or file does not exist \"%s\"", parameters);
                 log(FTPSERV_DIR, chbuf);
             }
         }
-    }
-
-    else if (!strcmp(command, "PWD")) 
-    {  //  PWD - Print Directory
-        client.println("257 \"" + String(cwdName) + "\" is your current directory");
     }
 
     else if (!strcmp(command, "QUIT")) 
@@ -489,7 +488,7 @@ boolean FtpServer::processCommand()
         {
             client.println("501 No file name");
         }
-        else if (makePath(path)) 
+        else if (makePath(path))
         {
             if (!_fs->exists(path))
             {
@@ -510,6 +509,10 @@ boolean FtpServer::processCommand()
                     log(FTPSERV_DEL, chbuf); 
                 }
             }
+        }
+        else
+        {
+            client.println("450 Can't delete " + String(parameters));
         }
     }
 
@@ -695,6 +698,7 @@ boolean FtpServer::processCommand()
                 millisBeginTrans = millis();
                 bytesTransfered = 0;
                 transferStatus = 1;
+                ftp_val = 0;
             }
         }
     }
@@ -729,6 +733,7 @@ boolean FtpServer::processCommand()
                 millisBeginTrans = millis();
                 bytesTransfered = 0;
                 transferStatus = 2;
+                ftp_val = 0;
             }
         }
     }
@@ -738,21 +743,26 @@ boolean FtpServer::processCommand()
         sprintf(chbuf, "MKD P=%s, CWD=%s", parameters, cwdName);
         log(FTPSERV_MKDIR, chbuf);
 
-        String dir;
-        if (!strcmp(cwdName, "/")) dir = String("/") + parameters;  // avoid "\\newdir"
-        else                       dir = String(cwdName) + "/" + parameters;
-
-        sprintf(chbuf, "try to create  %s", dir.c_str());
-        log(FTPSERV_MKDIR, chbuf);
-
-        if(_fs->mkdir(dir.c_str())) 
+        char path[FTP_CWD_SIZE];
+        if (makePath(path))
         {
-            client.println("257 \"" + String(parameters) + "\" - Directory successfully created");
+            sprintf(chbuf, "try to create  %s", path);
+            log(FTPSERV_MKDIR, chbuf);
+
+            if(_fs->mkdir(path)) 
+            {
+                client.println("257 \"" + String(parameters) + "\" - Directory successfully created");
+            }
+            else 
+            {
+                client.println("502 Can't create \"" + String(parameters));
+            }
         }
-        else 
+        else
         {
             client.println("502 Can't create \"" + String(parameters));
         }
+
     }
 
     else if(!strcmp(command, "RMD")) 
@@ -760,13 +770,19 @@ boolean FtpServer::processCommand()
         sprintf(chbuf, "RMD P=%s, CWD=%s", parameters, cwdName);
         log(FTPSERV_RMDIR, chbuf);
 
-        String dir;
-
-        if (!strcmp(cwdName, "/")) dir = String("/") + parameters;   // avoid "\\newdir"
-        else                       dir = String(cwdName) + "/" + parameters;
-
-        if (_fs->rmdir(dir.c_str())) client.println("250 RMD command successful");
-        else                         client.println("502 Can't delete \"" + String(parameters));  //not support on espyet
+        char path[FTP_CWD_SIZE];
+        if (makePath(path))
+        {
+            if (_fs->rmdir(path)) {
+                client.println("250 RMD command successful");
+            } else {
+                client.println("502 Can't delete \"" + String(parameters));  //not support on espyet
+            }
+        }
+        else
+        {
+            client.println("502 Can't delete \"" + String(parameters));  //not support on espyet
+        }
     }
 
     else if (!strcmp(command, "RNFR")) 
@@ -917,6 +933,7 @@ boolean FtpServer::doRetrieve()
         log(FTPSERV_SENDING, "sending");
         data.write((uint8_t*) buf, nb);
         bytesTransfered += nb;
+        ftp_val = bytesTransfered;
         return true;
     }
     closeTransfer();
@@ -950,6 +967,7 @@ boolean FtpServer::doStore()
             size_t written = file.write((uint8_t*) buf, nb);
             UNUSED(written);
             bytesTransfered += nb;
+            ftp_val = bytesTransfered;
         }
         else 
         {
@@ -1069,9 +1087,9 @@ boolean FtpServer::makePath(char *fullName) {
 }
 
 
-//----------------------------------------------------------------------------------------------------------------------
 boolean FtpServer::makePath(char *fullName, char *param) {
-    if(param == NULL) param = parameters;
+    if (param == NULL) 
+        param = parameters;
 
     // Root or empty?
     if(strcmp(param, "/") == 0 || strlen(param) == 0) {
@@ -1079,17 +1097,20 @@ boolean FtpServer::makePath(char *fullName, char *param) {
         return true;
     }
     // If relative path, concatenate with current dir
-    if(param[0] != '/') {
+    if (param[0] != '/') {
         strcpy(fullName, cwdName);
         if(fullName[strlen(fullName) - 1] != '/') strncat(fullName, "/", FTP_CWD_SIZE);
         strncat(fullName, param, FTP_CWD_SIZE);
-    }
-    else
+    } else {
         strcpy(fullName, param);
+    }
+
     // If ends with '/', remove it
     uint16_t strl = strlen(fullName) - 1;
-    if(fullName[strl] == '/' && strl > 1) fullName[strl] = 0;
-    if(strlen(fullName) < FTP_CWD_SIZE) return true;
+    if (fullName[strl] == '/' && strl > 1) 
+        fullName[strl] = 0;
+    if (strlen(fullName) < FTP_CWD_SIZE) 
+        return true;
 
     client.println("500 Command line too long");
     return false;

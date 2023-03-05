@@ -52,5 +52,7 @@
         "ios": "cpp",
         "locale": "cpp",
         "cinttypes": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false,
+    "C_Cpp.errorSquiggles": "disabled"
 }

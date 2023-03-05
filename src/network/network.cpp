@@ -69,6 +69,13 @@ void ftp_callback(int event, const char* text)
         case FTPSERV_CLIENT_CONNECTED:
             player->freeze();
             writeflag = false;
+            player->page_change(PAGE_SYS);
+            {
+                Page* page = *player->page_ptr(PAGE_SYS);
+                PageSys* psys = (PageSys*)page;
+                psys->show_ftp();
+            }
+            [[fallthrough]]
         case FTPSERV_READY:
             sys.net(NET_MODE_FTP);
             break;
@@ -101,6 +108,7 @@ void ftp_callback(int event, const char* text)
             {
                 player->unfreeze();
             }
+            player->page_change(PAGE_INFO);
             sys.net(WiFi.getMode());
             break;
     }
@@ -398,8 +406,8 @@ void services_loop()
 void network_init()
 {
 #ifdef NETWORK_ENABLED
-    wifi_ap();
-    //wifi_sta();
+    //wifi_ap();
+    wifi_sta2();
 
     services_init();
 #endif
