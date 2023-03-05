@@ -7,6 +7,7 @@
 #include "prefs.h"
 #include "strcache.h"
 #include "playlist.h"
+#include "controls.h"
 
 #include "gui.h"
 #include "page_fav.h"
@@ -489,14 +490,14 @@ void PlayerPrivate::loop()
 void Player::freeze()
 {
     p->sound->pause();
-//    controls_pause();
+    controls_pause();
 }
 
 
 void Player::unfreeze()
 {
     p->sound->resume();
-//    controls_resume();
+    controls_resume();
 }
 
 

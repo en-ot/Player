@@ -271,7 +271,7 @@ bool PageSysPrivate::vol(int by)
 
     if (sel == 3)
     {
-        network_reconnect(by > 0 ? 1 : 0);
+        network_reconnect(by > 0 ? WIFI_MODE_HOME : WIFI_MODE_PHONE);
     }
     return true;
 }
@@ -286,6 +286,11 @@ void PageSysPrivate::vol_short()
         calc_sd_free_size();
         prefs_save_main(player->cur_fav_num, player->prev_fav_num, sys.sd_free_mb);
         prefs_open_fav(player->cur_fav_num);
+    }
+
+    if (sel == 3)
+    {
+        network_reconnect(WIFI_MODE_STA0);
     }
 }
 

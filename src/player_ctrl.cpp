@@ -10,22 +10,39 @@
 #include "globals.h"
 
 
-bool process_key(int key)
+bool process_key(int key, CtrlPage *page)
 {
     player->next_file = player->cur_file(PLAYING) + 1;
 
     switch (key)
     {
-    case 'd':   player->play_dir_next();    break;
-    case 'a':   player->play_dir_prev();    break;
-    case 'e':   player->toggle_pause();     break;
-    case 'q':   player->fav_prev();   break;
+    case 'q':   page->b1_short(); break;
+    case 'Q':   page->b1_long(); break;
+    case 'a':   page->b2_short(); break;
+    case 'A':   page->b2_long(); break;
+    case 'z':   page->b3_short(); break;
+    case 'Z':   page->b3_long(); break;
+    case 'w':   page->vol(1); break;
+    case 's':   page->vol(-1); break;
+    case 'x':   page->vol_short(); break;
+    case 'X':   page->vol_long(); break;
+    case 'e':   page->seek(1); break;
+    case 'd':   page->seek(-1); break;
+    case 'c':   page->seek_short(); break;
+    case 'C':   page->seek_long(); break;
 
-    case 'f':   player->reset_to_defaults();    break;
+//    case 'd':   player->play_dir_next();    break;
+//    case 'a':   player->play_dir_prev();    break;
+//    case 'e':   player->toggle_pause();     break;
+//    case 'q':   player->fav_prev();   break;
+
+    case 'R':   player->reset_to_defaults();    break;
     // case 'c':   controls_calibrate(1);          break;
     // case 'v':   controls_calibrate(2);          break;
 
-    case 'r':
+    case 'r':   ESP.restart(); break;
+
+    case 'F':
     {
         // if (SD.begin())
         // {
@@ -61,7 +78,7 @@ bool CtrlPage::input(PlayerInputType type, int key)
         return seek(key);
 
     if (type == I_KEY)
-        return process_key(key);
+        return process_key(key, this);
 
     if (type != I_BUTTON) 
         return false;

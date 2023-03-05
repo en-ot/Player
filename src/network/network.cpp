@@ -8,8 +8,12 @@
 #include "credentials.h"
 
 const char* host = "player";
-const char* ssid = WIFI_SSID;
-const char* password = WIFI_PASSWD;
+
+const char* sta_ssid1 = WIFI_STA_SSID1;
+const char* sta_password1 = WIFI_STA_PASSWD1;
+
+const char* sta_ssid2 = WIFI_STA_SSID2;
+const char* sta_password2 = WIFI_STA_PASSWD2;
 
 const char* ap_ssid = WIFI_AP_SSID;
 const char* ap_password = WIFI_AP_PASSWD;
@@ -55,7 +59,10 @@ bool writeflag = false;
 
 void ftp_callback(int event, const char* text)
 {
-    Serial.printf("ftpdebug %d: %s\n", event, text);
+    if (event == FTPSERV_RECEIVING)
+        Serial.print(".");
+    else
+        Serial.printf("ftp %d: %s\n", event, text);
 
     switch(event)
     {
@@ -304,11 +311,19 @@ void wifi_ap()
 }
 
 
-void wifi_sta()
+void wifi_sta1()
 {
     DEBUG("Connecting as STA\n");
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+    WiFi.begin(sta_ssid1, sta_password1);
+}
+
+
+void wifi_sta2()
+{
+    DEBUG("Connecting as STA\n");
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(sta_ssid2, sta_password2);
 }
 
 
@@ -393,19 +408,26 @@ void network_init()
 
 uint32_t net_t0 = 0;
 
-void network_reconnect(bool ap)
+void network_reconnect(int net_index)
 {
 #ifdef NETWORK_ENABLED
     wifi_off();
 
-    if (ap)
+    switch (net_index)
     {
+    case WIFI_MODE_STA0:
         wifi_ap();
+        break;
+
+    case WIFI_MODE_HOME:
+        wifi_sta1();
+        break;
+
+    case WIFI_MODE_PHONE:
+        wifi_sta2();
+        break;
     }
-    else
-    {
-        wifi_sta();
-    }
+
     net_t0 = millis();
 #endif
 }

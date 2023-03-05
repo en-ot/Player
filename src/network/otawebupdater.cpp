@@ -1,6 +1,7 @@
 #include <WiFiClient.h>
 
 #include "otawebupdater.h"
+#include "credentials.h"
 
 WebServer server(80);
 
@@ -76,7 +77,7 @@ const char* loginIndex =
 "<script>"
     "function check(form)"
     "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')"
+    "if(form.userid.value=='" OTA_USER "' && form.pwd.value=='" OTA_PASSWORD "')"
     "{"
     "window.open('/serverIndex')"
     "}"

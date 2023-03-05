@@ -45,12 +45,14 @@ bool controls_defaults()
 
 void controls_pause()
 {
+    DEBUG("controsl paused\n");
     vTaskSuspend(enc_task_handle);
 }
 
 
 void controls_resume()
 {
+    DEBUG("controsl resumed\n");
     vTaskResume(enc_task_handle);
 }
 

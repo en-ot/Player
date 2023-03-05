@@ -82,7 +82,12 @@ int prefs_get_path(int fav_num, char * path, int len)
     int tmpfav = curfav;
 
     prefs_open_fav(fav_num);
-    int size = prefs.getString(prefs_key_path, path, len);
+
+    int size = 0;
+    if (prefs.isKey(prefs_key_path)) {
+        size = prefs.getString(prefs_key_path, path, len);
+    }
+
     if (!size)
     {
         strcpy(path, "/");

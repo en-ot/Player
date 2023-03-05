@@ -192,7 +192,7 @@ void Sound::loop()
     static uint32_t t_fileseek = 0;
     #define T_FILEPOS_DELAY 500
     #define T_FILESEEK_DELAY 500
-    static uint32_t old_duration = 0; 
+    static uint32_t old_duration = 0;
 
     int duration = p->audio->getAudioFileDuration();
     uint32_t t = millis();
