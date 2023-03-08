@@ -11,6 +11,7 @@ public:
     PageDirs(Gui * gui);
     void box(int dircnt);
     void goto_cur();
+    void go_to(int line);
     void activate();
     void update();
 

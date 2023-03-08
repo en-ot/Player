@@ -14,7 +14,7 @@
 #include "gui_files.h"
 
 #include "page_fav.h"
-
+#include "page_dirs.h"
 #include "page_files.h"
 
 
@@ -35,6 +35,7 @@ public:
     void dir_next();
     void play_sel();
     void set_fav();
+    void show_dir();
 
     gslc_tsElem                 elem[FILES_ELEM_MAX];
     gslc_tsElemRef              files_ref[FILES_ELEM_MAX];
@@ -62,6 +63,7 @@ public:
     void b1_short()         {       player->page_next();}
     bool vol(int change)    {return g->pgupdn(change);}
     void vol_short()        {       p->goto_cur();}
+    void vol_long()         {       g->show_dir();}
     bool seek(int by)       {return g->seek(by);}
     void seek_long()        {       g->set_fav();}
     void seek_short()       {       g->play_sel();}
@@ -135,9 +137,26 @@ void PageFilesPrivate::dir_next()
 }
 
 
+void PageFiles::go_to(int line)
+{
+    DEBUG("files line:%d\n", line);
+    g->select(line, true);
+}
+
+
 void PageFiles::goto_cur()
 {
-    g->select(player->cur_file(PLAYING), true);
+    go_to(player->cur_file(PLAYING));
+}
+
+
+void PageFilesPrivate::show_dir()
+{
+    player->page_change(PAGE_DIRS);
+    Page* page = *player->page_ptr(PAGE_DIRS);
+    PageDirs * page_dirs = (PageDirs*)page;
+    player->file_is_dir(LIST, sel);
+    page_dirs->go_to(player->cur_dir(LIST));
 }
 
 

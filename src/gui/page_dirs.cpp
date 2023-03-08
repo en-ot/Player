@@ -14,6 +14,7 @@
 #include "gui_dirs.h"
 
 #include "page_fav.h"
+#include "page_files.h"
 #include "page_dirs.h"
 
 
@@ -32,6 +33,7 @@ public:
     bool pgupdn(int by);
     void set_fav();
     void play_sel();
+    void show_file();
 
     int dir_file_num(int dirs_sel);
 
@@ -58,6 +60,7 @@ public:
     void b1_short()         {       player->page_next();}
     bool vol(int change)    {return g->pgupdn(change);}
     void vol_short()        {       p->goto_cur();}
+    void vol_long()         {       g->show_file();}
     bool seek(int by)       {return g->seek(by);}
     void seek_long()        {       g->set_fav();}
     void seek_short()       {       g->play_sel();}
@@ -200,9 +203,25 @@ bool PageDirsPrivate::seek(int by)
 }
 
 
+void PageDirs::go_to(int line)
+{
+    DEBUG("dirs line:%d\n", line);
+    g->select(line, true);
+}
+
+
 void PageDirs::goto_cur()
 {
-    g->select(player->cur_dir(PLAYING), true);
+    go_to(player->cur_dir(PLAYING));
+}
+
+
+void PageDirsPrivate::show_file()
+{
+    player->page_change(PAGE_FILES);
+    Page* page = *player->page_ptr(PAGE_FILES);
+    PageFiles* page_files = (PageFiles*)page;
+    page_files->go_to(dir_file_num(sel));
 }
 
 
