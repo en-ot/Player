@@ -4230,31 +4230,34 @@ uint8_t Audio::getVolume() {
     return m_vol;
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 //en-ot replaygain
 void Audio::setReplayGain(float gain)
 {
     m_replaygain = gain;
 }
+
 //---------------------------------------------------------------------------------------------------------------------
+//en-ot replaygain
 int32_t Audio::Gain(int16_t s[2]) {
     int32_t v[2];
-    float step = (float)m_vol * m_replaygain * (1./64.);	//en-ot
-    uint8_t l = 0, r = 0;
+    float x_vol = m_vol * m_replaygain;
+    float step = x_vol * (1./64.);
+    float l = 0, r = 0;
 
     if(m_balance < 0){
-        step = step * (float)(abs(m_balance) * 4);
-        l = (uint8_t)(step);
+        l = step * (float)(abs(m_balance) * 4);
     }
     if(m_balance > 0){
-        step = step * m_balance * 4;
-        r = (uint8_t)(step);
+        r = step * m_balance * 4;
     }
 
-    v[LEFTCHANNEL] = (s[LEFTCHANNEL]  * (m_vol - l)) >> 6;
-    v[RIGHTCHANNEL]= (s[RIGHTCHANNEL] * (m_vol - r)) >> 6;
+    v[LEFTCHANNEL] = (int)(s[LEFTCHANNEL]  * (x_vol - l)) >> 6;
+    v[RIGHTCHANNEL]= (int)(s[RIGHTCHANNEL] * (x_vol - r)) >> 6;
 
     return (v[RIGHTCHANNEL] << 16) | (v[LEFTCHANNEL] & 0xffff);
 }
+
 //---------------------------------------------------------------------------------------------------------------------
 uint32_t Audio::inBufferFilled() {
     // current audio input buffer fillsize in bytes

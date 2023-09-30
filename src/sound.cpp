@@ -334,9 +334,9 @@ void SoundPrivate::id3data(const char *info)
             float gain = 0;
             if (sscanf(&info[i], "%f", &gain))
             {
-                //DEBUG("Replay gain %f\n", gain);
-                gain = pow10f(-0.05*gain);
                 DEBUG("Replay gain %f\n", gain);
+                gain = pow10f(0.05*gain);
+//                DEBUG("Multiply by %f\n", gain);
                 audio->setReplayGain(gain);
                 _is_gain = true;
             }
